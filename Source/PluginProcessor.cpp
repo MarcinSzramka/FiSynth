@@ -27,12 +27,6 @@ FiSynthAudioProcessor::createParameterLayout()
         juce::NormalisableRange<float> { 0.0f, 1.0f, 0.001f },
         0.8f));
 
-    params.push_back (std::make_unique<juce::AudioParameterFloat> (
-        juce::ParameterID { "stretch", 1 },
-        "Stretch",
-        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f },
-        0.0f));
-
     // ADSR (4 suwaki)
     params.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { "attack", 1 },
@@ -80,6 +74,12 @@ FiSynthAudioProcessor::createParameterLayout()
             prefix + " Mix",
             juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f },
             0.333f));
+
+        params.push_back (std::make_unique<juce::AudioParameterFloat> (
+            juce::ParameterID { prefix + "stretch", 1 },
+            prefix + " Stretch",
+            juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f },
+            0.0f));
     }
 
     // Filter
@@ -184,7 +184,6 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 #endif
 
     // Odczyt parametrów.
-    float stretchValue = apvts.getRawParameterValue ("stretch")->load();
     float attackValue = apvts.getRawParameterValue ("attack")->load();
     float decayValue = apvts.getRawParameterValue ("decay")->load();
     float sustainValue = apvts.getRawParameterValue ("sustain")->load();
@@ -203,7 +202,6 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     {
         if (auto* voice = dynamic_cast<FiSynthVoice*> (synth.getVoice (i)))
         {
-            voice->setStretchAmount (stretchValue);
             voice->setADSR (attackValue, decayValue, sustainValue, releaseValue);
             voice->setFilterParams (filterCutoff, filterResonance, filterType);
             voice->setLFOParams (lfoRate, lfoDepth, lfoShape);
@@ -214,7 +212,8 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                 int waveform = static_cast<int> (*apvts.getRawParameterValue (prefix + "waveform"));
                 float detune = apvts.getRawParameterValue (prefix + "detune")->load();
                 float mix = apvts.getRawParameterValue (prefix + "mix")->load();
-                voice->setOscillatorParams (o, waveform, detune, mix);
+                float stretch = apvts.getRawParameterValue (prefix + "stretch")->load();
+                voice->setOscillatorParams (o, waveform, detune, mix, stretch);
             }
         }
     }

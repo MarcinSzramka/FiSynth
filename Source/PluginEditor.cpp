@@ -12,14 +12,6 @@ FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor&
     addAndMakeVisible (gainLabel);
     gainAttachment = std::make_unique<SliderAttachment> (processorRef.apvts, "gain", gainSlider);
 
-    stretchSlider.setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
-    stretchSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 60, 16);
-    addAndMakeVisible (stretchSlider);
-    stretchLabel.setText ("Stretch", juce::dontSendNotification);
-    stretchLabel.setJustificationType (juce::Justification::centred);
-    addAndMakeVisible (stretchLabel);
-    stretchAttachment = std::make_unique<SliderAttachment> (processorRef.apvts, "stretch", stretchSlider);
-
     // ADSR
     auto setupADSRSlider = [this] (juce::Slider& slider, juce::Label& label, const juce::String& name)
     {
@@ -72,6 +64,14 @@ FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor&
         addAndMakeVisible (oscs[o].mixLabel);
         oscs[o].mixAttachment = std::make_unique<OscControl::SliderAttachment> (
             processorRef.apvts, prefix + "mix", oscs[o].mixSlider);
+
+        oscs[o].stretchSlider.setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
+        oscs[o].stretchSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 50, 16);
+        addAndMakeVisible (oscs[o].stretchSlider);
+        oscs[o].stretchLabel.setText (prefix + " Stretch", juce::dontSendNotification);
+        addAndMakeVisible (oscs[o].stretchLabel);
+        oscs[o].stretchAttachment = std::make_unique<OscControl::SliderAttachment> (
+            processorRef.apvts, prefix + "stretch", oscs[o].stretchSlider);
     }
 
     // Filter
@@ -142,13 +142,10 @@ void FiSynthAudioProcessorEditor::resized()
 {
     auto area = getLocalBounds().reduced (5);
 
-    // Gain + Stretch
+    // Gain
     auto topRow = area.removeFromTop (80);
-    auto gainArea = topRow.removeFromLeft (topRow.getWidth() / 2);
-    gainLabel.setBounds (gainArea.removeFromTop (20));
-    gainSlider.setBounds (gainArea.withSizeKeepingCentre (100, 100));
-    stretchLabel.setBounds (topRow.removeFromTop (20));
-    stretchSlider.setBounds (topRow.withSizeKeepingCentre (100, 100));
+    gainLabel.setBounds (topRow.removeFromTop (20));
+    gainSlider.setBounds (topRow.withSizeKeepingCentre (100, 100));
 
     // ADSR
     auto adsrRow = area.removeFromTop (20);
@@ -198,7 +195,11 @@ void FiSynthAudioProcessorEditor::resized()
         oscs[o].detuneLabel.setBounds (oscArea.removeFromTop (16));
         oscs[o].detuneSlider.setBounds (oscArea.removeFromLeft (200).removeFromTop (24).reduced (5, 0));
 
-        oscs[o].mixLabel.setBounds (oscArea.removeFromTop (16));
-        oscs[o].mixSlider.setBounds (oscArea.withSizeKeepingCentre (100, 100));
+        auto mixArea = oscArea.removeFromLeft (oscArea.getWidth() / 2);
+        oscs[o].mixLabel.setBounds (mixArea.removeFromTop (16));
+        oscs[o].mixSlider.setBounds (mixArea.withSizeKeepingCentre (90, 90));
+
+        oscs[o].stretchLabel.setBounds (oscArea.removeFromTop (16));
+        oscs[o].stretchSlider.setBounds (oscArea.withSizeKeepingCentre (90, 90));
     }
 }

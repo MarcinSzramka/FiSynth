@@ -15,8 +15,8 @@ public:
 private:
     FiSynthAudioProcessor& processorRef;
 
-    juce::Slider gainSlider, stretchSlider;
-    juce::Label gainLabel, stretchLabel;
+    juce::Slider gainSlider;
+    juce::Label gainLabel;
 
     // ADSR
     juce::Slider attackSlider, decaySlider, sustainSlider, releaseSlider;
@@ -28,13 +28,15 @@ private:
         juce::ComboBox waveformBox;
         juce::Slider detuneSlider;
         juce::Slider mixSlider;
-        juce::Label waveformLabel, detuneLabel, mixLabel;
+        juce::Slider stretchSlider;
+        juce::Label waveformLabel, detuneLabel, mixLabel, stretchLabel;
 
         using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
         using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
         std::unique_ptr<ComboBoxAttachment> waveformAttachment;
         std::unique_ptr<SliderAttachment> detuneAttachment;
         std::unique_ptr<SliderAttachment> mixAttachment;
+        std::unique_ptr<SliderAttachment> stretchAttachment;
     } oscs[3];
 
     // Filter
@@ -50,7 +52,6 @@ private:
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     std::unique_ptr<SliderAttachment> gainAttachment;
-    std::unique_ptr<SliderAttachment> stretchAttachment;
     std::unique_ptr<SliderAttachment> attackAttachment;
     std::unique_ptr<SliderAttachment> decayAttachment;
     std::unique_ptr<SliderAttachment> sustainAttachment;

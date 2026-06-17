@@ -20,19 +20,15 @@ public:
         return dynamic_cast<FiSynthSound*> (sound) != nullptr;
     }
 
-    void setOscillatorParams (int oscIndex, int waveform, float detuneAmount, float mix)
+    void setOscillatorParams (int oscIndex, int waveform, float detuneAmount, float mix, float stretch)
     {
         if (oscIndex >= 0 && oscIndex < 3)
         {
             oscs[oscIndex].waveform = juce::jlimit (0, 5, waveform);
             oscs[oscIndex].detune = detuneAmount;
             oscs[oscIndex].mix = juce::jlimit (0.0f, 1.0f, mix);
+            oscs[oscIndex].stretch = juce::jlimit (0.0f, 1.0f, stretch);
         }
-    }
-
-    void setStretchAmount (float stretch)
-    {
-        stretchAmount = juce::jlimit (0.0f, 1.0f, stretch);
     }
 
     void setADSR (float a, float d, float s, float r)
@@ -77,7 +73,7 @@ public:
 
                 float freqHarmonic = oscFreq * (n + 1.0f);
                 float freqPhi = oscFreq * std::pow (phi, (float)n);
-                float freqStretched = freqHarmonic + (freqPhi - freqHarmonic) * stretchAmount;
+                float freqStretched = freqHarmonic + (freqPhi - freqHarmonic) * oscs[o].stretch;
 
                 oscs[o].angleDelta[n] = (freqStretched / getSampleRate()) * juce::MathConstants<double>::twoPi;
             }
@@ -215,11 +211,11 @@ private:
         int waveform { 0 };
         float detune { 0.0f };
         float mix { 0.333f };
+        float stretch { 0.0f };
     } oscs[3];
 
     double frequency { 0.0 };
     float level { 0.0f };
-    float stretchAmount { 0.0f };
 
     // Filter
     juce::dsp::StateVariableTPTFilter<float> filter;
