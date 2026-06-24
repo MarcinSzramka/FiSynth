@@ -30,7 +30,8 @@ juce_generate_juce_header(FiSynth)
 
 target_sources(FiSynth PRIVATE
     Source/PluginProcessor.cpp
-    Source/PluginEditor.cpp)
+    Source/PluginEditor.cpp
+    Source/EnvelopeEditor.cpp)
 
 target_compile_definitions(FiSynth PUBLIC
     JUCE_WEB_BROWSER=0
