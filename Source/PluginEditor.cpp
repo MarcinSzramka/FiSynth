@@ -684,20 +684,33 @@ void FiSynthAudioProcessorEditor::paintContent (juce::Graphics& g)
     section (spectrumBounds, fiCol::viz);
     section (phylloBounds,   fiCol::stereo);
 
-    // Logo: złote kafle (Fibonacci 8 5 3 2 1 1 + spirala) + wordmark "fibo".
+    // Logo na całą wysokość górnego paska: złote kafle (Fibonacci 8 5 3 2 1 1
+    // + spirala), obok wordmark "fibo" z podtytułem GOLDEN FIBO — pełny lockup
+    // jak w Assets/fibo-logo-full.svg.
     {
-        auto logoRow = gainBounds.withTrimmedLeft (4).withHeight (30).toFloat();
-        fiDrawLogo (g, logoRow.removeFromLeft (44.0f).reduced (0.0f, 2.5f));
+        auto logoArea = gainBounds.reduced (10, 9).toFloat();
 
-        logoRow.removeFromLeft (8.0f);
-        const juce::Font f (juce::FontOptions (23.0f).withStyle ("Bold"));
+        // Kafle: pełna wysokość, proporcje 13:8.
+        const float markW = logoArea.getHeight() * 13.0f / 8.0f;
+        fiDrawLogo (g, logoArea.removeFromLeft (markW));
+        logoArea.removeFromLeft (14.0f);
+
+        // Wordmark "fibo" (dwutonowy) + GOLDEN FIBO pod spodem.
+        auto textBlock = logoArea.withSizeKeepingCentre (logoArea.getWidth(),
+                                                         52.0f);
+        auto line1 = textBlock.removeFromTop (36.0f);
+        const juce::Font f (juce::FontOptions (34.0f).withStyle ("Bold"));
         g.setFont (f);
-        // "o" doklejone dokładnie za zmierzoną szerokością "fib" (dwutonowy wordmark).
         const float wFib = juce::GlyphArrangement::getStringWidth (f, "fib");
         g.setColour (fiCol::text);
-        g.drawText ("fib", logoRow, juce::Justification::centredLeft);
+        g.drawText ("fib", line1, juce::Justification::centredLeft);
         g.setColour (fiCol::gold);
-        g.drawText ("o", logoRow.withTrimmedLeft (wFib), juce::Justification::centredLeft);
+        g.drawText ("o", line1.withTrimmedLeft (wFib), juce::Justification::centredLeft);
+
+        g.setFont (juce::Font (juce::FontOptions (10.5f).withStyle ("Bold")));
+        g.setColour (fiCol::gold.withAlpha (0.85f));
+        g.drawText ("G O L D E N  F I B O", textBlock.withTrimmedLeft (2.0f),
+                    juce::Justification::topLeft);
     }
 }
 
@@ -723,40 +736,45 @@ void FiSynthAudioProcessorEditor::layoutContent()
         keyboard.setBounds (kbArea);
     }
 
-    // === GÓRNY PASEK: logo Fibo + tempo + Volume ===
+    // === GÓRNY PASEK: duże logo (pełna wysokość) | kontrolki | Volume ===
     gainBounds = area.removeFromTop (90);
     auto topBar = gainBounds;
 
-    // Volume po prawej, żeby nie zasłaniać logo.
+    // Volume po prawej.
     auto volCol = topBar.removeFromRight (110);
     gainLabel.setBounds (volCol.removeFromTop (16));
     gainSlider.setBounds (volCol.withSizeKeepingCentre (84, 74));
 
-    // Lewa strona: logo na górze (rysowane w paint), kontrolki tempa pod nim.
-    // Pasek presetów leży w tym samym strip co logo, po prawej od napisu "Fibo".
+    // Logo z lewej na całą wysokość paska (rysowane w paintContent) —
+    // wszystkie kontrolki zaczynają się dopiero za nim.
+    topBar.removeFromLeft (248);
+
+    // Dwa wiersze wycentrowane w pionie: presety/About + tempo/arp.
+    topBar.removeFromTop (12);
     {
-        auto logoStrip = topBar.removeFromTop (32).reduced (0, 3);
-        logoStrip.removeFromLeft (116);  // miejsce na logo (kafle + "fibo")
-        presetNewButton.setBounds (logoStrip.removeFromLeft (48).reduced (1, 0));
-        logoStrip.removeFromLeft (8);
+        auto logoStrip = topBar.removeFromTop (30).reduced (0, 2);
+        presetNewButton.setBounds (logoStrip.removeFromLeft (52).reduced (1, 0));
+        logoStrip.removeFromLeft (10);
         presetPrevButton.setBounds (logoStrip.removeFromLeft (26).reduced (1, 0));
-        presetBox.setBounds       (logoStrip.removeFromLeft (200).reduced (3, 0));
+        presetBox.setBounds       (logoStrip.removeFromLeft (210).reduced (3, 0));
         presetNextButton.setBounds (logoStrip.removeFromLeft (26).reduced (1, 0));
-        logoStrip.removeFromLeft (10);
-        presetSaveButton.setBounds (logoStrip.removeFromLeft (66).reduced (2, 0));
-        logoStrip.removeFromLeft (10);
-        aboutButton.setBounds (logoStrip.removeFromLeft (64).reduced (2, 0));
+        logoStrip.removeFromLeft (14);
+        presetSaveButton.setBounds (logoStrip.removeFromLeft (68).reduced (2, 0));
+        logoStrip.removeFromLeft (14);
+        aboutButton.setBounds (logoStrip.removeFromLeft (66).reduced (2, 0));
     }
+    topBar.removeFromTop (6);
     auto tempoRow = topBar.removeFromTop (26);
     tempoSyncButton.setBounds (tempoRow.removeFromLeft (110).reduced (4, 0));
-    envSyncButton.setBounds (tempoRow.removeFromLeft (60).reduced (4, 0));
-    envSnapButton.setBounds (tempoRow.removeFromLeft (60).reduced (4, 0));
-    envGridBox.setBounds (tempoRow.removeFromLeft (64).reduced (4, 1));
+    envSyncButton.setBounds (tempoRow.removeFromLeft (62).reduced (4, 0));
+    envSnapButton.setBounds (tempoRow.removeFromLeft (62).reduced (4, 0));
+    envGridBox.setBounds (tempoRow.removeFromLeft (66).reduced (4, 1));
+    tempoRow.removeFromLeft (8);
     bpmLabel.setBounds (tempoRow.removeFromLeft (38).reduced (2, 0));
     bpmSlider.setBounds (tempoRow.removeFromLeft (110).reduced (2, 1));
 
     // Arpeggiator Fibonacciego — w wierszu tempa (to funkcja "performance").
-    tempoRow.removeFromLeft (14);
+    tempoRow.removeFromLeft (18);
     arpOnButton.setBounds (tempoRow.removeFromLeft (76).reduced (2, 0));
     arpDivBox.setBounds (tempoRow.removeFromLeft (64).reduced (2, 1));
     arpLenBox.setBounds (tempoRow.removeFromLeft (52).reduced (2, 1));
