@@ -11,9 +11,83 @@ FiSynthAudioProcessor::FiSynthAudioProcessor()
       apvts (*this, nullptr, "PARAMETERS", createParameterLayout())
 {
     for (int i = 0; i < numVoices; ++i)
-        synth.addVoice (new FiSynthVoice());
+    {
+        auto* voice = new FiSynthVoice();
+        fiVoices.push_back (voice);
+        synth.addVoice (voice);
+    }
 
     synth.addSound (new FiSynthSound());
+
+    // Wymuś budowę tablicy słów Fibonacciego TERAZ (wątek komunikatów) —
+    // leniwa inicjalizacja statyku alokuje i bierze lock, więc nie może odpalić
+    // się pierwszy raz w processBlock (host bez edytora + automacja gateOn).
+    (void) fibonacciWord (0);
+
+    // Ten sam powód dla tablicy ratio partiali: w hostach headless (bez
+    // edytora) pierwszy dotyk fiRatioRow to startNote na wątku audio.
+    (void) fiRatioRow (0);
+
+    // Cache surowych wskaźników parametrów — patrz komentarz przy ParamPtrs.
+    auto rp = [this] (const juce::String& id) { return apvts.getRawParameterValue (id); };
+
+    par.gain            = rp ("gain");
+    par.tempoSync       = rp ("tempoSync");
+    par.bpm             = rp ("bpm");
+    par.envSync         = rp ("envSync");
+    par.envSnap         = rp ("envSnap");
+    par.envGrid         = rp ("envGrid");
+    par.filterCutoff    = rp ("filterCutoff");
+    par.filterResonance = rp ("filterResonance");
+    par.filterType      = rp ("filterType");
+    par.lfoRate         = rp ("lfoRate");
+    par.lfoDepth        = rp ("lfoDepth");
+    par.lfoShape        = rp ("lfoShape");
+    par.lfoSync         = rp ("lfoSync");
+    par.lfoRateDiv      = rp ("lfoRateDiv");
+
+    for (int slot = 0; slot < 3; ++slot)
+    {
+        const juce::String prefix = "env" + juce::String (slot + 1);
+        par.envDest[slot] = rp (prefix + "Dest");
+        par.envAmt[slot]  = rp (prefix + "Amt");
+    }
+
+    par.gateOn    = rp ("gateOn");
+    par.gateDepth = rp ("gateDepth");
+    par.gateDiv   = rp ("gateDiv");
+    par.gateGen   = rp ("gateGen");
+    par.spread    = rp ("spread");
+
+    par.ringMix    = rp ("ringMix");
+    par.fmAmt      = rp ("fmAmt");
+    par.subLevel   = rp ("subLevel");
+    par.unison     = rp ("unison");
+    par.lfoDrift   = rp ("lfoDrift");
+    par.pitchQuant = rp ("pitchQuant");
+
+    par.arpOn  = rp ("arpOn");
+    par.arpDiv = rp ("arpDiv");
+    par.arpLen = rp ("arpLen");
+
+    par.dlyOn       = rp ("dlyOn");
+    par.dlySync     = rp ("dlySync");
+    par.dlyTime     = rp ("dlyTime");
+    par.dlyDiv      = rp ("dlyDiv");
+    par.dlyFeedback = rp ("dlyFeedback");
+    par.dlyMix      = rp ("dlyMix");
+
+    for (int o = 0; o < 3; ++o)
+    {
+        const juce::String prefix = "osc" + juce::String (o + 1);
+        par.osc[o].waveform    = rp (prefix + "waveform");
+        par.osc[o].detune      = rp (prefix + "detune");
+        par.osc[o].mix         = rp (prefix + "mix");
+        par.osc[o].stretch     = rp (prefix + "stretch");
+        par.osc[o].stretchMode = rp (prefix + "stretchmode");
+        par.osc[o].goldInt     = rp (prefix + "goldint");
+        par.osc[o].tilt        = rp (prefix + "tilt");
+    }
 
     for (int i = 0; i < kNumEnvelopes; ++i)
     {
@@ -35,6 +109,7 @@ void FiSynthAudioProcessor::commitEnvelope (int idx)
         sharedSnapshots[idx] = envModels[idx].makeSnapshot();
     }
     envDirty.store (true);
+    envEditCount.fetch_add (1);
 }
 
 void FiSynthAudioProcessor::convertEnvelopeTimes (double factor)
@@ -68,8 +143,7 @@ FiSynthAudioProcessor::createParameterLayout()
         juce::ParameterID { "envSync", 1 }, "Env Tempo Sync", false));
 
     params.push_back (std::make_unique<juce::AudioParameterChoice> (
-        juce::ParameterID { "envGrid", 1 }, "Env Grid",
-        juce::StringArray { "1/4", "1/8", "1/16", "1/32", "1/8T", "1/16T" }, 2));
+        juce::ParameterID { "envGrid", 1 }, "Env Grid", divisionLabels(), 2));
 
     params.push_back (std::make_unique<juce::AudioParameterBool> (
         juce::ParameterID { "envSnap", 1 }, "Env Snap To Grid", true));
@@ -87,11 +161,14 @@ FiSynthAudioProcessor::createParameterLayout()
     {
         juce::String prefix = "env" + juce::String (slot + 1);
 
+        // Kolejność = enum FiSynthVoice::ModDest; nowe cele TYLKO na końcu
+        // (APVTS serializuje wartość plain, więc stare presety zostają ważne).
         params.push_back (std::make_unique<juce::AudioParameterChoice> (
             juce::ParameterID { prefix + "Dest", 1 },
             "Env Dest " + juce::String (slot + 1),
             juce::StringArray { "None", "Filter Cutoff", "Pitch", "Osc Mix", "Resonance",
-                                "Stretch 1", "Stretch 2", "Stretch 3" },
+                                "Stretch 1", "Stretch 2", "Stretch 3",
+                                "FM", "Tilt 1", "Tilt 2", "Tilt 3" },
             0));
 
         params.push_back (std::make_unique<juce::AudioParameterFloat> (
@@ -129,6 +206,53 @@ FiSynthAudioProcessor::createParameterLayout()
             prefix + " Stretch",
             juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f },
             0.0f));
+
+        // Cel stretcha (rozkład częstotliwości partialek, do którego lerpuje suwak):
+        //   0 Golden        = f·φ^n            (w pełni inharmoniczny, rozciągnięty)
+        //   1 Fibonacci     = f·{1,2,3,5,8...} (niskie partialki tonalne, górne inharm.)
+        //   2 Golden Octave = f·φ^log2(n+1)    (oktawa->φ; skompresowany, miękki)
+        //   3 Golden Detune = harmoniczne mikro-rozstrojone kątem złotym (szerokość/chór)
+        //   4/5 Silver/Bronze = f·σ^n          (metaliczne średnie; uogólnienie φ, ostrzejsze)
+        //   6 Golden Stiff  = struna z sztywnością, wykładnik=φ (fortepianowe)
+        //   7 Lucas         = f·Lucas(n)       (siostra Fibonacciego)
+        //   8 Golden Shift  = harmoniczne przesunięte addytywnie o f/φ (klangor)
+        // Parametr jest CIĄGŁY: część ułamkowa crossfade'uje między sąsiednimi
+        // celami (morph z XY pada). ComboBox w GUI dalej działa przez ten sam
+        // parametr — wybór z listy ustawia wartość całkowitą. Stare presety
+        // (indeks 0..8 z dawnego AudioParameterChoice) wczytują się 1:1.
+        params.push_back (std::make_unique<juce::AudioParameterFloat> (
+            juce::ParameterID { prefix + "stretchmode", 1 },
+            prefix + " Stretch Mode",
+            juce::NormalisableRange<float> { 0.0f, (float) (fiNumStretchModes - 1), 0.001f },
+            0.0f));
+
+        // Gruby "złoty interwał": krotność 833.09¢ (=1200·log2 φ) dokładana do
+        // wysokości oscylatora. Pozwala budować akordy w interwałach φ na 3 oscylatorach.
+        // Indeks 0..4 -> k = indeks-2 (czyli -2φ, -φ, Off, +φ, +2φ).
+        // Nazwy przez String(CharPointer_UTF8), nie gołą initializer-listę:
+        // mieszana lista degraduje się do const char* i nie-ASCII literały
+        // wpadają w asercję ASCII w String (juce_String.cpp:327).
+        juce::StringArray goldIntChoices;
+        goldIntChoices.add (juce::String (juce::CharPointer_UTF8 ("\xe2\x88\x92""2\xcf\x86")));  // −2φ
+        goldIntChoices.add (juce::String (juce::CharPointer_UTF8 ("\xe2\x88\x92\xcf\x86")));      // −φ
+        goldIntChoices.add ("Off");
+        goldIntChoices.add (juce::String (juce::CharPointer_UTF8 ("+\xcf\x86")));                 // +φ
+        goldIntChoices.add (juce::String (juce::CharPointer_UTF8 ("+2\xcf\x86")));                // +2φ
+
+        params.push_back (std::make_unique<juce::AudioParameterChoice> (
+            juce::ParameterID { prefix + "goldint", 1 },
+            prefix + " Golden Interval",
+            goldIntChoices,
+            2));
+
+        // Golden Tilt: wykładnik opadania amplitud partiali (aₙ·(n+1)^(1−tilt)).
+        // 1.0 = naturalne widmo waveformu; φ≈1.618 przyciemnia po złotym
+        // wykładniku; <1 rozjaśnia. Skew tak, by 1.0 leżało blisko środka gałki.
+        params.push_back (std::make_unique<juce::AudioParameterFloat> (
+            juce::ParameterID { prefix + "tilt", 1 },
+            prefix + " Golden Tilt",
+            juce::NormalisableRange<float> { 0.25f, 3.0f, 0.001f, 0.55f },
+            1.0f));
     }
 
     // Filter
@@ -163,11 +287,21 @@ FiSynthAudioProcessor::createParameterLayout()
         juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f },
         0.5f));
 
+    // Golden S&H: schodki ciągu Weyla frac(k/φ) — "random", który nigdy się
+    // nie powtarza i równomiernie pokrywa zakres (low-discrepancy).
     params.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { "lfoShape", 1 },
         "LFO Shape",
-        juce::StringArray { "Sine", "Square", "Triangle" },
+        juce::StringArray { "Sine", "Square", "Triangle", "Golden S&H" },
         0));
+
+    // Golden Drift: miks z drugim LFO o rate·φ — stosunek niewymierny, suma
+    // nigdy się nie powtarza (quasi-periodyczny ruch jak drift analogu).
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "lfoDrift", 1 },
+        juce::String (juce::CharPointer_UTF8 ("LFO Golden Drift (\xcf\x86)")),
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f },
+        0.0f));
 
     // LFO sync do tempa: wł. = rate liczone z podziału nut (poniżej), wył. = Hz.
     params.push_back (std::make_unique<juce::AudioParameterBool> (
@@ -177,12 +311,148 @@ FiSynthAudioProcessor::createParameterLayout()
         juce::ParameterID { "lfoRateDiv", 1 }, "LFO Rate (sync)",
         juce::StringArray { "1/1", "1/2", "1/4", "1/8", "1/16", "1/8T", "1/16T" }, 2));
 
+    // === Gate Fibonacciego (trance-gate na wyjściu, pattern = słowo Fibonacciego) ===
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { "gateOn", 1 }, "Fib Gate On", false));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "gateDepth", 1 }, "Fib Gate Depth",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f }, 0.85f));
+
+    params.push_back (std::make_unique<juce::AudioParameterChoice> (
+        juce::ParameterID { "gateDiv", 1 }, "Fib Gate Step", divisionLabels(), 2));
+
+    // Generacja słowa: kolejne podstawienia wydłużają pattern po Fibonaccim.
+    params.push_back (std::make_unique<juce::AudioParameterChoice> (
+        juce::ParameterID { "gateGen", 1 }, "Fib Gate Length",
+        juce::StringArray { "5", "8", "13", "21", "34" }, 2));
+
+    // Szerokość stereo phyllotaxis: pan partiali pod kątem złotym.
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "spread", 1 }, "Stereo Spread",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f }, 0.0f));
+
+    // === Złoty silnik ===
+    // Ring: dry/wet produktu osc1·osc2 (sidebandy f1±f2 wszystkich par partiali).
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "ringMix", 1 }, "Golden Ring",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f }, 0.0f));
+
+    // FM: sinus f·φ moduluje przyrosty faz wszystkich partiali (indeks 0..1).
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "fmAmt", 1 }, "Golden FM",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f }, 0.0f));
+
+    // Sub-partial na f/φ (złota "sub-oktawa": −833.09¢ pod fundamentem).
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "subLevel", 1 }, "Golden Sub",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f }, 0.0f));
+
+    // Unison: bliźniaki dolnych partiali rozstrojone frac(n·φ) (low-discrepancy
+    // detune — chór bez okresowego phasingu), pan odbity L↔R.
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "unison", 1 }, "Golden Unison",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f }, 0.0f));
+
+    // Kwantyzacja modulacji Pitch do krotności złotego interwału 833.09¢.
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { "pitchQuant", 1 },
+        juce::String (juce::CharPointer_UTF8 ("Pitch Quant 833\xc2\xa2")), false));
+
+    // === Arpeggiator Fibonacciego ===
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { "arpOn", 1 }, "Fib Arp On", false));
+
+    params.push_back (std::make_unique<juce::AudioParameterChoice> (
+        juce::ParameterID { "arpDiv", 1 }, "Fib Arp Step", divisionLabels(), 2));
+
+    // Długość cyklu melodii (liczby Fibonacciego).
+    params.push_back (std::make_unique<juce::AudioParameterChoice> (
+        juce::ParameterID { "arpLen", 1 }, "Fib Arp Length",
+        juce::StringArray { "5", "8", "13" }, 1));
+
+    // === Golden Delay ===
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { "dlyOn", 1 }, "Golden Delay On", false));
+
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { "dlySync", 1 }, "Golden Delay Sync", true));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "dlyTime", 1 }, "Golden Delay Time",
+        juce::NormalisableRange<float> { 30.0f, 1500.0f, 1.0f, 0.5f }, 400.0f));
+
+    params.push_back (std::make_unique<juce::AudioParameterChoice> (
+        juce::ParameterID { "dlyDiv", 1 }, "Golden Delay Time (sync)",
+        divisionLabels(), 1));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "dlyFeedback", 1 }, "Golden Delay Feedback",
+        juce::NormalisableRange<float> { 0.0f, 0.9f, 0.01f }, 0.45f));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "dlyMix", 1 }, "Golden Delay Mix",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f }, 0.25f));
+
     return { params.begin(), params.end() };
+}
+
+juce::StringArray FiSynthAudioProcessor::divisionLabels()
+{
+    juce::StringArray labels;
+    for (const auto& d : divisions)
+        labels.add (d.label);
+    return labels;
+}
+
+// Słowo Fibonacciego przez podstawienia S→SL, L→S; genIdx wybiera długość
+// 5/8/13/21/34 (kolejne liczby Fibonacciego). Bit i = 1 gdy krok i to 'S'.
+FiSynthAudioProcessor::FibWord FiSynthAudioProcessor::fibonacciWord (int genIdx)
+{
+    static const auto table = []
+    {
+        std::array<FibWord, 5> t {};
+        std::string w = "S";
+        int idx = 0;
+
+        for (int gen = 0; gen < 12 && idx < 5; ++gen)
+        {
+            std::string next;
+            for (const char c : w)
+                next += (c == 'S') ? "SL" : "S";
+            w = std::move (next);
+
+            static constexpr int wanted[] = { 5, 8, 13, 21, 34 };
+            if ((int) w.length() == wanted[idx])
+            {
+                juce::uint64 bits = 0;
+                for (size_t i = 0; i < w.length(); ++i)
+                    if (w[i] == 'S')
+                        bits |= (juce::uint64) 1 << i;
+                t[(size_t) idx] = { bits, (int) w.length() };
+                ++idx;
+            }
+        }
+        return t;
+    }();
+
+    return table[(size_t) juce::jlimit (0, 4, genIdx)];
 }
 
 void FiSynthAudioProcessor::prepareToPlay (double sampleRate, int /*samplesPerBlock*/)
 {
     synth.setCurrentPlaybackSampleRate (sampleRate);
+
+    // Golden Delay: 2.2 s bufora (maks. czas 1.5 s / 1 beat przy wolnym tempie,
+    // z zapasem na interpolację).
+    delayBuffer.setSize (2, (int) (sampleRate * 2.2) + 16);
+    delayBuffer.clear();
+    delayWritePos = 0;
+    delaySmoothSamples = -1.0f;
+
+    // Bufor filtra MIDI arpa: pojemność z zapasem TERAZ, żeby processArp
+    // nie alokował na wątku audio.
+    arpFiltered.ensureSize (4096);
 
 #if FISYNTH_TEST_MODE
     // Krok sekwencji w próbkach (min. 1, żeby nie zapętlić się w processBlock).
@@ -240,6 +510,10 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     }
 #endif
 
+    // Nuty z klawiatury ekranowej dołączają do strumienia MIDI (i odwrotnie:
+    // eventy z hosta aktualizują stan klawiszy w GUI).
+    keyboardState.processNextMidiBuffer (midiMessages, 0, buffer.getNumSamples(), true);
+
     // Jeśli GUI zmieniło którąkolwiek obwiednię, zabierz świeże migawki (bez
     // blokowania audio — gdy lock zajęty, spróbujemy w następnym bloku).
     if (envDirty.load())
@@ -257,7 +531,7 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // nie podaje tempa, np. standalone) — używamy ręcznego parametru BPM. Gdy
     // envSync wł., obwiednie liczone są w beatach, więc skalujemy je przez
     // sekundy-na-beat (timeScale).
-    const bool tempoSync = apvts.getRawParameterValue ("tempoSync")->load() > 0.5f;
+    const bool tempoSync = par.tempoSync->load() > 0.5f;
 
     double hostBpm = 0.0;
     if (tempoSync)
@@ -266,11 +540,28 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                 if (auto b = pos->getBpm())
                     hostBpm = *b;
 
-    const float manualBpm = apvts.getRawParameterValue ("bpm")->load();
+    const float manualBpm = par.bpm->load();
     const float bpm = hostBpm > 0.0 ? (float) hostBpm : manualBpm;
     currentBpm.store (bpm);
 
-    const bool   envSync   = apvts.getRawParameterValue ("envSync")->load() > 0.5f;
+    // Wspólny zegar beatowy: pozycja startu bloku (ppq hosta gdy transport
+    // gra, inaczej wolnobieżna) liczona RAZ dla gate'a i arpa — jeden czas,
+    // patterny zawsze zazębione.
+    double blockStartBeat = beatPos;
+    if (auto* ph = getPlayHead())
+        if (auto pos = ph->getPosition())
+            if (pos->getIsPlaying())
+                if (auto ppq = pos->getPpqPosition())
+                    blockStartBeat = *ppq;
+
+    const double beatsPerSample = (double) juce::jmax (1.0f, bpm) / 60.0 / getSampleRate();
+    beatPos = blockStartBeat + beatsPerSample * buffer.getNumSamples();
+
+    // Arpeggiator Fibonacciego: przy włączonym arp trzymane klawisze tylko
+    // wybierają root, a nuty generuje zegar krokowy (przed renderem syntezatora).
+    processArp (midiMessages, buffer.getNumSamples(), blockStartBeat, beatsPerSample);
+
+    const bool   envSync   = par.envSync->load() > 0.5f;
     const double timeScale = envSync ? (60.0 / juce::jmax (1.0f, bpm)) : 1.0;
 
     // Routing modulacji obwiedni (3 sloty).
@@ -278,24 +569,23 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     float envAmt[3];
     for (int slot = 0; slot < 3; ++slot)
     {
-        juce::String prefix = "env" + juce::String (slot + 1);
-        envDest[slot] = static_cast<int> (*apvts.getRawParameterValue (prefix + "Dest"));
-        envAmt[slot]  = apvts.getRawParameterValue (prefix + "Amt")->load();
+        envDest[slot] = (int) par.envDest[slot]->load();
+        envAmt[slot]  = par.envAmt[slot]->load();
     }
 
     // Odczyt parametrów.
-    float filterCutoff = apvts.getRawParameterValue ("filterCutoff")->load();
-    float filterResonance = apvts.getRawParameterValue ("filterResonance")->load();
-    int filterType = static_cast<int> (*apvts.getRawParameterValue ("filterType"));
+    float filterCutoff = par.filterCutoff->load();
+    float filterResonance = par.filterResonance->load();
+    int filterType = (int) par.filterType->load();
 
     // LFO rate: w trybie sync liczone z podziału nut pod bieżące BPM
     // (rate[Hz] = (BPM/60) / beaty-na-cykl); inaczej z ręcznego suwaka w Hz.
-    const bool lfoSync = apvts.getRawParameterValue ("lfoSync")->load() > 0.5f;
+    const bool lfoSync = par.lfoSync->load() > 0.5f;
     float lfoRate;
     if (lfoSync)
     {
         float lfoBeats = 1.0f;
-        switch ((int) *apvts.getRawParameterValue ("lfoRateDiv"))
+        switch ((int) par.lfoRateDiv->load())
         {
             case 0: lfoBeats = 4.0f;        break;  // 1/1
             case 1: lfoBeats = 2.0f;        break;  // 1/2
@@ -309,35 +599,53 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         lfoRate = (bpm / 60.0f) / juce::jmax (1.0e-4f, lfoBeats);
     }
     else
-        lfoRate = apvts.getRawParameterValue ("lfoRate")->load();
+        lfoRate = par.lfoRate->load();
 
-    float lfoDepth = apvts.getRawParameterValue ("lfoDepth")->load();
-    int lfoShape = static_cast<int> (*apvts.getRawParameterValue ("lfoShape"));
+    float lfoDepth = par.lfoDepth->load();
+    int lfoShape = (int) par.lfoShape->load();
+    const float lfoDrift = par.lfoDrift->load();
+
+    // Złoty silnik (wspólny dla wszystkich głosów).
+    const float ringMix    = par.ringMix->load();
+    const float fmAmt      = par.fmAmt->load();
+    const float subLevel   = par.subLevel->load();
+    const float unison     = par.unison->load();
+    const bool  pitchQuant = par.pitchQuant->load() > 0.5f;
+
+    // Parametry oscylatorów raz na blok — wspólne dla wszystkich głosów.
+    int   oscWaveform[3];
+    float oscDetune[3], oscMix[3], oscStretch[3], oscStretchMode[3], oscCoarse[3], oscTilt[3];
+    for (int o = 0; o < 3; ++o)
+    {
+        oscWaveform[o]    = (int) par.osc[o].waveform->load();
+        oscDetune[o]      = par.osc[o].detune->load();
+        oscMix[o]         = par.osc[o].mix->load();
+        oscStretch[o]     = par.osc[o].stretch->load();
+        oscStretchMode[o] = par.osc[o].stretchMode->load();   // ciągłe 0..8 (morph)
+        oscCoarse[o]      = fiGoldIntCents ((int) par.osc[o].goldInt->load());
+        oscTilt[o]        = par.osc[o].tilt->load();
+    }
+
+    const float spread = par.spread->load();
 
     // Synchronizuj na wszystkie głosy.
-    for (int i = 0; i < numVoices; ++i)
+    for (auto* voice : fiVoices)
     {
-        if (auto* voice = dynamic_cast<FiSynthVoice*> (synth.getVoice (i)))
-        {
-            for (int e = 0; e < kNumEnvelopes; ++e)
-                voice->setEnvelope (e, &audioSnapshots[e]);
-            voice->setEnvTimeScale (timeScale);
-            voice->setFilterParams (filterCutoff, filterResonance, filterType);
-            voice->setLFOParams (lfoRate, lfoDepth, lfoShape);
+        for (int e = 0; e < kNumEnvelopes; ++e)
+            voice->setEnvelope (e, &audioSnapshots[e]);
+        voice->setEnvTimeScale (timeScale);
+        voice->setFilterParams (filterCutoff, filterResonance, filterType);
+        voice->setLFOParams (lfoRate, lfoDepth, lfoShape, lfoDrift);
+        voice->setStereoSpread (spread);
+        voice->setGoldenParams (fmAmt, ringMix, subLevel, unison, pitchQuant);
 
-            for (int slot = 0; slot < 3; ++slot)
-                voice->setEnvMod (slot, envDest[slot], envAmt[slot]);
+        for (int slot = 0; slot < 3; ++slot)
+            voice->setEnvMod (slot, envDest[slot], envAmt[slot]);
 
-            for (int o = 0; o < 3; ++o)
-            {
-                juce::String prefix = "osc" + juce::String (o + 1);
-                int waveform = static_cast<int> (*apvts.getRawParameterValue (prefix + "waveform"));
-                float detune = apvts.getRawParameterValue (prefix + "detune")->load();
-                float mix = apvts.getRawParameterValue (prefix + "mix")->load();
-                float stretch = apvts.getRawParameterValue (prefix + "stretch")->load();
-                voice->setOscillatorParams (o, waveform, detune, mix, stretch);
-            }
-        }
+        for (int o = 0; o < 3; ++o)
+            voice->setOscillatorParams (o, oscWaveform[o], oscDetune[o], oscMix[o],
+                                        oscStretch[o], oscStretchMode[o], oscCoarse[o],
+                                        oscTilt[o]);
     }
 
     buffer.clear();
@@ -347,18 +655,18 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // (czas bezwzględny + poziom), osobno dla każdej obwiedni.
     {
         int slot = 0;
-        for (int i = 0; i < numVoices && slot < kMaxPlayheads; ++i)
+        for (auto* voice : fiVoices)
         {
-            if (auto* voice = dynamic_cast<FiSynthVoice*> (synth.getVoice (i)))
-            {
-                if (voice->isEnvActive())
-                {
-                    for (int e = 0; e < kNumEnvelopes; ++e)
-                        envPlayheadTime[e][slot].store (voice->getEnvTime (e));
+            if (slot >= kMaxPlayheads)
+                break;
 
-                    envPlayheadNote[slot].store (voice->getCurrentlyPlayingNote());
-                    ++slot;
-                }
+            if (voice->isEnvActive())
+            {
+                for (int e = 0; e < kNumEnvelopes; ++e)
+                    envPlayheadTime[e][slot].store (voice->getEnvTime (e));
+
+                envPlayheadNote[slot].store (voice->getCurrentlyPlayingNote());
+                ++slot;
             }
         }
 
@@ -371,9 +679,308 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         }
     }
 
-    const float gain = apvts.getRawParameterValue ("gain")->load();
+    // Gate Fibonacciego przed master gainem; FIFO widma bierze to, co słychać.
+    applyFibGate (buffer, blockStartBeat, beatsPerSample);
+
+    // Golden Delay za gate'em (bramka tnie sygnał, delay rozmywa echa —
+    // odwrotna kolejność zjadałaby ogony taktem bramki).
+    applyGoldenDelay (buffer, bpm);
+
+    const float gain = par.gain->load();
     buffer.applyGainRamp (0, buffer.getNumSamples(), previousGain, gain);
     previousGain = gain;
+
+    pushAnalyzerSamples (buffer);
+}
+
+void FiSynthAudioProcessor::applyFibGate (juce::AudioBuffer<float>& buffer,
+                                          double blockStartBeat, double beatsPerSample)
+{
+    const bool on = par.gateOn->load() > 0.5f;
+
+    // Po wyłączeniu dogrywamy ramp do 1.0, żeby nie zostawić skoku głośności.
+    if (! on && gateEnv > 0.999f)
+    {
+        gateStep.store (-1);
+        return;
+    }
+
+    const auto  word      = fibonacciWord ((int) par.gateGen->load());
+    const float depth     = par.gateDepth->load();
+    const auto  flips     = gateFlips.load();
+    const float stepBeats = divisionToBeats ((int) par.gateDiv->load());
+
+    // Pozycja w beatach ze wspólnego zegara (patrz beatPos w processBlock).
+    double beat = blockStartBeat;
+
+    // One-pole ~1.5 ms — bramka bez trzasków na krawędziach kroków.
+    const float smooth = std::exp (-1.0f / (0.0015f * (float) getSampleRate()));
+
+    auto* const* chans = buffer.getArrayOfWritePointers();
+    const int numCh    = buffer.getNumChannels();
+    const int numSmp   = buffer.getNumSamples();
+
+    int lastStep = -1;
+    for (int i = 0; i < numSmp; ++i)
+    {
+        // Floor-mod: ppq bywa UJEMNE (count-in/pre-roll hosta) — zwykłe
+        // (int)/% dałoby ujemny krok i shift uint64 o ujemną liczbę (UB).
+        const int raw  = (int) std::floor (beat / (double) stepBeats);
+        const int step = ((raw % word.len) + word.len) % word.len;
+
+        const bool open = (((word.bits ^ flips) >> step) & 1) != 0;
+        const float target = (on && ! open) ? 1.0f - depth : 1.0f;
+
+        gateEnv = target + (gateEnv - target) * smooth;
+        for (int ch = 0; ch < numCh; ++ch)
+            chans[ch][i] *= gateEnv;
+
+        beat += beatsPerSample;
+        lastStep = step;
+    }
+
+    // Pusty blok nie ma prawa zgasić wskaźnika kroku w GUI.
+    if (numSmp > 0)
+        gateStep.store (on ? lastStep : -1);
+}
+
+void FiSynthAudioProcessor::processArp (juce::MidiBuffer& midi, int numSamples,
+                                        double blockStartBeat, double beatsPerSample)
+{
+    const bool on = par.arpOn->load() > 0.5f;
+
+    if (! on)
+    {
+        // Wyłączenie: puść ostatnią nutę arp i zapomnij trzymane klawisze
+        // (klawisze wciśnięte przy wyłączonym arp śledzi normalny tor MIDI).
+        if (arpNoteSounding >= 0)
+        {
+            midi.addEvent (juce::MidiMessage::noteOff (1, arpNoteSounding), 0);
+            arpNoteSounding = -1;
+        }
+        if (arpWasOn)
+            std::fill (std::begin (arpHeld), std::end (arpHeld), false);
+        arpWasOn = false;
+        return;
+    }
+
+    // Note on/off aktualizują TYLKO zbiór trzymanych klawiszy; nie docierają do
+    // syntezatora. Pozostałe eventy (pitch bend, CC, sustain) przechodzą dalej.
+    // Panic (CC 123/120) musi też czyścić trzymane klawisze — inaczej arp
+    // odpaliłby nuty od nowa zaraz po wyciszeniu.
+    arpFiltered.clear();
+    for (const auto meta : midi)
+    {
+        const auto msg = meta.getMessage();
+        if (msg.isNoteOn())
+            arpHeld[msg.getNoteNumber()] = true;
+        else if (msg.isNoteOff())
+            arpHeld[msg.getNoteNumber()] = false;
+        else
+        {
+            if (msg.isAllNotesOff() || msg.isAllSoundOff())
+                std::fill (std::begin (arpHeld), std::end (arpHeld), false);
+            arpFiltered.addEvent (msg, meta.samplePosition);
+        }
+    }
+    midi.swapWith (arpFiltered);
+
+    // Włączenie w locie: zdejmij nuty grające "normalnie" (CC 123), inaczej
+    // wisiałyby bez note-offów, które od teraz zjada filtr powyżej.
+    if (! arpWasOn)
+    {
+        midi.addEvent (juce::MidiMessage::allNotesOff (1), 0);
+        arpWasOn = true;
+        arpLastStep = INT_MIN;
+    }
+
+    // Root = najniższy trzymany klawisz (kwantowane do bloku — wystarcza).
+    int root = -1;
+    for (int n = 0; n < 128; ++n)
+        if (arpHeld[n]) { root = n; break; }
+
+    if (root < 0 && arpNoteSounding >= 0)
+    {
+        midi.addEvent (juce::MidiMessage::noteOff (1, arpNoteSounding), 0);
+        arpNoteSounding = -1;
+    }
+
+    // Melodia: interwały Fibonacciego w półtonach od roota (0,1,2,3,5,8,13,21),
+    // dalsze wyrazy składane mod 24, żeby nie uciec z rejestru.
+    static constexpr int fibOffsets[13] = { 0, 1, 2, 3, 5, 8, 13, 21, 10, 7, 17, 0, 17 };
+    static constexpr int lens[3] = { 5, 8, 13 };
+    const int len = lens[juce::jlimit (0, 2, (int) par.arpLen->load())];
+
+    const float stepBeats = divisionToBeats ((int) par.arpDiv->load());
+
+    // Pozycja w beatach ze wspólnego zegara (ten sam co gate — patrz beatPos).
+    double beat = blockStartBeat;
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        // Floor zamiast (int): ppq bywa ujemne (pre-roll) — patrz applyFibGate.
+        const int raw = (int) std::floor (beat / (double) stepBeats);
+        if (raw != arpLastStep)
+        {
+            arpLastStep = raw;
+
+            if (arpNoteSounding >= 0)
+            {
+                midi.addEvent (juce::MidiMessage::noteOff (1, arpNoteSounding), i);
+                arpNoteSounding = -1;
+            }
+
+            if (root >= 0)
+            {
+                const int idx  = ((raw % len) + len) % len;
+                const int note = juce::jmin (127, root + fibOffsets[idx]);
+                midi.addEvent (juce::MidiMessage::noteOn (1, note, (juce::uint8) 100), i);
+                arpNoteSounding = note;
+            }
+        }
+        beat += beatsPerSample;
+    }
+}
+
+void FiSynthAudioProcessor::applyGoldenDelay (juce::AudioBuffer<float>& buffer, float bpm)
+{
+    const bool on = par.dlyOn->load() > 0.5f;
+    if (! on)
+    {
+        // Czyścimy linię przy wyłączeniu — ponowne włączenie startuje z ciszy,
+        // a nie ze stęchłego ogona sprzed minuty.
+        if (dlyWasOn)
+        {
+            delayBuffer.clear();
+            delaySmoothSamples = -1.0f;
+        }
+        dlyWasOn = false;
+        return;
+    }
+    dlyWasOn = true;
+
+    const int bufLen = delayBuffer.getNumSamples();
+    if (bufLen == 0)
+        return;
+
+    const double sr = getSampleRate();
+    const float timeMs = par.dlySync->load() > 0.5f
+        ? divisionToBeats ((int) par.dlyDiv->load()) * 60000.0f / juce::jmax (1.0f, bpm)
+        : par.dlyTime->load();
+
+    const float target = juce::jlimit (32.0f, (float) (bufLen - 8),
+                                       (float) (timeMs * 0.001 * sr));
+    if (delaySmoothSamples < 0.0f)
+        delaySmoothSamples = target;
+
+    const float fb  = par.dlyFeedback->load();
+    const float wet = par.dlyMix->load();
+
+    // ~80 ms wygładzania czasu — kręcenie gałką daje "taśmowy" glide, nie zgrzyt.
+    const float smooth = std::exp (-1.0f / (0.08f * (float) sr));
+
+    // Tapy w czasach t/φ³..t: odstępy złote (wzajemnie niewspółmierne), więc
+    // odbicia nie kumulują się w okresowy grzebień. Wzmocnienia opadają po 1/φ
+    // w stronę wcześniejszych tapów (pre-echa cichsze od głównego).
+    constexpr float invPhi = (float) (1.0 / fiPhi);
+    constexpr float tapFrac[4] = { invPhi * invPhi * invPhi, invPhi * invPhi, invPhi, 1.0f };
+    constexpr float tapAmp [4] = { 0.13f, 0.21f, 0.34f, 0.55f };
+
+    auto* dL = delayBuffer.getWritePointer (0);
+    auto* dR = delayBuffer.getWritePointer (1);
+
+    const int numCh  = buffer.getNumChannels();
+    const int numSmp = buffer.getNumSamples();
+    auto* inL = buffer.getWritePointer (0);
+    auto* inR = numCh > 1 ? buffer.getWritePointer (1) : nullptr;
+
+    auto readTap = [bufLen] (const float* line, float delaySamp, int wp) noexcept
+    {
+        float pos = (float) wp - delaySamp;
+        if (pos < 0.0f)
+            pos += (float) bufLen;
+        // Zaokrąglenie float przy pos bliskim zera może dać dokładnie bufLen
+        // po dodaniu — bez tego domknięcia i0 czytałby 1 element za buforem.
+        if (pos >= (float) bufLen)
+            pos -= (float) bufLen;
+        const int   i0 = (int) pos;
+        const float f  = pos - (float) i0;
+        const int   i1 = (i0 + 1 < bufLen) ? i0 + 1 : 0;
+        return line[i0] + (line[i1] - line[i0]) * f;
+    };
+
+    int   wp = delayWritePos;
+    float t  = delaySmoothSamples;
+
+    for (int i = 0; i < numSmp; ++i)
+    {
+        t = target + (t - target) * smooth;
+
+        const float xL = inL[i];
+        const float xR = inR != nullptr ? inR[i] : xL;
+
+        float wetL = 0.0f, wetR = 0.0f, mainL = 0.0f, mainR = 0.0f;
+        for (int k = 0; k < 4; ++k)
+        {
+            const float rl = readTap (dL, t * tapFrac[k], wp);
+            const float rr = readTap (dR, t * tapFrac[k], wp);
+            wetL += tapAmp[k] * rl;
+            wetR += tapAmp[k] * rr;
+            if (k == 3) { mainL = rl; mainR = rr; }
+        }
+
+        // Sprzężenie na krzyż z tapu pełnego czasu — echa wędrują L↔R (ping-pong).
+        dL[wp] = xL + fb * mainR;
+        dR[wp] = xR + fb * mainL;
+
+        inL[i] = xL + wet * wetL;
+        if (inR != nullptr)
+            inR[i] = xR + wet * wetR;
+
+        if (++wp >= bufLen)
+            wp = 0;
+    }
+
+    delayWritePos = wp;
+    delaySmoothSamples = t;
+}
+
+void FiSynthAudioProcessor::pushAnalyzerSamples (const juce::AudioBuffer<float>& buffer)
+{
+    const int numSmp = buffer.getNumSamples();
+    const int numCh  = juce::jmax (1, buffer.getNumChannels());
+
+    int start1 = 0, size1 = 0, start2 = 0, size2 = 0;
+    analyzerFifo.prepareToWrite (numSmp, start1, size1, start2, size2);
+
+    auto writeRange = [&] (int start, int size, int offset)
+    {
+        for (int i = 0; i < size; ++i)
+        {
+            float s = 0.0f;
+            for (int ch = 0; ch < numCh; ++ch)
+                s += buffer.getSample (ch, offset + i);
+            analyzerBuffer[(size_t) (start + i)] = s / (float) numCh;
+        }
+    };
+    writeRange (start1, size1, 0);
+    writeRange (start2, size2, size1);
+
+    analyzerFifo.finishedWrite (size1 + size2);
+}
+
+int FiSynthAudioProcessor::readAnalyzerSamples (float* dest, int maxNum)
+{
+    int start1 = 0, size1 = 0, start2 = 0, size2 = 0;
+    analyzerFifo.prepareToRead (maxNum, start1, size1, start2, size2);
+
+    for (int i = 0; i < size1; ++i)
+        dest[i] = analyzerBuffer[(size_t) (start1 + i)];
+    for (int i = 0; i < size2; ++i)
+        dest[size1 + i] = analyzerBuffer[(size_t) (start2 + i)];
+
+    analyzerFifo.finishedRead (size1 + size2);
+    return size1 + size2;
 }
 
 juce::AudioProcessorEditor* FiSynthAudioProcessor::createEditor()
@@ -393,6 +1000,10 @@ std::unique_ptr<juce::XmlElement> FiSynthAudioProcessor::stateToXml()
         envModels[i].toValueTree (envTree);
     }
 
+    // Flipy patternu gate'a (maska bitowa jako hex — ValueTree nie ma uint64).
+    auto gateTree = apvts.state.getOrCreateChildWithName ("GATE", nullptr);
+    gateTree.setProperty ("flips", juce::String::toHexString ((juce::int64) gateFlips.load()), nullptr);
+
     return apvts.copyState().createXml();
 }
 
@@ -403,7 +1014,32 @@ void FiSynthAudioProcessor::applyStateXml (const juce::XmlElement& xml)
     if (! xml.hasTagName (apvts.state.getType()))
         return;
 
-    apvts.replaceState (juce::ValueTree::fromXml (xml));
+    auto newState = juce::ValueTree::fromXml (xml);
+
+    // Starszy preset nie zna później dodanych parametrów, a replaceState
+    // zostawia brakującym ich BIEŻĄCE wartości (updateParameterConnections...
+    // flushuje aktualny stan, nie domyślny) — stary preset wczytany przy
+    // podkręconym złotym silniku brzmiałby inaczej niż w dniu zapisu.
+    // Defaulty dopisujemy do DRZEWA przed pojedynczym replaceState: wczytanie
+    // jest atomowe (audio nigdy nie gra hybrydą starego i nowego patcha),
+    // a host nie dostaje lawiny powiadomień o "ruchach" parametrów, których
+    // nikt nie ruszał (tryb automation write nagrywałby je jako automację).
+    juce::StringArray savedIds;
+    for (const auto& child : newState)
+        if (child.hasType ("PARAM"))
+            savedIds.add (child.getProperty ("id").toString());
+
+    for (auto* p : getParameters())
+        if (auto* rp = dynamic_cast<juce::RangedAudioParameter*> (p))
+            if (! savedIds.contains (rp->paramID))
+            {
+                juce::ValueTree child ("PARAM");
+                child.setProperty ("id", rp->paramID, nullptr);
+                child.setProperty ("value", rp->convertFrom0to1 (rp->getDefaultValue()), nullptr);
+                newState.appendChild (child, nullptr);
+            }
+
+    apvts.replaceState (newState);
 
     // Odtwórz punkty każdej obwiedni i wepchnij migawki do audio.
     // Fallback: stary stan z jedną obwiednią ("ENVELOPE") -> obwiednia 0.
@@ -417,6 +1053,12 @@ void FiSynthAudioProcessor::applyStateXml (const juce::XmlElement& xml)
         envModels[i].fromValueTree (child);
         commitEnvelope (i);
     }
+
+    // Flipy gate'a (brak w starym stanie => czysty pattern).
+    const auto gateTree = apvts.state.getChildWithName ("GATE");
+    gateFlips.store (gateTree.isValid()
+        ? (juce::uint64) gateTree.getProperty ("flips").toString().getHexValue64()
+        : 0);
 }
 
 void FiSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
@@ -507,7 +1149,28 @@ void FiSynthAudioProcessor::resetToInit()
         set (pre + "detune",   0.0f);
         set (pre + "mix",      o == 0 ? 0.5f : 0.0f);
         set (pre + "stretch",  0.0f);
+        set (pre + "stretchmode", 0.0f);           // Golden
+        set (pre + "goldint",  2.0f);              // Off
+        set (pre + "tilt",     1.0f);              // neutralne widmo
     }
+
+    // Złoty silnik wyłączony.
+    set ("ringMix",  0.0f);
+    set ("fmAmt",    0.0f);
+    set ("subLevel", 0.0f);
+    set ("unison",   0.0f);
+    set ("pitchQuant", 0.0f);
+
+    // Arp i delay wyłączone, wartości robocze do domyślnych.
+    set ("arpOn", 0.0f);
+    set ("arpDiv", 2.0f);                          // 1/16
+    set ("arpLen", 1.0f);                          // 8 kroków
+    set ("dlyOn", 0.0f);
+    set ("dlySync", 1.0f);
+    set ("dlyDiv", 1.0f);                          // 1/8
+    set ("dlyTime", 400.0f);
+    set ("dlyFeedback", 0.45f);
+    set ("dlyMix", 0.25f);
 
     // Modulacje wyzerowane.
     for (int s = 0; s < 3; ++s)
@@ -527,8 +1190,15 @@ void FiSynthAudioProcessor::resetToInit()
     set ("lfoShape", 0.0f);                        // Sine
     set ("lfoRate",  1.0f);
     set ("lfoSync",  0.0f);
+    set ("lfoDrift", 0.0f);
 
     set ("envSync", 0.0f);                         // bez sync do tempa
+
+    // Gate i stereo wyłączone, czysty pattern.
+    set ("gateOn", 0.0f);
+    set ("gateDepth", 0.85f);
+    set ("spread", 0.0f);
+    gateFlips.store (0);
 
     // Obwiednie do domyślnego ADSR.
     for (int i = 0; i < kNumEnvelopes; ++i)
