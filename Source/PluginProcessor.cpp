@@ -370,10 +370,13 @@ FiSynthAudioProcessor::createParameterLayout()
     params.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { "arpDiv", 1 }, "Fib Arp Step", divisionLabels(), 2));
 
-    // Długość cyklu melodii (liczby Fibonacciego).
+    // Długość cyklu melodii — pełny ciąg Fibonacciego (1 = repeater roota,
+    // 2 = tryl, 3 = bieg chromatyczny, dalej klasyczne biegi złote).
+    // UWAGA: lista przebudowana (dawniej {5,8,13}) — presety fabryczne
+    // zregenerowane pod nowe indeksy.
     params.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { "arpLen", 1 }, "Fib Arp Length",
-        juce::StringArray { "5", "8", "13" }, 1));
+        juce::StringArray { "1", "2", "3", "5", "8", "13" }, 4));
 
     // === Golden Delay ===
     params.push_back (std::make_unique<juce::AudioParameterBool> (
@@ -812,8 +815,8 @@ void FiSynthAudioProcessor::processArp (juce::MidiBuffer& midi, int numSamples,
     // Melodia: interwały Fibonacciego w półtonach od roota (0,1,2,3,5,8,13,21),
     // dalsze wyrazy składane mod 24, żeby nie uciec z rejestru.
     static constexpr int fibOffsets[13] = { 0, 1, 2, 3, 5, 8, 13, 21, 10, 7, 17, 0, 17 };
-    static constexpr int lens[3] = { 5, 8, 13 };
-    const int len = lens[juce::jlimit (0, 2, (int) par.arpLen->load())];
+    static constexpr int lens[6] = { 1, 2, 3, 5, 8, 13 };
+    const int len = lens[juce::jlimit (0, 5, (int) par.arpLen->load())];
 
     const float stepBeats = divisionToBeats ((int) par.arpDiv->load());
 
@@ -1168,7 +1171,7 @@ void FiSynthAudioProcessor::resetToInit()
     // Arp i delay wyłączone, wartości robocze do domyślnych.
     set ("arpOn", 0.0f);
     set ("arpDiv", 2.0f);                          // 1/16
-    set ("arpLen", 1.0f);                          // 8 kroków
+    set ("arpLen", 4.0f);                          // 8 kroków
     set ("dlyOn", 0.0f);
     set ("dlySync", 1.0f);
     set ("dlyDiv", 1.0f);                          // 1/8

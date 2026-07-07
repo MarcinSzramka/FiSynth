@@ -2,7 +2,7 @@
 
 <PARAMETERS>
   <PARAM id="arpDiv" value="2.0"/>
-  <PARAM id="arpLen" value="1.0"/>
+  <PARAM id="arpLen" value="4.0"/>
   <PARAM id="arpOn" value="0.0"/>
   <PARAM id="bpm" value="120.0"/>
   <PARAM id="dlyDiv" value="1.0"/>

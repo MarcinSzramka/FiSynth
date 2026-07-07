@@ -426,9 +426,12 @@ FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor&
     content.addAndMakeVisible (arpDivBox);
     arpDivAttachment = std::make_unique<ComboBoxAttachment> (processorRef.apvts, "arpDiv", arpDivBox);
 
-    arpLenBox.addItem ("5", 1);
-    arpLenBox.addItem ("8", 2);
-    arpLenBox.addItem ("13", 3);
+    arpLenBox.addItem ("1", 1);
+    arpLenBox.addItem ("2", 2);
+    arpLenBox.addItem ("3", 3);
+    arpLenBox.addItem ("5", 4);
+    arpLenBox.addItem ("8", 5);
+    arpLenBox.addItem ("13", 6);
     content.addAndMakeVisible (arpLenBox);
     arpLenAttachment = std::make_unique<ComboBoxAttachment> (processorRef.apvts, "arpLen", arpLenBox);
 

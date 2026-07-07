@@ -172,7 +172,7 @@ int main()
     gProc->resetToInit();
     P ("gain", 0.62f);
     P ("bpm", 120);
-    P ("arpOn", 1); P ("arpDiv", 2); P ("arpLen", 1);
+    P ("arpOn", 1); P ("arpDiv", 2); P ("arpLen", 4);
     P ("osc1waveform", 9);  P ("osc1mix", 0.80f); P ("osc1tilt", 1.2f);
     P ("osc2waveform", 3);  P ("osc2mix", 0.30f); P ("osc2stretch", 0.30f); P ("osc2stretchmode", 1);
     P ("filterCutoff", 11000);
