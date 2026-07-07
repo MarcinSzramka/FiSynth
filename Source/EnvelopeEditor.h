@@ -77,6 +77,21 @@ private:
     float lastGrid { 0.0f };
     bool  lastSnap { true };
 
+    // Cache tła (siatka + krzywe + podpowiedź), renderowany w fizycznych
+    // pikselach ekranu (scale), żeby na HiDPI nic się nie rozmywało. Paint przy
+    // samym ruchu playheada robi tylko blit; przebudowa gdy zmieni się treść
+    // (envEditCount procesora), rozmiar, skala, aktywna obwiednia lub siatka.
+    void rebuildBackgroundCache (float scale);
+
+    juce::Image bgCache;
+    juce::Rectangle<int> cacheBounds;
+    int   cacheEditCount  { -1 };
+    int   cacheActiveEnv  { -1 };
+    bool  cacheSync       { false };
+    float cacheScale      { 0.0f };
+    float cacheGrid       { -1.0f };
+    float cacheViewLength { -1.0f };
+
     static constexpr float maxTime = 16.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EnvelopeEditor)

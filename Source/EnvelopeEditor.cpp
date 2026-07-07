@@ -165,16 +165,24 @@ int EnvelopeEditor::findCurveHandleNear (juce::Point<float> pos, float radius) c
     return best;
 }
 
-void EnvelopeEditor::paint (juce::Graphics& g)
+void EnvelopeEditor::rebuildBackgroundCache (float scale)
 {
-    if (draggingPoint < 0)
-        updateView();
+    const auto area = getLocalBounds();
+    const int  w = juce::jmax (1, juce::roundToInt ((float) area.getWidth()  * scale));
+    const int  h = juce::jmax (1, juce::roundToInt ((float) area.getHeight() * scale));
+
+    bgCache = juce::Image (juce::Image::ARGB, w, h, true);
+    juce::Graphics g (bgCache);
+
+    // Rysujemy we współrzędnych logicznych; transformacja przenosi je na
+    // fizyczne piksele obrazka, więc na HiDPI krzywe zostają ostre.
+    g.addTransform (juce::AffineTransform::scale (scale));
 
     auto b = plotBounds();
 
-    // Tło
-    g.fillAll (juce::Colour (0xff14181f));
-    g.setColour (juce::Colour (0xff0c2a16));
+    // Tło — ciepła czerń w rodzinie palety FiLook (kolor niesie KRZYWA, nie tło).
+    g.fillAll (juce::Colour (0xff12100a));
+    g.setColour (juce::Colour (0xff17140c));
     g.fillRect (b);
 
     // Siatka pozioma (0, 0.25, 0.5, 0.75, 1.0)
@@ -270,7 +278,7 @@ void EnvelopeEditor::paint (juce::Graphics& g)
 
             g.setColour (isSustain ? juce::Colour (0xffffc24d) : juce::Colours::white);
             g.fillEllipse (x - pointRadius, y - pointRadius, pointRadius * 2.0f, pointRadius * 2.0f);
-            g.setColour (juce::Colour (0xff14181f));
+            g.setColour (juce::Colour (0xff17140c));   // obwódka = kolor tła wykresu
             g.drawEllipse (x - pointRadius, y - pointRadius, pointRadius * 2.0f, pointRadius * 2.0f, 1.5f);
         }
     };
@@ -280,8 +288,52 @@ void EnvelopeEditor::paint (juce::Graphics& g)
         if (e != activeEnv)
             drawEnvelope (processor.getEnvelopeModel (e).makeSnapshot(), envelopeColour (e), false);
 
+    drawEnvelope (activeModel().makeSnapshot(), envelopeColour (activeEnv), true);
+
+    // Podpowiedź
+    g.setColour (juce::Colour (0x99ffffff));
+    g.setFont (juce::Font (juce::FontOptions (11.0f)));
+    g.drawText (juce::String (juce::CharPointer_UTF8 (
+                    "dwuklik: dodaj/usu\xc5\x84 punkt   |   Shift+klik: sustain   |   przeci\xc4\x85gnij uchwyt: krzywizna")),
+                getLocalBounds().removeFromBottom (14).reduced (4, 0),
+                juce::Justification::centredRight);
+}
+
+void EnvelopeEditor::paint (juce::Graphics& g)
+{
+    if (draggingPoint < 0)
+        updateView();
+
+    // Statyka (siatka + krzywe + podpowiedź) z cache — przy samym ruchu
+    // playheada (timer 60 Hz) robimy blit zamiast strokowania wszystkich ścieżek.
+    const float scale     = g.getInternalContext().getPhysicalPixelScaleFactor();
+    const int   editCount = processor.envEditCount.load();
+    const bool  sync      = processor.isEnvSync();
+    const float grid      = processor.gridDivisionBeats();
+
+    if (bgCache.isNull()
+        || cacheBounds != getLocalBounds()
+        || cacheEditCount != editCount
+        || cacheActiveEnv != activeEnv
+        || cacheSync != sync
+        || ! juce::exactlyEqual (cacheScale, scale)
+        || ! juce::exactlyEqual (cacheGrid, grid)
+        || ! juce::exactlyEqual (cacheViewLength, viewLength))
+    {
+        rebuildBackgroundCache (scale);
+        cacheBounds     = getLocalBounds();
+        cacheEditCount  = editCount;
+        cacheActiveEnv  = activeEnv;
+        cacheSync       = sync;
+        cacheScale      = scale;
+        cacheGrid       = grid;
+        cacheViewLength = viewLength;
+    }
+
+    g.drawImageTransformed (bgCache, juce::AffineTransform::scale (1.0f / scale));
+
+    auto b = plotBounds();
     const EnvSnapshot activeSnap = activeModel().makeSnapshot();
-    drawEnvelope (activeSnap, envelopeColour (activeEnv), true);
 
     // Playheady aktywnej obwiedni (czas rzeczywisty) — po jednym na grający głos,
     // każdy w swoim kolorze. Mapowane przez timeToX, więc kropka leży na krzywej.
@@ -310,12 +362,12 @@ void EnvelopeEditor::paint (juce::Graphics& g)
                 : juce::String ("--");
 
             g.setFont (juce::Font (juce::FontOptions (11.0f)));
-            const float tw = g.getCurrentFont().getStringWidthFloat (name);
+            const float tw = juce::GlyphArrangement::getStringWidth (g.getCurrentFont(), name);
             const float pad = 5.0f, sw = 9.0f, gap = 4.0f, rh = 14.0f;
             const float bw = pad + sw + gap + tw + pad;
             const float bx = b.getRight() - bw - 4.0f;
 
-            g.setColour (juce::Colour (0xcc14181f));
+            g.setColour (juce::Colour (0xcc12100a));   // plakietka w tle palety FiLook
             g.fillRoundedRectangle (bx, legendY, bw, rh, 3.0f);
             g.setColour (col);
             g.fillRoundedRectangle (bx + pad, legendY + (rh - sw) * 0.5f, sw, sw, 2.0f);
@@ -326,14 +378,6 @@ void EnvelopeEditor::paint (juce::Graphics& g)
             legendY += rh + 3.0f;
         }
     }
-
-    // Podpowiedź
-    g.setColour (juce::Colour (0x99ffffff));
-    g.setFont (juce::Font (juce::FontOptions (11.0f)));
-    g.drawText (juce::String (juce::CharPointer_UTF8 (
-                    "dwuklik: dodaj/usu\xc5\x84 punkt   |   Shift+klik: sustain   |   przeci\xc4\x85gnij uchwyt: krzywizna")),
-                getLocalBounds().removeFromBottom (14).reduced (4, 0),
-                juce::Justification::centredRight);
 }
 
 void EnvelopeEditor::resized()
@@ -497,14 +541,14 @@ void EnvelopeEditor::timerCallback()
     const bool  sync = processor.isEnvSync();
     const float grid = processor.gridDivisionBeats();
     const bool  snap = processor.isEnvSnap();
-    bool        changed = (sync != lastSync || grid != lastGrid || snap != lastSnap);
+    bool        changed = (sync != lastSync || ! juce::exactlyEqual (grid, lastGrid) || snap != lastSnap);
     lastSync = sync; lastGrid = grid; lastSnap = snap;
 
     for (int i = 0; i < FiSynthAudioProcessor::kMaxPlayheads; ++i)
     {
         const float t = processor.envPlayheadTime[activeEnv][i].load();
         const int   n = processor.envPlayheadNote[i].load();
-        if (t != playheadTime[i] || n != playheadNote[i])
+        if (! juce::exactlyEqual (t, playheadTime[i]) || n != playheadNote[i])
         {
             playheadTime[i] = t;
             playheadNote[i] = n;
