@@ -435,6 +435,18 @@ FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor&
     content.addAndMakeVisible (arpLenBox);
     arpLenAttachment = std::make_unique<ComboBoxAttachment> (processorRef.apvts, "arpLen", arpLenBox);
 
+    arpModeBox.addItem ("Up", 1);
+    arpModeBox.addItem ("Down", 2);
+    arpModeBox.addItem ("Up-Down In", 3);
+    arpModeBox.addItem ("Up-Down Ex", 4);
+    arpModeBox.addItem (juce::String (juce::CharPointer_UTF8 ("Random \xcf\x86")), 5);
+    arpModeBox.addItem ("Random", 6);
+    arpModeBox.setTooltip (juce::String (juce::CharPointer_UTF8 (
+        "Przebieg po cyklu interwa\xc5\x82\xc3\xb3w; In/Ex = powt\xc3\xb3rzenie skraj\xc3\xb3w "
+        "na nawrocie, Random \xcf\x86 = nieokresowe schodki Weyla frac(k/\xcf\x86)")));
+    content.addAndMakeVisible (arpModeBox);
+    arpModeAttachment = std::make_unique<ComboBoxAttachment> (processorRef.apvts, "arpMode", arpModeBox);
+
     updateBpmEnablement();
     updateLfoSyncEnablement();
     updateDelaySyncEnablement();
@@ -781,6 +793,7 @@ void FiSynthAudioProcessorEditor::layoutContent()
     arpOnButton.setBounds (tempoRow.removeFromLeft (76).reduced (2, 0));
     arpDivBox.setBounds (tempoRow.removeFromLeft (64).reduced (2, 1));
     arpLenBox.setBounds (tempoRow.removeFromLeft (52).reduced (2, 1));
+    arpModeBox.setBounds (tempoRow.removeFromLeft (104).reduced (2, 1));
     area.removeFromTop (8);  // margin
 
     // === DOLNY PAS: gate Fibonacciego | widmo | pole stereo ===

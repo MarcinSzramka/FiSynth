@@ -66,9 +66,10 @@ FiSynthAudioProcessor::FiSynthAudioProcessor()
     par.lfoDrift   = rp ("lfoDrift");
     par.pitchQuant = rp ("pitchQuant");
 
-    par.arpOn  = rp ("arpOn");
-    par.arpDiv = rp ("arpDiv");
-    par.arpLen = rp ("arpLen");
+    par.arpOn   = rp ("arpOn");
+    par.arpDiv  = rp ("arpDiv");
+    par.arpLen  = rp ("arpLen");
+    par.arpMode = rp ("arpMode");
 
     par.dlyOn       = rp ("dlyOn");
     par.dlySync     = rp ("dlySync");
@@ -377,6 +378,17 @@ FiSynthAudioProcessor::createParameterLayout()
     params.push_back (std::make_unique<juce::AudioParameterChoice> (
         juce::ParameterID { "arpLen", 1 }, "Fib Arp Length",
         juce::StringArray { "1", "2", "3", "5", "8", "13" }, 4));
+
+    // Tryb przebiegu po cyklu interwałów: In/Ex = czy skrajne kroki powtarzają
+    // się na nawrocie; Random φ = schodki Weyla frac(k/φ) — "losowość", która
+    // nigdy się nie zapętla i jest deterministyczna względem pozycji taktu.
+    {
+        juce::StringArray arpModes { "Up", "Down", "Up-Down In", "Up-Down Ex" };
+        arpModes.add (juce::String (juce::CharPointer_UTF8 ("Random \xcf\x86")));
+        arpModes.add ("Random");
+        params.push_back (std::make_unique<juce::AudioParameterChoice> (
+            juce::ParameterID { "arpMode", 1 }, "Fib Arp Mode", arpModes, 0));
+    }
 
     // === Golden Delay ===
     params.push_back (std::make_unique<juce::AudioParameterBool> (
@@ -816,7 +828,42 @@ void FiSynthAudioProcessor::processArp (juce::MidiBuffer& midi, int numSamples,
     // dalsze wyrazy składane mod 24, żeby nie uciec z rejestru.
     static constexpr int fibOffsets[13] = { 0, 1, 2, 3, 5, 8, 13, 21, 10, 7, 17, 0, 17 };
     static constexpr int lens[6] = { 1, 2, 3, 5, 8, 13 };
-    const int len = lens[juce::jlimit (0, 5, (int) par.arpLen->load())];
+    const int len  = lens[juce::jlimit (0, 5, (int) par.arpLen->load())];
+    const int mode = juce::jlimit (0, 5, (int) par.arpMode->load());
+
+    // Numer kroku (może być ujemny w pre-rollu) -> indeks w cyklu interwałów.
+    // In/Ex: czy skrajne kroki powtarzają się na nawrocie ping-ponga.
+    // Random φ liczy z ABSOLUTNEGO kroku (schodki Weyla) — pattern jest
+    // deterministyczny względem pozycji taktu, więc loop w DAW gra identycznie.
+    auto posmod = [] (int a, int m) noexcept { return ((a % m) + m) % m; };
+    auto offsetIndexFor = [&] (int step) noexcept
+    {
+        switch (mode)
+        {
+            case 1:  // Down
+                return len - 1 - posmod (step, len);
+            case 2:  // Up-Down In (skraje powtórzone: 0..L-1, L-1..0)
+            {
+                const int p = posmod (step, 2 * len);
+                return p < len ? p : 2 * len - 1 - p;
+            }
+            case 3:  // Up-Down Ex (skraje pojedynczo: 0..L-1, L-2..1)
+            {
+                const int period = juce::jmax (1, 2 * len - 2);
+                const int p = posmod (step, period);
+                return p < len ? p : 2 * len - 2 - p;
+            }
+            case 4:  // Random φ — ciąg Weyla frac(k/φ): równomierny, nieokresowy
+            {
+                const double g = (double) step / fiPhi;
+                return juce::jmin (len - 1, (int) ((g - std::floor (g)) * len));
+            }
+            case 5:  // Random — prawdziwy los (per krok)
+                return arpRng.nextInt (juce::jmax (1, len));
+            default: // Up
+                return posmod (step, len);
+        }
+    };
 
     const float stepBeats = divisionToBeats ((int) par.arpDiv->load());
 
@@ -839,7 +886,7 @@ void FiSynthAudioProcessor::processArp (juce::MidiBuffer& midi, int numSamples,
 
             if (root >= 0)
             {
-                const int idx  = ((raw % len) + len) % len;
+                const int idx  = offsetIndexFor (raw);
                 const int note = juce::jmin (127, root + fibOffsets[idx]);
                 midi.addEvent (juce::MidiMessage::noteOn (1, note, (juce::uint8) 100), i);
                 arpNoteSounding = note;
@@ -1172,6 +1219,7 @@ void FiSynthAudioProcessor::resetToInit()
     set ("arpOn", 0.0f);
     set ("arpDiv", 2.0f);                          // 1/16
     set ("arpLen", 4.0f);                          // 8 kroków
+    set ("arpMode", 0.0f);                         // Up
     set ("dlyOn", 0.0f);
     set ("dlySync", 1.0f);
     set ("dlyDiv", 1.0f);                          // 1/8

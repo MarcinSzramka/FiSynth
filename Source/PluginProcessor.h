@@ -225,6 +225,7 @@ private:
         std::atomic<float>* arpOn;
         std::atomic<float>* arpDiv;
         std::atomic<float>* arpLen;
+        std::atomic<float>* arpMode;
 
         // Golden Delay (multi-tap w proporcjach φ).
         std::atomic<float>* dlyOn;
@@ -283,6 +284,9 @@ private:
     // żeby processArp nie alokował na wątku audio (po swapWith oba bufory
     // recyklingują swoją pamięć między blokami).
     juce::MidiBuffer arpFiltered;
+
+    // RNG trybu Random — własny egzemplarz (getSystemRandom nie jest audio-safe).
+    juce::Random arpRng;
     void   processArp (juce::MidiBuffer&, int numSamples, double blockStartBeat,
                        double beatsPerSample);
 
