@@ -198,11 +198,17 @@ std::vector<AboutPanel::Section> AboutPanel::makeSections (bool english)
             "position hops through the cycle by successive Fibonacci numbers — a\n"
             "self-similar wander, computed via the Pisano period so it stays\n"
             "transport-locked).\n"
-            "WORD toggle: step durations follow the Fibonacci word (S = 1 division,\n"
-            "L = 2 — 13 notes over 18 divisions, an aperiodic groove). VEL φ: step\n"
-            "velocities walk the Weyl sequence frac(k·φ) — deterministic humanize\n"
-            "that never loops. Combine with the gate for golden rhythm on top of\n"
-            "golden melody — the patterns interlock without ever repeating in sync.") });
+            "WORD (checkbox): swaps the even rhythm for the rhythm of the Fibonacci\n"
+            "word — notes come in two lengths, short S = 1 division and long L = 2\n"
+            "divisions, in the pattern SLSSLSLSSLSSL (13 notes over 18 divisions).\n"
+            "An aperiodic, human-feeling groove that still locks to the bar. The same\n"
+            "word drives the gate — there it shapes loudness, here note lengths.\n"
+            "VEL φ (slider next to it): humanizes hit strength. At 0 every arp note\n"
+            "plays velocity 100; turned up, velocities walk the Weyl steps frac(k·φ)\n"
+            "(down to ~40 at full depth) — accents never repeat, yet a DAW loop\n"
+            "renders identically every time.\n"
+            "Combine with the gate for golden rhythm on top of golden melody —\n"
+            "the patterns interlock without ever repeating in sync.") });
 
         s.push_back ({ utf8 ("Stereo phyllotaxis"), utf8 (
             "Instead of classic unison — PARTIAL panning. Every partial n has a fixed spot in\n"
@@ -479,9 +485,15 @@ std::vector<AboutPanel::Section> AboutPanel::makeSections (bool english)
         "Fib Walk (pozycja skacze po cyklu o kolejne liczby Fibonacciego —\n"
         "samopodobne błądzenie, liczone przez okres Pisano, stabilne względem\n"
         "transportu).\n"
-        "WORD: czasy kroków ze słowa Fibonacciego (S = 1 podział, L = 2 —\n"
-        "13 nut na 18 podziałów, aperiodyczny groove). VEL φ: dynamika kroków\n"
-        "ze schodków Weyla frac(k·φ) — deterministyczny humanize bez pętli.\n"
+        "WORD (checkbox): zamienia równy rytm na rytm słowa Fibonacciego — nuty\n"
+        "mają dwie długości: krótka S = 1 podział, długa L = 2 podziały, we wzorze\n"
+        "SLSSLSLSSLSSL (13 nut na 18 podziałów). Aperiodyczny, \"ludzki\" groove,\n"
+        "który mimo to trzyma się taktu. To samo słowo napędza gate — tam steruje\n"
+        "głośnością kroków, tu ich długością.\n"
+        "VEL φ (suwak obok): humanizacja siły uderzeń. Przy 0 każda nuta gra\n"
+        "velocity 100; im wyżej, tym mocniej akcenty chodzą po schodkach Weyla\n"
+        "frac(k·φ) (do ~40 przy pełnej głębokości) — nigdy się nie powtarzają,\n"
+        "a loop w DAW renderuje się identycznie.\n"
         "W parze z gate'em: złoty rytm na złotej melodii — oba patterny\n"
         "zazębiają się, nigdy nie powtarzając się synchronicznie.") });
 

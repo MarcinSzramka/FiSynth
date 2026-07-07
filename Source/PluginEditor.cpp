@@ -457,11 +457,16 @@ FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor&
     arpWordAttachment = std::make_unique<ButtonAttachment> (processorRef.apvts, "arpWord", arpWordButton);
 
     // Humanizacja velocity schodkami Weyla.
+    arpVelLabel.setText (juce::String (juce::CharPointer_UTF8 ("Vel \xcf\x86")),
+                         juce::dontSendNotification);
+    arpVelLabel.setJustificationType (juce::Justification::centredRight);
+    content.addAndMakeVisible (arpVelLabel);
     arpVelSlider.setSliderStyle (juce::Slider::LinearHorizontal);
     arpVelSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
     arpVelSlider.setTooltip (juce::String (juce::CharPointer_UTF8 (
-        "Velocity \xcf\x86: dynamika krok\xc3\xb3w ze schodk\xc3\xb3w Weyla frac(k\xc2\xb7\xcf\x86) "
-        "\xe2\x80\x94 deterministyczna, nigdy si\xc4\x99 nie zap\xc4\x99tla")));
+        "Humanizacja g\xc5\x82o\xc5\x9bno\xc5\x9b""ci uderze\xc5\x84 arpa: velocity krok\xc3\xb3w "
+        "ze schodk\xc3\xb3w Weyla frac(k\xc2\xb7\xcf\x86) \xe2\x80\x94 akcenty nigdy si\xc4\x99 "
+        "nie zap\xc4\x99tlaj\xc4\x85, a loop w DAW gra identycznie")));
     content.addAndMakeVisible (arpVelSlider);
     arpVelAttachment = std::make_unique<SliderAttachment> (processorRef.apvts, "arpVel", arpVelSlider);
 
@@ -813,7 +818,8 @@ void FiSynthAudioProcessorEditor::layoutContent()
     arpLenBox.setBounds (tempoRow.removeFromLeft (52).reduced (2, 1));
     arpModeBox.setBounds (tempoRow.removeFromLeft (104).reduced (2, 1));
     arpWordButton.setBounds (tempoRow.removeFromLeft (62).reduced (2, 0));
-    arpVelSlider.setBounds (tempoRow.removeFromLeft (78).reduced (2, 1));
+    arpVelLabel.setBounds (tempoRow.removeFromLeft (42));
+    arpVelSlider.setBounds (tempoRow.removeFromLeft (76).reduced (2, 1));
     area.removeFromTop (8);  // margin
 
     // === DOLNY PAS: gate Fibonacciego | widmo | pole stereo ===

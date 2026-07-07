@@ -162,6 +162,7 @@ private:
     juce::ToggleButton arpOnButton, arpWordButton;
     juce::ComboBox     arpDivBox, arpLenBox, arpModeBox;
     juce::Slider       arpVelSlider;
+    juce::Label        arpVelLabel;
 
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
