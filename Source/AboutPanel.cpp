@@ -38,8 +38,14 @@ std::vector<AboutPanel::Section> AboutPanel::makeSections (bool english)
 
         s.push_back ({ utf8 ("Oscillators & φ-stretch"), utf8 (
             "Each oscillator is a bank of 16 partials: freq(n) = f0 · ratio(n); amplitudes come\n"
-            "from the waveform (Sine/Square/Triangle/Saw/Quadratic/Noise; e.g. square has only\n"
-            "odd harmonics falling off as 1/n). Partials above Nyquist are skipped (zero aliasing).\n"
+            "from the waveform. Two families: CLASSIC (Sine/Square/Triangle/Saw/Quadratic/Noise)\n"
+            "and φ/FIBONACCI — spectral structures a tilt exponent cannot make: Pulse 25%\n"
+            "(nulls every 4th harmonic), Drawbar (organ registers 1,2,3,4,6,8), Even (fundamental\n"
+            "+ even harmonics), Golden Pluck (string plucked at the golden section x₀=1/φ —\n"
+            "|sin(hπ/φ)|/h², no harmonic ever hits a node exactly), Fib Comb & Lucas Comb (only\n"
+            "partials numbered 1,2,3,5,8,13 / 1,3,4,7,11 play) and Fib Word (amplitudes weighted\n"
+            "by the Fibonacci word — the same one that drives the gate).\n"
+            "Partials above Nyquist are skipped (zero aliasing).\n"
             "\n"
             "STRETCH — the heart of FiSynth. The knob (0..1) drags the partial ratios from the\n"
             "harmonic series (n+1) towards the target of the selected mode:\n"
@@ -302,8 +308,14 @@ std::vector<AboutPanel::Section> AboutPanel::makeSections (bool english)
 
     s.push_back ({ utf8 ("Oscylatory i stretch φ"), utf8 (
         "Każdy oscylator to bank 16 partiali: freq(n) = f0 · ratio(n), amplitudy zależą od\n"
-        "waveformu (Sine/Square/Triangle/Saw/Quadratic/Noise; np. square ma tylko nieparzyste\n"
-        "harmoniczne z opadaniem 1/n). Partiale ponad Nyquistem są pomijane (zero aliasingu).\n"
+        "waveformu. Dwie rodziny: KLASYCZNE (Sine/Square/Triangle/Saw/Quadratic/Noise) oraz\n"
+        "φ/FIBONACCI — struktury widmowe, których nie zrobi wykładnik Tiltu: Pulse 25%\n"
+        "(dziury co 4. harmoniczną), Drawbar (rejestry organowe 1,2,3,4,6,8), Even (fundament\n"
+        "+ parzyste), Golden Pluck (struna szarpnięta w złotym podziale x₀=1/φ — |sin(hπ/φ)|/h²,\n"
+        "żadna harmoniczna nie trafia dokładnie w węzeł), Fib Comb i Lucas Comb (grają tylko\n"
+        "partiale o numerach 1,2,3,5,8,13 / 1,3,4,7,11) oraz Fib Word (amplitudy ważone słowem\n"
+        "Fibonacciego — tym samym, które napędza gate).\n"
+        "Partiale ponad Nyquistem są pomijane (zero aliasingu).\n"
         "\n"
         "STRETCH — serce FiSynth. Suwak (0..1) przeciąga ratio partiali od szeregu\n"
         "harmonicznego (n+1) do celu wybranego trybu:\n"

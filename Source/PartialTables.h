@@ -64,6 +64,21 @@ inline constexpr int fiLucasSeq[fiNumPartials] =
 // ~1.2% ≈ ±20 centów na skrajnych partialkach -> bujny, "chórowy" charakter.
 inline constexpr float fiGoldenDetuneDepth = 0.012f;
 
+// Czy value występuje w rosnącym ciągu (maski Fibonacci/Lucas Comb).
+inline bool fiSeqContains (const int* seq, int value) noexcept
+{
+    for (int i = 0; i < fiNumPartials && seq[i] <= value; ++i)
+        if (seq[i] == value)
+            return true;
+    return false;
+}
+
+// Pierwsze 16 liter nieskończonego słowa Fibonacciego (S→SL, L→S), S = true.
+// To samo słowo napędza gate — tu moduluje amplitudy partiali (wave Fib Word).
+inline constexpr bool fiWord16[fiNumPartials] =
+    { true, false, true, true, false, true, false, true,
+      true, false, true, true, false, true, false, true };
+
 inline constexpr float fiSilverMean   = 2.41421356f;  // 1+√2
 inline constexpr float fiBronzeMean   = 3.30277564f;  // (3+√13)/2
 inline constexpr float fiGoldenStiffB = 0.02f;        // współczynnik sztywności (Golden Stiff)
@@ -139,10 +154,14 @@ inline void fiStretchedRatios (float mode, float stretch, double* out) noexcept
     }
 }
 
-// Amplituda n-tej partialki danego waveformu (0=Sine..5=Noise).
+// Amplituda n-tej partialki danego waveformu. 0..5 = fale klasyczne,
+// 6..12 = rodzina φ/masek: struktury, których nie zrobi wykładnik Tiltu
+// (dziury, grzebienie, rejestry). Nowy wave = nowy case + pozycja Choice
+// NA KOŃCU listy (APVTS trzyma wartości plain — stare presety zostają ważne).
 inline float fiHarmonicAmplitude (int waveform, int n) noexcept
 {
     const float baseAmp = 1.0f / std::sqrt (1.0f + (float) n);
+    const float h = (float) n + 1.0f;   // numer harmonicznej
 
     switch (waveform)
     {
@@ -151,21 +170,64 @@ inline float fiHarmonicAmplitude (int waveform, int n) noexcept
 
         case 1:  // Square — nieparzyste harmoniczne (n+1 = 1,3,5...), n parzyste
             if (n % 2 == 1) return 0.0f;
-            return baseAmp / ((float) n + 1.0f);
+            return baseAmp / h;
 
         case 2:  // Triangle — nieparzyste harmoniczne, opadanie 1/n²
             if (n % 2 == 1) return 0.0f;
-            return baseAmp / (((float) n + 1.0f) * ((float) n + 1.0f));
+            return baseAmp / (h * h);
 
         case 3:  // Sawtooth
-            return baseAmp / ((float) n + 1.0f);
+            return baseAmp / h;
 
         case 4:  // Quadratic
             if (n % 2 == 1) return 0.0f;
-            return baseAmp / ((float) n + 1.0f);
+            return baseAmp / h;
 
         case 5:  // Noise
             return baseAmp * 0.1f;
+
+        case 6:  // Pulse 25% — sin(hπ/4)/h: nosowy prostokąt z dziurami
+                 // co 4. harmoniczną (duty 1/4).
+            return baseAmp * std::abs (std::sin (h * juce::MathConstants<float>::pi * 0.25f)) / h;
+
+        case 7:  // Drawbar — organowe rejestry: 1,2,3,4,6,8 z opadającymi
+        {        // poziomami, wyżej cisza.
+            switch (n + 1)
+            {
+                case 1: return baseAmp;
+                case 2: return baseAmp * 0.8f;
+                case 3: return baseAmp * 0.6f;
+                case 4: return baseAmp * 0.5f;
+                case 6: return baseAmp * 0.4f;
+                case 8: return baseAmp * 0.3f;
+                default: return 0.0f;
+            }
+        }
+
+        case 8:  // Even — fundament + parzyste harmoniczne (pustawy, fletowy;
+                 // odwrotność square'a).
+            if (n == 0) return baseAmp;
+            return ((n + 1) % 2 == 0) ? baseAmp / h : 0.0f;
+
+        case 9:  // Golden Pluck — struna szarpnięta w złotym podziale długości
+                 // (x₀ = 1/φ): aₕ = |sin(hπ/φ)|/h². 1/φ jest najbardziej
+                 // niewymierne, więc żadna harmoniczna nie trafia dokładnie
+                 // w węzeł — najrówniejszy możliwy pluck.
+            return baseAmp
+                 * std::abs (std::sin ((float) (h * juce::MathConstants<double>::pi / fiPhi)))
+                 / (h * h);
+
+        case 10: // Fibonacci Comb — grają tylko partiale o numerach
+                 // Fibonacciego (1,2,3,5,8,13); rzadkie, harfowe widmo.
+            return fiSeqContains (fiFibSeq, n + 1) ? baseAmp / h : 0.0f;
+
+        case 11: // Lucas Comb — maska z ciągu Lucasa (1,3,4,7,11); pustszy dół.
+            return fiSeqContains (fiLucasSeq, n + 1) ? baseAmp / h : 0.0f;
+
+        case 12: // Fib Word — saw ważony słowem Fibonacciego: S = pełna,
+                 // L = stłumiona; quasi-periodyczny grzebień (to samo słowo
+                 // gra w gate).
+            return baseAmp * (fiWord16[n] ? 1.0f : 0.45f) / h;
 
         default:
             return baseAmp;

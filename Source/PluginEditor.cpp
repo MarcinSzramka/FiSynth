@@ -173,12 +173,26 @@ FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor&
     {
         juce::String prefix = "osc" + juce::String (o + 1);
 
+        // Dwie rodziny fal rozdzielone nagłówkami sekcji. Nagłówki/separator
+        // nie psują ComboBoxAttachment: mapowanie idzie po indeksach realnych
+        // pozycji (id = indeks+1), a te liczą się bez nagłówków.
+        oscs[o].waveformBox.addSectionHeading ("Classic");
         oscs[o].waveformBox.addItem ("Sine", 1);
         oscs[o].waveformBox.addItem ("Square", 2);
         oscs[o].waveformBox.addItem ("Triangle", 3);
         oscs[o].waveformBox.addItem ("Sawtooth", 4);
         oscs[o].waveformBox.addItem ("Quadratic", 5);
         oscs[o].waveformBox.addItem ("Noise", 6);
+        oscs[o].waveformBox.addSeparator();
+        oscs[o].waveformBox.addSectionHeading (juce::String (juce::CharPointer_UTF8 (
+            "\xcf\x86 / Fibonacci")));
+        oscs[o].waveformBox.addItem ("Pulse 25%", 7);
+        oscs[o].waveformBox.addItem ("Drawbar", 8);
+        oscs[o].waveformBox.addItem ("Even", 9);
+        oscs[o].waveformBox.addItem ("Golden Pluck", 10);
+        oscs[o].waveformBox.addItem ("Fib Comb", 11);
+        oscs[o].waveformBox.addItem ("Lucas Comb", 12);
+        oscs[o].waveformBox.addItem ("Fib Word", 13);
         content.addAndMakeVisible (oscs[o].waveformBox);
         oscs[o].waveformLabel.setText ("Wave", juce::dontSendNotification);
         content.addAndMakeVisible (oscs[o].waveformLabel);

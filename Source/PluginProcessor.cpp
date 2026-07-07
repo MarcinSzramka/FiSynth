@@ -183,10 +183,14 @@ FiSynthAudioProcessor::createParameterLayout()
     {
         juce::String prefix = "osc" + juce::String (o + 1);
 
+        // 0..5 klasyczne, 6..12 rodzina φ/masek — kolejność musi zgadzać się
+        // z fiHarmonicAmplitude; nowe pozycje TYLKO na końcu (stare presety).
         params.push_back (std::make_unique<juce::AudioParameterChoice> (
             juce::ParameterID { prefix + "waveform", 1 },
             prefix + " Waveform",
-            juce::StringArray { "Sine", "Square", "Triangle", "Sawtooth", "Quadratic", "Noise" },
+            juce::StringArray { "Sine", "Square", "Triangle", "Sawtooth", "Quadratic", "Noise",
+                                "Pulse 25%", "Drawbar", "Even", "Golden Pluck",
+                                "Fib Comb", "Lucas Comb", "Fib Word" },
             o == 0 ? 0 : 3));
 
         params.push_back (std::make_unique<juce::AudioParameterFloat> (

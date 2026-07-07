@@ -215,7 +215,7 @@ public:
         {
             // Cache amplitud (waveform+tilt) odświeża się leniwie w renderze —
             // tam, gdzie znany jest też wkład modulacji tiltu (ModTilt).
-            oscs[oscIndex].waveform = juce::jlimit (0, 5, waveform);
+            oscs[oscIndex].waveform = juce::jlimit (0, 12, waveform);
             oscs[oscIndex].detune = detuneAmount;
             oscs[oscIndex].coarseCents = coarseCents;
             oscs[oscIndex].mix = juce::jlimit (0.0f, 1.0f, mix);
