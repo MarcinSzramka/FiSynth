@@ -226,6 +226,8 @@ private:
         std::atomic<float>* arpDiv;
         std::atomic<float>* arpLen;
         std::atomic<float>* arpMode;
+        std::atomic<float>* arpWord;
+        std::atomic<float>* arpVel;
 
         // Golden Delay (multi-tap w proporcjach φ).
         std::atomic<float>* dlyOn;

@@ -444,8 +444,26 @@ FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor&
     arpModeBox.setTooltip (juce::String (juce::CharPointer_UTF8 (
         "Przebieg po cyklu interwa\xc5\x82\xc3\xb3w; In/Ex = powt\xc3\xb3rzenie skraj\xc3\xb3w "
         "na nawrocie, Random \xcf\x86 = nieokresowe schodki Weyla frac(k/\xcf\x86)")));
+    arpModeBox.addItem ("Fib Walk", 7);
     content.addAndMakeVisible (arpModeBox);
     arpModeAttachment = std::make_unique<ComboBoxAttachment> (processorRef.apvts, "arpMode", arpModeBox);
+
+    // Rytm ze słowa Fibonacciego: S = 1 podział, L = 2 podziały.
+    arpWordButton.setButtonText ("Word");
+    arpWordButton.setTooltip (juce::String (juce::CharPointer_UTF8 (
+        "Rytm ze s\xc5\x82owa Fibonacciego: S = 1 podzia\xc5\x82, L = 2 podzia\xc5\x82y "
+        "(13 nut na 18 podzia\xc5\x82\xc3\xb3w) \xe2\x80\x94 aperiodyczny groove")));
+    content.addAndMakeVisible (arpWordButton);
+    arpWordAttachment = std::make_unique<ButtonAttachment> (processorRef.apvts, "arpWord", arpWordButton);
+
+    // Humanizacja velocity schodkami Weyla.
+    arpVelSlider.setSliderStyle (juce::Slider::LinearHorizontal);
+    arpVelSlider.setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
+    arpVelSlider.setTooltip (juce::String (juce::CharPointer_UTF8 (
+        "Velocity \xcf\x86: dynamika krok\xc3\xb3w ze schodk\xc3\xb3w Weyla frac(k\xc2\xb7\xcf\x86) "
+        "\xe2\x80\x94 deterministyczna, nigdy si\xc4\x99 nie zap\xc4\x99tla")));
+    content.addAndMakeVisible (arpVelSlider);
+    arpVelAttachment = std::make_unique<SliderAttachment> (processorRef.apvts, "arpVel", arpVelSlider);
 
     updateBpmEnablement();
     updateLfoSyncEnablement();
@@ -794,6 +812,8 @@ void FiSynthAudioProcessorEditor::layoutContent()
     arpDivBox.setBounds (tempoRow.removeFromLeft (64).reduced (2, 1));
     arpLenBox.setBounds (tempoRow.removeFromLeft (52).reduced (2, 1));
     arpModeBox.setBounds (tempoRow.removeFromLeft (104).reduced (2, 1));
+    arpWordButton.setBounds (tempoRow.removeFromLeft (62).reduced (2, 0));
+    arpVelSlider.setBounds (tempoRow.removeFromLeft (78).reduced (2, 1));
     area.removeFromTop (8);  // margin
 
     // === DOLNY PAS: gate Fibonacciego | widmo | pole stereo ===

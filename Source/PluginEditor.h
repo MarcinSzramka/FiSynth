@@ -159,8 +159,9 @@ private:
     void updateDelaySyncEnablement();
 
     // Arpeggiator Fibonacciego (górny pasek, obok kontrolek tempa).
-    juce::ToggleButton arpOnButton;
+    juce::ToggleButton arpOnButton, arpWordButton;
     juce::ComboBox     arpDivBox, arpLenBox, arpModeBox;
+    juce::Slider       arpVelSlider;
 
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
@@ -184,8 +185,9 @@ private:
     std::unique_ptr<ButtonAttachment>   dlyOnAttachment, dlySyncAttachment;
     std::unique_ptr<ComboBoxAttachment> dlyDivAttachment;
     std::unique_ptr<SliderAttachment>   dlyTimeAttachment, dlyFbAttachment, dlyMixAttachment;
-    std::unique_ptr<ButtonAttachment>   arpOnAttachment;
+    std::unique_ptr<ButtonAttachment>   arpOnAttachment, arpWordAttachment;
     std::unique_ptr<ComboBoxAttachment> arpDivAttachment, arpLenAttachment, arpModeAttachment;
+    std::unique_ptr<SliderAttachment>   arpVelAttachment;
 
     // Nakładka pierścieni modulacji trzyma surowe wskaźniki do sliderów-celów,
     // więc jest zadeklarowana OSTATNIA — niszczona PRZED sliderami (odwrotna

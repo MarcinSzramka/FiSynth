@@ -49,8 +49,11 @@ int main()
     constexpr double sr = 48000.0;
     constexpr int blk = 512;
 
-    // Kroki 1/8 przy 120 BPM = 0.25 s = 12000 próbek.
-    auto runMode = [&] (int mode, int numSteps) -> std::vector<double>
+    // Kroki 1/8 przy 120 BPM = 0.25 s = 12000 próbek. Zwraca f0 (i opcjonalnie
+    // RMS) drugiej połowy każdego PODZIAŁU.
+    std::vector<double> lastRms;
+    auto runMode = [&] (int mode, int numSteps, bool word = false,
+                        float vel = 0.0f) -> std::vector<double>
     {
         std::unique_ptr<juce::AudioProcessor> proc (createPluginFilter());
         proc->setPlayConfigDetails (0, 2, sr, blk);
@@ -66,6 +69,8 @@ int main()
         setParam (*proc, "arpDiv", 1.0f);      // 1/8
         setParam (*proc, "arpLen", 2.0f);      // 3 kroki (offsety 0,1,2)
         setParam (*proc, "arpMode", (float) mode);
+        setParam (*proc, "arpWord", word ? 1.0f : 0.0f);
+        setParam (*proc, "arpVel", vel);
 
         const int stepSamples = 12000;
         std::vector<float> out;
@@ -81,11 +86,18 @@ int main()
                 out.push_back (0.5f * (buf.getSample (0, i) + buf.getSample (1, i)));
         }
 
-        // f0 z drugiej połowy każdego kroku (po ataku obwiedni).
+        // f0 + RMS z drugiej połowy każdego podziału (po ataku obwiedni).
         std::vector<double> freqs;
+        lastRms.clear();
         for (int st = 0; st < numSteps; ++st)
-            freqs.push_back (domFreq (out.data() + st * stepSamples + stepSamples / 3,
-                                      stepSamples / 2, sr));
+        {
+            const float* seg = out.data() + st * stepSamples + stepSamples / 3;
+            const int    n   = stepSamples / 2;
+            freqs.push_back (domFreq (seg, n, sr));
+            double acc = 0;
+            for (int i = 0; i < n; ++i) acc += (double) seg[i] * seg[i];
+            lastRms.push_back (std::sqrt (acc / n));
+        }
         return freqs;
     };
 
@@ -119,6 +131,30 @@ int main()
             ok = ok && frac < 0.2 && std::round (st) >= 0 && std::round (st) <= 2;
         }
         check (ok, "Random fi: nuty w zbiorze {0,+1,+2} od roota");
+    }
+
+    {   // Fib Walk (len 3): pozycje (F(k+2)−1) mod 3 = 0,1,2,1,1,0…
+        const auto f = runMode (6, 5);
+        const double f0 = juce::MidiMessage::getMidiNoteInHertz (60);
+        auto st = [&] (double fr) { return (int) std::lround (12.0 * std::log2 (fr / f0)); };
+        const bool ok = st (f[0]) == 0 && st (f[1]) == 1 && st (f[2]) == 2
+                     && st (f[3]) == 1 && st (f[4]) == 1;
+        check (ok, "Fib Walk: sekwencja 0,1,2,1,1 (Pisano)");
+    }
+    {   // Word: podziały-nuty wg SLSS… -> pitch per podział: 0,1,1,2,0,1,1
+        const auto f = runMode (0, 7, true);
+        const double f0 = juce::MidiMessage::getMidiNoteInHertz (60);
+        auto st = [&] (double fr) { return (int) std::lround (12.0 * std::log2 (fr / f0)); };
+        const bool ok = st (f[0]) == 0 && st (f[1]) == 1 && st (f[2]) == 1
+                     && st (f[3]) == 2 && st (f[4]) == 0 && st (f[5]) == 1 && st (f[6]) == 1;
+        check (ok, "Word: L trwa 2 podzialy (wzor 0,1,1,2,0,1,1)");
+    }
+    {   // Vel φ: przy pełnej głębokości RMS kroków wyraźnie się różni
+        (void) runMode (0, 6, false, 1.0f);
+        double lo = 1e9, hi = 0;
+        for (double r : lastRms) { lo = juce::jmin (lo, r); hi = juce::jmax (hi, r); }
+        check (hi / juce::jmax (1.0e-12, lo) > 1.3,
+               "Vel fi: dynamika krokow zroznicowana (max/min=" + juce::String (hi / lo, 2) + ")");
     }
 
     std::printf (failures == 0 ? "\nWSZYSTKIE TESTY OK\n" : "\n%d TESTOW PADLO\n", failures);

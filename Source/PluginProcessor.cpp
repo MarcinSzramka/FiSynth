@@ -70,6 +70,8 @@ FiSynthAudioProcessor::FiSynthAudioProcessor()
     par.arpDiv  = rp ("arpDiv");
     par.arpLen  = rp ("arpLen");
     par.arpMode = rp ("arpMode");
+    par.arpWord = rp ("arpWord");
+    par.arpVel  = rp ("arpVel");
 
     par.dlyOn       = rp ("dlyOn");
     par.dlySync     = rp ("dlySync");
@@ -386,9 +388,22 @@ FiSynthAudioProcessor::createParameterLayout()
         juce::StringArray arpModes { "Up", "Down", "Up-Down In", "Up-Down Ex" };
         arpModes.add (juce::String (juce::CharPointer_UTF8 ("Random \xcf\x86")));
         arpModes.add ("Random");
+        arpModes.add ("Fib Walk");   // pozycja skacze o kolejne liczby Fibonacciego
         params.push_back (std::make_unique<juce::AudioParameterChoice> (
             juce::ParameterID { "arpMode", 1 }, "Fib Arp Mode", arpModes, 0));
     }
+
+    // Rytm ze słowa Fibonacciego: S = 1 podział, L = 2 podziały (13 nut na
+    // 18 podziałów) — aperiodyczny groove zamiast równych kroków.
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { "arpWord", 1 }, "Fib Arp Word Rhythm", false));
+
+    // Humanizacja velocity schodkami Weyla frac(k·φ): deterministyczna
+    // "ludzka" dynamika, która nigdy się nie zapętla.
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "arpVel", 1 },
+        juce::String (juce::CharPointer_UTF8 ("Fib Arp Velocity \xcf\x86")),
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f }, 0.0f));
 
     // === Golden Delay ===
     params.push_back (std::make_unique<juce::AudioParameterBool> (
@@ -828,8 +843,9 @@ void FiSynthAudioProcessor::processArp (juce::MidiBuffer& midi, int numSamples,
     // dalsze wyrazy składane mod 24, żeby nie uciec z rejestru.
     static constexpr int fibOffsets[13] = { 0, 1, 2, 3, 5, 8, 13, 21, 10, 7, 17, 0, 17 };
     static constexpr int lens[6] = { 1, 2, 3, 5, 8, 13 };
-    const int len  = lens[juce::jlimit (0, 5, (int) par.arpLen->load())];
-    const int mode = juce::jlimit (0, 5, (int) par.arpMode->load());
+    const int lenIdx = juce::jlimit (0, 5, (int) par.arpLen->load());
+    const int len    = lens[lenIdx];
+    const int mode   = juce::jlimit (0, 6, (int) par.arpMode->load());
 
     // Numer kroku (może być ujemny w pre-rollu) -> indeks w cyklu interwałów.
     // In/Ex: czy skrajne kroki powtarzają się na nawrocie ping-ponga.
@@ -860,6 +876,20 @@ void FiSynthAudioProcessor::processArp (juce::MidiBuffer& midi, int numSamples,
             }
             case 5:  // Random — prawdziwy los (per krok)
                 return arpRng.nextInt (juce::jmax (1, len));
+            case 6:  // Fib Walk — pozycja = (F(k+2)−1) mod len: cykl przemierzany
+            {        // skokami o kolejne liczby Fibonacciego. F mod len jest
+                     // okresowe (okres Pisano), więc liczymy z małego k —
+                     // deterministycznie względem pozycji taktu.
+                static constexpr int pisano[6] = { 1, 3, 8, 20, 12, 28 };  // dla len 1,2,3,5,8,13
+                const int j = posmod (step, pisano[lenIdx]);
+                int a = 1 % len, b = 1 % len;              // F(1), F(2) mod len
+                for (int i = 0; i < j; ++i)
+                {
+                    const int c = (a + b) % len;
+                    a = b; b = c;
+                }
+                return posmod (b - 1, len);                // b = F(j+2) mod len
+            }
             default: // Up
                 return posmod (step, len);
         }
@@ -867,13 +897,42 @@ void FiSynthAudioProcessor::processArp (juce::MidiBuffer& midi, int numSamples,
 
     const float stepBeats = divisionToBeats ((int) par.arpDiv->load());
 
+    // Mapowanie pozycji beatowej -> numer NUTY. Przy równym rytmie nuta = numer
+    // podziału; przy rytmie ze słowa Fibonacciego S trwa 1 podział, a L dwa
+    // (SLSSLSLSSLSSL: 13 nut na 18 podziałów) — tabela podział->nuta poniżej.
+    const bool wordRhythm = par.arpWord->load() > 0.5f;
+    static constexpr int kWordNotes = 13, kWordUnits = 18;
+    static constexpr int wordNoteAtUnit[kWordUnits] =
+        { 0, 1, 1, 2, 3, 4, 4, 5, 6, 6, 7, 8, 9, 9, 10, 11, 12, 12 };
+    auto noteIndexAtBeat = [&] (double b) noexcept
+    {
+        const int unit = (int) std::floor (b / (double) stepBeats);
+        if (! wordRhythm)
+            return unit;
+        const int cyc = (int) std::floor ((double) unit / (double) kWordUnits);
+        return cyc * kWordNotes + wordNoteAtUnit[unit - cyc * kWordUnits];
+    };
+
+    // Velocity φ: schodki Weyla frac(k·φ) odejmowane od bazy — deterministyczna
+    // "ludzka" dynamika (do −60 przy pełnej głębokości), stabilna w loopie DAW.
+    const float velDepth = par.arpVel->load();
+    auto velocityFor = [&] (int noteIdx) noexcept
+    {
+        if (velDepth <= 0.001f)
+            return (juce::uint8) 100;
+        const double g = (double) noteIdx / fiPhi;
+        const double w = g - std::floor (g);
+        return (juce::uint8) juce::jlimit (30, 127,
+                   (int) std::lround (100.0 - velDepth * w * 60.0));
+    };
+
     // Pozycja w beatach ze wspólnego zegara (ten sam co gate — patrz beatPos).
     double beat = blockStartBeat;
 
     for (int i = 0; i < numSamples; ++i)
     {
-        // Floor zamiast (int): ppq bywa ujemne (pre-roll) — patrz applyFibGate.
-        const int raw = (int) std::floor (beat / (double) stepBeats);
+        // Numer nuty z pozycji beatowej (floor: ppq bywa ujemne w pre-rollu).
+        const int raw = noteIndexAtBeat (beat);
         if (raw != arpLastStep)
         {
             arpLastStep = raw;
@@ -888,7 +947,7 @@ void FiSynthAudioProcessor::processArp (juce::MidiBuffer& midi, int numSamples,
             {
                 const int idx  = offsetIndexFor (raw);
                 const int note = juce::jmin (127, root + fibOffsets[idx]);
-                midi.addEvent (juce::MidiMessage::noteOn (1, note, (juce::uint8) 100), i);
+                midi.addEvent (juce::MidiMessage::noteOn (1, note, velocityFor (raw)), i);
                 arpNoteSounding = note;
             }
         }
@@ -1220,6 +1279,8 @@ void FiSynthAudioProcessor::resetToInit()
     set ("arpDiv", 2.0f);                          // 1/16
     set ("arpLen", 4.0f);                          // 8 kroków
     set ("arpMode", 0.0f);                         // Up
+    set ("arpWord", 0.0f);
+    set ("arpVel", 0.0f);
     set ("dlyOn", 0.0f);
     set ("dlySync", 1.0f);
     set ("dlyDiv", 1.0f);                          // 1/8

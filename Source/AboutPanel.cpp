@@ -194,8 +194,15 @@ std::vector<AboutPanel::Section> AboutPanel::makeSections (bool english)
             "semitones (later terms folded mod 24 to stay in register), cycling over 1/2/3/5/8/13\n"
             "steps. MODES: Up, Down, Up-Down In/Ex (In repeats the turnaround steps),\n"
             "Random φ (Weyl steps frac(k/φ) — non-repeating and locked to the bar\n"
-            "position, so DAW loops play identically) and true Random. Combine with the gate for golden rhythm on top of golden melody —\n"
-            "the two patterns interlock without ever repeating in sync.") });
+            "position, so DAW loops play identically), true Random and Fib Walk (the\n"
+            "position hops through the cycle by successive Fibonacci numbers — a\n"
+            "self-similar wander, computed via the Pisano period so it stays\n"
+            "transport-locked).\n"
+            "WORD toggle: step durations follow the Fibonacci word (S = 1 division,\n"
+            "L = 2 — 13 notes over 18 divisions, an aperiodic groove). VEL φ: step\n"
+            "velocities walk the Weyl sequence frac(k·φ) — deterministic humanize\n"
+            "that never loops. Combine with the gate for golden rhythm on top of\n"
+            "golden melody — the patterns interlock without ever repeating in sync.") });
 
         s.push_back ({ utf8 ("Stereo phyllotaxis"), utf8 (
             "Instead of classic unison — PARTIAL panning. Every partial n has a fixed spot in\n"
@@ -468,7 +475,13 @@ std::vector<AboutPanel::Section> AboutPanel::makeSections (bool english)
         "(dalsze wyrazy składane mod 24, żeby nie uciec z rejestru), w cyklu 1/2/3/5/8/13\n"
         "kroków. TRYBY: Up, Down, Up-Down In/Ex (In powtarza skrajne kroki na\n"
         "nawrocie), Random φ (schodki Weyla frac(k/φ) — nieokresowe i zaczepione\n"
-        "o pozycję taktu, więc loop w DAW gra identycznie) oraz czysty Random.\n"
+        "o pozycję taktu, więc loop w DAW gra identycznie), czysty Random oraz\n"
+        "Fib Walk (pozycja skacze po cyklu o kolejne liczby Fibonacciego —\n"
+        "samopodobne błądzenie, liczone przez okres Pisano, stabilne względem\n"
+        "transportu).\n"
+        "WORD: czasy kroków ze słowa Fibonacciego (S = 1 podział, L = 2 —\n"
+        "13 nut na 18 podziałów, aperiodyczny groove). VEL φ: dynamika kroków\n"
+        "ze schodków Weyla frac(k·φ) — deterministyczny humanize bez pętli.\n"
         "W parze z gate'em: złoty rytm na złotej melodii — oba patterny\n"
         "zazębiają się, nigdy nie powtarzając się synchronicznie.") });
 
