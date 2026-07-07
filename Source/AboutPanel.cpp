@@ -33,8 +33,10 @@ std::vector<AboutPanel::Section> AboutPanel::makeSections (bool english)
             "shapes (sine/square/triangle/Golden S&H) and a Golden Drift control.\n"
             "\n"
             "Everything you see in the GUI is computed from the same tables and formulas as the\n"
-            "sound — the spiral, the XY pad and the spectrum are not illustrations but a live\n"
-            "view of the actual engine state.") });
+            "sound — the spiral (which is also the stretch controller) and the spectrum are not\n"
+            "illustrations but a live view of the actual engine state.\n"
+            "\n"
+            "Created and developed by Szramcode — Marcin Szramka.") });
 
         s.push_back ({ utf8 ("Oscillators & φ-stretch"), utf8 (
             "Each oscillator is a bank of 16 partials: freq(n) = f0 · ratio(n); amplitudes come\n"
@@ -304,7 +306,10 @@ std::vector<AboutPanel::Section> AboutPanel::makeSections (bool english)
         "kształtami (sine/square/triangle/Golden S&H) i suwakiem Golden Drift.\n"
         "\n"
         "Wszystko, co widzisz w GUI, liczone jest z tych samych tablic i wzorów co dźwięk —\n"
-        "spirala, pad XY i widmo to nie ilustracje, tylko podgląd realnego stanu silnika.") });
+        "spirala (będąca zarazem kontrolerem stretcha) i widmo to nie ilustracje, tylko\n"
+        "podgląd realnego stanu silnika.\n"
+        "\n"
+        "Created and developed by Szramcode — Marcin Szramka.") });
 
     s.push_back ({ utf8 ("Oscylatory i stretch φ"), utf8 (
         "Każdy oscylator to bank 16 partiali: freq(n) = f0 · ratio(n), amplitudy zależą od\n"
