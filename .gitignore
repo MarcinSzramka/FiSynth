@@ -37,3 +37,6 @@ compile_commands.json
 *.vst3/
 *.component/
 *.aaxplugin/
+
+# Claude Code — lokalne ustawienia sesji (nie commitujemy)
+.claude/settings.local.json
