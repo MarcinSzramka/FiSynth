@@ -220,6 +220,139 @@ int main()
     Env (3, { {0,0,0}, {0.8f,1,0}, {1.6f,0,0} }, 2);
     save ("10 Zloty Skurwysyn");
 
+    // ============ 11 · Deep Field Drone — głęboki kosmiczny dron ============
+    // Even + Fib Comb w Golden Octave/Lucas, oddychający filtr (LFO z driftem φ),
+    // widmo powoli rozciąga się obwiednią (Stretch 1) — pad "z teleskopu Webba".
+    gProc->resetToInit();
+    P ("gain", 0.6f);
+    P ("osc1waveform", 8);  P ("osc1mix", 0.55f); P ("osc1stretch", 0.30f);
+    P ("osc1stretchmode", 2); P ("osc1tilt", 2.2f);
+    P ("osc2waveform", 10); P ("osc2mix", 0.40f); P ("osc2stretch", 0.20f);
+    P ("osc2stretchmode", 7); P ("osc2goldint", 1); P ("osc2tilt", 2.4f);
+    P ("osc3waveform", 0);  P ("osc3mix", 0.35f); P ("osc3goldint", 3);
+    P ("subLevel", 0.45f); P ("unison", 0.85f); P ("spread", 1.0f);
+    P ("filterCutoff", 1500); P ("filterResonance", 0.6f);
+    P ("lfoRate", 0.2f); P ("lfoDepth", 0.30f); P ("lfoDrift", 0.9f);
+    P ("env2Dest", 5); P ("env2Amt", 0.35f);
+    P ("env3Dest", 1); P ("env3Amt", 0.30f);
+    P ("dlyOn", 1); P ("dlySync", 1); P ("dlyDiv", 0); P ("dlyFeedback", 0.60f); P ("dlyMix", 0.35f);
+    Env (0, { {0,0,0}, {1.2f,1,0.25f}, {6.0f,0,-0.3f} }, 1);
+    Env (2, { {0,0,0}, {4.0f,1,0.2f}, {8.0f,0,-0.2f} }, 1);
+    Env (3, { {0,0,0}, {2.5f,1,0.3f}, {7.0f,0,0} }, 1);
+    save ("11 Deep Field Drone");
+
+    // ============ 12 · Nebula Chorale — chór mgławicy przez band-pass ============
+    // Golden Detune (mikro-rozstrojony chór) + band-pass wędrujący obwiednią
+    // jak powoli zmieniająca się samogłoska; iskra +2φ na trzecim oscylatorze.
+    gProc->resetToInit();
+    P ("gain", 0.6f);
+    P ("osc1waveform", 8); P ("osc1mix", 0.55f); P ("osc1stretch", 0.50f);
+    P ("osc1stretchmode", 3); P ("osc1tilt", 1.6f);
+    P ("osc2waveform", 2); P ("osc2mix", 0.45f); P ("osc2stretch", 0.50f);
+    P ("osc2stretchmode", 3); P ("osc2detune", 5); P ("osc2tilt", 1.8f);
+    P ("osc3waveform", 0); P ("osc3mix", 0.28f); P ("osc3goldint", 4);
+    P ("unison", 0.75f); P ("spread", 0.95f); P ("subLevel", 0.2f);
+    P ("filterType", 1); P ("filterCutoff", 900); P ("filterResonance", 1.3f);
+    P ("env2Dest", 1); P ("env2Amt", 0.50f);
+    P ("lfoShape", 2); P ("lfoRate", 0.3f); P ("lfoDepth", 0.25f); P ("lfoDrift", 0.65f);
+    P ("dlyOn", 1); P ("dlySync", 1); P ("dlyDiv", 0); P ("dlyFeedback", 0.55f); P ("dlyMix", 0.40f);
+    Env (0, { {0,0,0}, {0.8f,1,0.2f}, {4.5f,0,-0.3f} }, 1);
+    Env (2, { {0,0,0}, {3.0f,1,0.3f}, {8.0f,0.25f,-0.2f} }, 1);
+    save ("12 Nebula Chorale");
+
+    // ============ 13 · Pulsar Beacon — radiolatarnia: arp Random φ + echo 1/8T ============
+    // Melodia nigdy się nie zapętla (schodki Weyla), rytm ze słowa Fibonacciego,
+    // echa triolowe krzyżują się z krokiem 1/8 — sygnał z obcej sondy.
+    gProc->resetToInit();
+    P ("gain", 0.62f);
+    P ("bpm", 96);
+    P ("arpOn", 1); P ("arpDiv", 1); P ("arpLen", 3); P ("arpMode", 4);
+    P ("arpWord", 1); P ("arpVel", 0.7f);
+    P ("osc1waveform", 9);  P ("osc1mix", 0.75f); P ("osc1tilt", 1.1f);
+    P ("osc2waveform", 10); P ("osc2mix", 0.35f); P ("osc2goldint", 3); P ("osc2tilt", 1.3f);
+    P ("osc3waveform", 0);  P ("osc3mix", 0.25f); P ("osc3goldint", 1);
+    P ("subLevel", 0.3f); P ("spread", 0.8f); P ("unison", 0.3f);
+    P ("filterCutoff", 5500); P ("filterResonance", 1.0f);
+    P ("env2Dest", 1); P ("env2Amt", 0.40f);
+    P ("dlyOn", 1); P ("dlySync", 1); P ("dlyDiv", 4); P ("dlyFeedback", 0.65f); P ("dlyMix", 0.45f);
+    Env (0, { {0,0,0}, {0.003f,1,0}, {1.0f,0,-0.45f} }, 2);
+    Env (2, { {0,1,0}, {0.5f,0,-0.4f} }, 1);
+    save ("13 Pulsar Beacon");
+
+    // ============ 14 · Alien Larynx — gadający obcy: formanty + kwant 833¢ ============
+    // Band-pass z wysokim Q sterowany "mową" (obwiednia wielopunktowa), FM
+    // wybuchami, pitch skacze schodkami złotego interwału — glossolalia obcych.
+    gProc->resetToInit();
+    P ("gain", 0.55f);
+    P ("osc1waveform", 12); P ("osc1mix", 0.65f); P ("osc1stretch", 0.40f);
+    P ("osc1stretchmode", 8); P ("osc1tilt", 0.9f);
+    P ("osc2waveform", 4);  P ("osc2mix", 0.50f); P ("osc2goldint", 1);
+    P ("osc2stretch", 0.30f); P ("osc2stretchmode", 4); P ("osc2tilt", 0.8f);
+    P ("subLevel", 0.35f);
+    P ("ringMix", 0.6f); P ("fmAmt", 0.25f);
+    P ("filterType", 1); P ("filterCutoff", 750); P ("filterResonance", 5.0f);
+    P ("env1Dest", 1); P ("env1Amt", 0.55f);
+    P ("env2Dest", 8); P ("env2Amt", 0.50f);
+    P ("env3Dest", 2); P ("env3Amt", 0.70f); P ("pitchQuant", 1);
+    P ("lfoShape", 3); P ("lfoSync", 1); P ("lfoRateDiv", 3); P ("lfoDepth", 0.5f);
+    P ("dlyOn", 1); P ("dlySync", 0); P ("dlyTime", 120); P ("dlyFeedback", 0.5f); P ("dlyMix", 0.3f);
+    Env (0, { {0,0,0}, {0.02f,1,0}, {0.9f,0.7f,-0.2f}, {2.4f,0,-0.3f} }, 2);
+    Env (1, { {0,0.2f,0}, {0.15f,1,-0.3f}, {0.35f,0.35f,0.3f}, {0.6f,0.8f,0},
+              {0.9f,0.15f,0}, {1.3f,0.55f,0} }, 5);
+    Env (2, { {0,0,0}, {0.1f,1,0}, {0.25f,0.1f,0}, {0.5f,0.7f,0}, {0.85f,0,0} }, 4);
+    Env (3, { {0,0.6f,0}, {0.3f,0.6f,0}, {0.35f,1,0}, {0.6f,1,0},
+              {0.65f,0.3f,0}, {0.95f,0.3f,0}, {1.0f,0,0} }, 6);
+    save ("14 Alien Larynx");
+
+    // ============ 15 · Xeno Hive — rój: Silver/Bronze + gate 34 kroki 1/32 ============
+    // Dwa saw rozciągnięte metalicznie (σ srebrne i brązowe), szczypta szumu,
+    // aperiodyczny stutter słowa Fibonacciego; rój z czasem "składa się"
+    // w harmoniczność (obwiednia cofa Stretch 2).
+    gProc->resetToInit();
+    P ("gain", 0.55f);
+    P ("bpm", 128);
+    P ("osc1waveform", 3); P ("osc1mix", 0.60f); P ("osc1stretch", 0.75f);
+    P ("osc1stretchmode", 4); P ("osc1tilt", 0.8f);
+    P ("osc2waveform", 3); P ("osc2mix", 0.55f); P ("osc2stretch", 0.85f);
+    P ("osc2stretchmode", 5); P ("osc2detune", -5); P ("osc2tilt", 0.75f);
+    P ("osc3waveform", 5); P ("osc3mix", 0.15f);
+    P ("unison", 1.0f); P ("spread", 1.0f); P ("subLevel", 0.3f); P ("fmAmt", 0.3f);
+    P ("filterCutoff", 1600); P ("filterResonance", 2.5f);
+    P ("env2Dest", 1); P ("env2Amt", 0.60f);
+    P ("env3Dest", 6); P ("env3Amt", -0.50f);
+    P ("gateOn", 1); P ("gateDepth", 0.9f); P ("gateDiv", 3); P ("gateGen", 4);
+    P ("lfoShape", 1); P ("lfoSync", 1); P ("lfoRateDiv", 6); P ("lfoDepth", 0.35f);
+    P ("dlyOn", 1); P ("dlySync", 1); P ("dlyDiv", 2); P ("dlyFeedback", 0.5f); P ("dlyMix", 0.3f);
+    Env (0, { {0,0,0}, {0.01f,1,0}, {0.8f,0,-0.25f} }, 1);
+    Env (2, { {0,1,0}, {0.35f,0.15f,-0.4f}, {1.5f,0,0} }, 1);
+    Env (3, { {0,0,0}, {1.4f,1,0.2f} }, 1);
+    save ("15 Xeno Hive");
+
+    // ============ 16 · Wormhole Screamer — opadający krzyk przez ring+FM ============
+    // Golden Shift (klangor) × Fib Word +2φ przez ring i FM pod obwiednią,
+    // pitch spada z +21 półtonów schodkami 833¢, rezonans narasta, krótki
+    // metaliczny delay 75 ms — syrena z tunelu czasoprzestrzennego.
+    gProc->resetToInit();
+    P ("gain", 0.5f);
+    P ("osc1waveform", 1);  P ("osc1mix", 0.55f); P ("osc1stretch", 0.90f);
+    P ("osc1stretchmode", 8); P ("osc1tilt", 0.7f);
+    P ("osc2waveform", 12); P ("osc2mix", 0.50f); P ("osc2goldint", 4);
+    P ("osc2stretch", 0.60f); P ("osc2stretchmode", 0); P ("osc2tilt", 0.9f);
+    P ("osc3waveform", 11); P ("osc3mix", 0.30f); P ("osc3goldint", 0);
+    P ("ringMix", 0.85f); P ("fmAmt", 0.45f); P ("subLevel", 0.55f);
+    P ("unison", 0.8f); P ("spread", 1.0f); P ("pitchQuant", 1);
+    P ("filterType", 1); P ("filterCutoff", 1200); P ("filterResonance", 4.0f);
+    P ("env1Dest", 4); P ("env1Amt", 0.80f);
+    P ("env2Dest", 8); P ("env2Amt", 0.55f);
+    P ("env3Dest", 2); P ("env3Amt", 0.90f);
+    P ("lfoShape", 3); P ("lfoSync", 1); P ("lfoRateDiv", 4); P ("lfoDepth", 0.6f); P ("lfoDrift", 1.0f);
+    P ("dlyOn", 1); P ("dlySync", 0); P ("dlyTime", 75); P ("dlyFeedback", 0.75f); P ("dlyMix", 0.35f);
+    Env (0, { {0,0,0}, {0.005f,1,0}, {2.5f,0.8f,-0.2f}, {4.5f,0,-0.3f} }, 2);
+    Env (1, { {0,0,0}, {1.5f,1,0.3f} }, 1);
+    Env (2, { {0,1,0}, {0.6f,0.2f,-0.4f}, {1.4f,0.9f,0}, {2.4f,0,0} }, 3);
+    Env (3, { {0,1,0}, {1.8f,0,-0.5f} }, 1);
+    save ("16 Wormhole Screamer");
+
     if (failures == 0)
         std::printf ("\nWSZYSTKIE PRESETY OK\nkatalog: %s\n",
                      FiSynthAudioProcessor::getPresetDirectory().getFullPathName().toRawUTF8());
