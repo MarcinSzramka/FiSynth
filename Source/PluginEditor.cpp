@@ -548,6 +548,9 @@ FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor&
     // About NAD wszystkim (także nad nakładką pierścieni); domyślnie schowany.
     content.addChildComponent (aboutPanel);
 
+    // Prawy klik na gałce = menu MIDI Learn (po utworzeniu wszystkich sliderów).
+    initMidiLearn();
+
     // Okno resizowalne o stałym aspekcie: layout liczy się w bazie 1460×850,
     // a resized() skaluje płótno transformem do bieżącego rozmiaru.
     setResizable (true, true);
@@ -559,6 +562,48 @@ FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor&
 FiSynthAudioProcessorEditor::~FiSynthAudioProcessorEditor()
 {
     content.setLookAndFeel (nullptr);
+}
+
+// Rejestruje wszystkie slidery parametrów jako cele MIDI Learn. ID muszą być
+// zgodne z miejscami tworzenia attachmentów powyżej — jedyna druga kopia tych
+// stringów w edytorze, więc trzymana w jednym miejscu.
+void FiSynthAudioProcessorEditor::initMidiLearn()
+{
+    auto reg = [this] (LearnSlider& s, const juce::String& id)
+    {
+        s.onRightClick = [this, id] { showMidiLearnMenu (processorRef, id); };
+    };
+
+    reg (gainSlider, "gain");
+    reg (bpmSlider,  "bpm");
+
+    for (int i = 0; i < 3; ++i)
+    {
+        const juce::String oscPrefix = "osc" + juce::String (i + 1);
+        reg (modSlots[i].amtSlider, "env" + juce::String (i + 1) + "Amt");
+        reg (oscs[i].detuneSlider,  oscPrefix + "detune");
+        reg (oscs[i].mixSlider,     oscPrefix + "mix");
+        reg (oscs[i].tiltSlider,    oscPrefix + "tilt");
+    }
+
+    reg (filterCutoffSlider,    "filterCutoff");
+    reg (filterResonanceSlider, "filterResonance");
+    reg (lfoRateSlider,         "lfoRate");
+    reg (lfoDepthSlider,        "lfoDepth");
+    reg (lfoDriftSlider,        "lfoDrift");
+    reg (ringSlider,            "ringMix");
+    reg (fmSlider,              "fmAmt");
+    reg (subSlider,             "subLevel");
+    reg (uniSlider,             "unison");
+    reg (dlyTimeSlider,         "dlyTime");
+    reg (dlyFbSlider,           "dlyFeedback");
+    reg (dlyMixSlider,          "dlyMix");
+    reg (arpVelSlider,          "arpVel");
+    reg (fxDistSlider,          "fxDist");
+    reg (fxSatSlider,           "fxSat");
+    reg (fxShapeSlider,         "fxShape");
+    reg (fxRevSizeSlider,       "fxRevSize");
+    reg (fxRevMixSlider,        "fxRevMix");
 }
 
 void FiSynthAudioProcessorEditor::applyPhiCascade()

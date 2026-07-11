@@ -1,6 +1,7 @@
 #include "SpiralVisualizer.h"
 #include "PartialTables.h"
 #include "FiLook.h"
+#include "MidiLearn.h"
 #include <cstring>
 
 namespace
@@ -135,6 +136,18 @@ void SpiralVisualizer::applyPointer (const juce::MouseEvent& e)
 
 void SpiralVisualizer::mouseDown (const juce::MouseEvent& e)
 {
+    // Prawy klik = menu MIDI Learn obu parametrów tarczy (promień = stretch,
+    // kąt = tryb) dla AKTYWNEGO oscylatora — zanim cokolwiek zacznie gest.
+    if (e.mods.isPopupMenu())
+    {
+        const juce::String prefix = "osc" + juce::String (curOsc + 1);
+        juce::PopupMenu menu;
+        addMidiLearnItems (menu, processor, prefix + "stretch");
+        addMidiLearnItems (menu, processor, prefix + "stretchmode");
+        menu.showMenuAsync (juce::PopupMenu::Options());
+        return;
+    }
+
     // Klik w etykietę trybu = skok do wartości całkowitej (dawny ComboBox).
     for (int m = 0; m < fiNumStretchModes; ++m)
     {

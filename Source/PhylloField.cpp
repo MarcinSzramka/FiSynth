@@ -11,6 +11,7 @@ PhylloField::PhylloField (FiSynthAudioProcessor& p)
     addAndMakeVisible (spreadSlider);
     spreadAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (
         processor.apvts, "spread", spreadSlider);
+    spreadSlider.onRightClick = [this] { showMidiLearnMenu (processor, "spread"); };
 
     spreadLabel.setText ("Spread", juce::dontSendNotification);
     spreadLabel.setColour (juce::Label::textColourId, juce::Colours::whitesmoke);

@@ -14,7 +14,8 @@ class FiSynthVoice;
 #define FISYNTH_TEST_MODE      0
 #define FISYNTH_TEST_STEP_MS   400   // długość jednego kroku sekwencji w ms
 
-class FiSynthAudioProcessor : public juce::AudioProcessor
+class FiSynthAudioProcessor : public juce::AudioProcessor,
+                              private juce::Timer
 {
 public:
     FiSynthAudioProcessor();
@@ -169,6 +170,18 @@ public:
     // Zwraca liczbę faktycznie przeczytanych próbek (mono suma po gainie).
     int readAnalyzerSamples (float* dest, int maxNum);
 
+    // === MIDI Learn (CC -> parametr) ===
+    // GUI (prawy klik na gałce/spirali) uzbraja Learn; pierwszy CC, który
+    // przyjdzie, przejmuje przypisanie (1:1 — stare przypisania parametru
+    // i tego CC znikają). Całość żyje na wątku komunikatów: audio tylko
+    // zrzuca eventy CC do FIFO, a timerCallback mapuje je na parametry
+    // (setValueNotifyingHost wolno wołać wyłącznie z wątku komunikatów).
+    void startMidiLearn (const juce::String& paramID);
+    void cancelMidiLearn();
+    bool isMidiLearnArmed (const juce::String& paramID) const;
+    int  ccForParam (const juce::String& paramID) const;   // -1 = brak
+    void clearCcMapping (const juce::String& paramID);
+
 private:
     // Buduje listę wszystkich parametrów pluginu. static, bo wołane
     // w liście inicjalizacyjnej konstruktora, zanim obiekt w pełni istnieje.
@@ -322,6 +335,19 @@ private:
     juce::AbstractFifo analyzerFifo { 1 << 14 };
     std::vector<float> analyzerBuffer = std::vector<float> (1 << 14, 0.0f);
     void pushAnalyzerSamples (const juce::AudioBuffer<float>&);
+
+    // === MIDI Learn: FIFO eventów CC (audio pisze, timer czyta) ===
+    // ccMap i learnParam dotykane WYŁĄCZNIE z wątku komunikatów (timer + GUI
+    // + setStateInformation), więc bez atomików. Wskaźniki parametrów żyją
+    // tak długo jak procesor. Przepełnione FIFO gubi nadmiar — kręcenie gałką
+    // wysyła dziesiątki CC, strata paru jest niesłyszalna.
+    void timerCallback() override;
+    static constexpr int kCcFifoSize = 512;
+    juce::AbstractFifo ccFifo { kCcFifoSize };
+    int   ccFifoNum[kCcFifoSize] {};
+    float ccFifoVal[kCcFifoSize] {};
+    juce::RangedAudioParameter* ccMap[128] {};
+    juce::RangedAudioParameter* learnParam { nullptr };
 
 #if FISYNTH_TEST_MODE
     // Sekwencja grana w trybie testowym (numery nut MIDI). Domyślnie

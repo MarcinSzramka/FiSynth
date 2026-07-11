@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "MidiLearn.h"
 
 // === Pierścień Fibonacciego — sekwencer/gate ===
 //
@@ -28,7 +29,7 @@ private:
     FiSynthAudioProcessor& processor;
 
     juce::ToggleButton onButton { "Gate" };
-    juce::Slider       depthSlider;
+    LearnSlider        depthSlider;
     juce::ComboBox     divBox, genBox;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>   onAttachment;

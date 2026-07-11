@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "MidiLearn.h"
 
 // === Pole stereo phyllotaxis ===
 //
@@ -24,7 +25,7 @@ private:
 
     FiSynthAudioProcessor& processor;
 
-    juce::Slider spreadSlider;
+    LearnSlider  spreadSlider;
     juce::Label  spreadLabel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> spreadAttachment;
 

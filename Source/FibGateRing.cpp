@@ -17,6 +17,7 @@ FibGateRing::FibGateRing (FiSynthAudioProcessor& p)
     depthSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 40, 14);
     addAndMakeVisible (depthSlider);
     depthAttachment = std::make_unique<APVTS::SliderAttachment> (processor.apvts, "gateDepth", depthSlider);
+    depthSlider.onRightClick = [this] { showMidiLearnMenu (processor, "gateDepth"); };
 
     // Etykiety ze wspólnej tabeli podziałów — indeksy 1:1 z parametrem gateDiv.
     const auto divLabels = FiSynthAudioProcessor::divisionLabels();

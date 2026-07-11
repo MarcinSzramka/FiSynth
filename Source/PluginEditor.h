@@ -11,6 +11,7 @@
 #include "PhylloField.h"
 #include "AboutPanel.h"
 #include "FiLook.h"
+#include "MidiLearn.h"
 
 class FiSynthAudioProcessorEditor : public juce::AudioProcessorEditor
 {
@@ -54,8 +55,11 @@ private:
                          lfoBounds, goldBounds, spiralBounds, gateBounds,
                          phylloBounds, spectrumBounds, fxBounds;
 
-    juce::Slider gainSlider;
+    // Slidery parametrów jako LearnSlider (prawy klik = menu MIDI Learn);
+    // cele rejestruje initMidiLearn() na końcu konstruktora.
+    LearnSlider gainSlider;
     juce::Label gainLabel;
+    void initMidiLearn();
 
     // Graficzna obwiednia + routing modulacji (źródło = obwiednia)
     EnvelopeEditor envEditor;
@@ -102,14 +106,14 @@ private:
     // tempoSyncButton wybiera źródło tempa: DAW (wł.) vs ręczne BPM (wył.).
     juce::ToggleButton tempoSyncButton, envSyncButton, envSnapButton;
     juce::ComboBox     envGridBox;
-    juce::Slider       bpmSlider;
+    LearnSlider        bpmSlider;
     juce::Label        bpmLabel;
     void updateBpmEnablement();
 
     struct ModSlotControl
     {
         juce::ComboBox destBox;
-        juce::Slider   amtSlider;
+        LearnSlider    amtSlider;
         juce::Label    label;
         std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> destAttachment;
         std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>   amtAttachment;
@@ -121,9 +125,9 @@ private:
     struct OscControl
     {
         juce::ComboBox waveformBox;
-        juce::Slider detuneSlider;
-        juce::Slider mixSlider;
-        juce::Slider tiltSlider;
+        LearnSlider detuneSlider;
+        LearnSlider mixSlider;
+        LearnSlider tiltSlider;
         juce::ComboBox goldIntBox;
         juce::Label waveformLabel, detuneLabel, mixLabel, tiltLabel, goldIntLabel;
 
@@ -137,12 +141,12 @@ private:
     } oscs[3];
 
     // Filter
-    juce::Slider filterCutoffSlider, filterResonanceSlider;
+    LearnSlider filterCutoffSlider, filterResonanceSlider;
     juce::ComboBox filterTypeBox;
     juce::Label filterCutoffLabel, filterResonanceLabel, filterTypeLabel;
 
     // LFO
-    juce::Slider lfoRateSlider, lfoDepthSlider, lfoDriftSlider;
+    LearnSlider lfoRateSlider, lfoDepthSlider, lfoDriftSlider;
     juce::ComboBox lfoShapeBox;
     juce::Label lfoRateLabel, lfoDepthLabel, lfoShapeLabel, lfoDriftLabel;
     juce::ToggleButton lfoSyncButton;   // wł. = rate z podziału nut pod tempo
@@ -150,23 +154,23 @@ private:
     void updateLfoSyncEnablement();
 
     // === Sekcja GOLD: złoty silnik (Ring/FM/Sub/Unison) + Golden Delay ===
-    juce::Slider ringSlider, fmSlider, subSlider, uniSlider;
+    LearnSlider  ringSlider, fmSlider, subSlider, uniSlider;
     juce::Label  ringLabel, fmLabel, subLabel, uniLabel;
     juce::ToggleButton dlyOnButton, dlySyncButton;
     juce::ComboBox     dlyDivBox;
-    juce::Slider       dlyTimeSlider, dlyFbSlider, dlyMixSlider;
+    LearnSlider        dlyTimeSlider, dlyFbSlider, dlyMixSlider;
     juce::Label        dlyFbLabel, dlyMixLabel;
     void updateDelaySyncEnablement();
 
     // Arpeggiator Fibonacciego (górny pasek, obok kontrolek tempa).
     juce::ToggleButton arpOnButton, arpWordButton;
     juce::ComboBox     arpDivBox, arpLenBox, arpModeBox;
-    juce::Slider       arpVelSlider;
+    LearnSlider        arpVelSlider;
     juce::Label        arpVelLabel;
 
     // === Efektor (dolny pas, między Gate a widmem) ===
     juce::ToggleButton fxOnButton;
-    juce::Slider       fxDistSlider, fxSatSlider, fxShapeSlider,
+    LearnSlider        fxDistSlider, fxSatSlider, fxShapeSlider,
                        fxRevSizeSlider, fxRevMixSlider;
     juce::Label        fxDistLabel, fxSatLabel, fxShapeLabel,
                        fxRevSizeLabel, fxRevMixLabel;

@@ -109,6 +109,10 @@ FiSynthAudioProcessor::FiSynthAudioProcessor()
         // Wypełnij migawki startowe z domyślnych obwiedni.
         commitEnvelope (i);
     }
+
+    // MIDI Learn: timer na wątku komunikatów drenuje FIFO eventów CC
+    // i mapuje je na parametry (działa też bez otwartego edytora).
+    startTimerHz (60);
 }
 
 void FiSynthAudioProcessor::commitEnvelope (int idx)
@@ -584,6 +588,24 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         }
     }
 #endif
+
+    // MIDI Learn: eventy CC do lock-free FIFO — mapowanie na parametry robi
+    // timerCallback na wątku komunikatów (setValueNotifyingHost nie może być
+    // wołane z audio). Eventy zostają też w buforze (synth i tak ignoruje
+    // wszystko poza sustain/panic).
+    for (const auto meta : midiMessages)
+    {
+        const auto msg = meta.getMessage();
+        if (! msg.isController())
+            continue;
+
+        const auto scope = ccFifo.write (1);
+        if (scope.blockSize1 == 1)
+        {
+            ccFifoNum[scope.startIndex1] = msg.getControllerNumber();
+            ccFifoVal[scope.startIndex1] = (float) msg.getControllerValue() / 127.0f;
+        }
+    }
 
     // Nuty z klawiatury ekranowej dołączają do strumienia MIDI (i odwrotnie:
     // eventy z hosta aktualizują stan klawiszy w GUI).
@@ -1223,6 +1245,75 @@ int FiSynthAudioProcessor::readAnalyzerSamples (float* dest, int maxNum)
     return size1 + size2;
 }
 
+// === MIDI Learn ===
+// Wszystko poniżej żyje na wątku komunikatów — patrz komentarz przy ccMap.
+
+void FiSynthAudioProcessor::timerCallback()
+{
+    int start1 = 0, size1 = 0, start2 = 0, size2 = 0;
+    ccFifo.prepareToRead (ccFifo.getNumReady(), start1, size1, start2, size2);
+
+    auto handle = [this] (int idx)
+    {
+        const int cc = juce::jlimit (0, 127, ccFifoNum[idx]);
+
+        if (learnParam != nullptr)
+        {
+            // Uzbrojony Learn: ten CC przejmuje parametr (1:1 — stare
+            // przypisanie parametru znika, przypisanie CC nadpisuje się).
+            for (auto*& p : ccMap)
+                if (p == learnParam)
+                    p = nullptr;
+
+            ccMap[cc]  = learnParam;
+            learnParam = nullptr;
+        }
+
+        if (auto* p = ccMap[cc])
+        {
+            // Para gestów na event: host widzi ruch jak dotknięcie gałki
+            // w GUI (tryby touch/latch automacji działają poprawnie).
+            p->beginChangeGesture();
+            p->setValueNotifyingHost (ccFifoVal[idx]);
+            p->endChangeGesture();
+        }
+    };
+
+    for (int i = 0; i < size1; ++i) handle (start1 + i);
+    for (int i = 0; i < size2; ++i) handle (start2 + i);
+    ccFifo.finishedRead (size1 + size2);
+}
+
+void FiSynthAudioProcessor::startMidiLearn (const juce::String& paramID)
+{
+    learnParam = apvts.getParameter (paramID);
+}
+
+void FiSynthAudioProcessor::cancelMidiLearn()
+{
+    learnParam = nullptr;
+}
+
+bool FiSynthAudioProcessor::isMidiLearnArmed (const juce::String& paramID) const
+{
+    return learnParam != nullptr && learnParam->paramID == paramID;
+}
+
+int FiSynthAudioProcessor::ccForParam (const juce::String& paramID) const
+{
+    for (int cc = 0; cc < 128; ++cc)
+        if (ccMap[cc] != nullptr && ccMap[cc]->paramID == paramID)
+            return cc;
+    return -1;
+}
+
+void FiSynthAudioProcessor::clearCcMapping (const juce::String& paramID)
+{
+    for (auto*& p : ccMap)
+        if (p != nullptr && p->paramID == paramID)
+            p = nullptr;
+}
+
 juce::AudioProcessorEditor* FiSynthAudioProcessor::createEditor()
 {
     return new FiSynthAudioProcessorEditor (*this);
@@ -1304,13 +1395,42 @@ void FiSynthAudioProcessor::applyStateXml (const juce::XmlElement& xml)
 void FiSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     if (auto xml = stateToXml())
+    {
+        // Mapa MIDI CC tylko w stanie DAW/standalone, NIE w presetach (dokłada
+        // ją ten szczebel, nie stateToXml): preset to brzmienie, mapa to sprzęt
+        // użytkownika — wczytanie presetu nie może kasować mapy kontrolera.
+        auto* map = xml->createNewChildElement ("MIDIMAP");
+        for (int cc = 0; cc < 128; ++cc)
+            if (ccMap[cc] != nullptr)
+            {
+                auto* m = map->createNewChildElement ("MAP");
+                m->setAttribute ("cc", cc);
+                m->setAttribute ("param", ccMap[cc]->paramID);
+            }
+
         copyXmlToBinary (*xml, destData);
+    }
 }
 
 void FiSynthAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     if (auto xml = getXmlFromBinary (data, sizeInBytes))
+    {
+        // MIDIMAP wyjmij PRZED applyStateXml — replaceState wciągnąłby ją do
+        // apvts.state, skąd przeciekłaby do zapisywanych presetów. Stan sprzed
+        // MIDI Learn (bez MIDIMAP) zostawia bieżącą mapę w spokoju.
+        if (auto* map = xml->getChildByName ("MIDIMAP"))
+        {
+            std::fill (std::begin (ccMap), std::end (ccMap), nullptr);
+            for (auto* m : map->getChildWithTagNameIterator ("MAP"))
+                if (auto* p = apvts.getParameter (m->getStringAttribute ("param")))
+                    ccMap[juce::jlimit (0, 127, m->getIntAttribute ("cc"))] = p;
+
+            xml->removeChildElement (map, true);
+        }
+
         applyStateXml (*xml);
+    }
 }
 
 // === Presety ===
