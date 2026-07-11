@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<PARAMETERS>
+  <PARAM id="arpDiv" value="2.0"/>
+  <PARAM id="arpLen" value="4.0"/>
+  <PARAM id="arpMode" value="0.0"/>
+  <PARAM id="arpOn" value="0.0"/>
+  <PARAM id="arpVel" value="0.0"/>
+  <PARAM id="arpWord" value="0.0"/>
+  <PARAM id="bpm" value="120.0"/>
+  <PARAM id="dlyDiv" value="1.0"/>
+  <PARAM id="dlyFeedback" value="0.2999999821186066"/>
+  <PARAM id="dlyMix" value="0.1499999910593033"/>
+  <PARAM id="dlyOn" value="1.0"/>
+  <PARAM id="dlySync" value="1.0"/>
+  <PARAM id="dlyTime" value="400.0"/>
+  <PARAM id="env1Amt" value="0.4499999284744263"/>
+  <PARAM id="env1Dest" value="9.0"/>
+  <PARAM id="env2Amt" value="0.0"/>
+  <PARAM id="env2Dest" value="0.0"/>
+  <PARAM id="env3Amt" value="0.0"/>
+  <PARAM id="env3Dest" value="0.0"/>
+  <PARAM id="envGrid" value="2.0"/>
+  <PARAM id="envSnap" value="1.0"/>
+  <PARAM id="envSync" value="0.0"/>
+  <PARAM id="filterCutoff" value="6000.0"/>
+  <PARAM id="filterResonance" value="0.7000000476837158"/>
+  <PARAM id="filterType" value="0.0"/>
+  <PARAM id="fmAmt" value="0.0"/>
+  <PARAM id="fxDist" value="0.0"/>
+  <PARAM id="fxOn" value="0.0"/>
+  <PARAM id="fxRevMix" value="0.0"/>
+  <PARAM id="fxRevSize" value="0.5"/>
+  <PARAM id="fxSat" value="0.0"/>
+  <PARAM id="fxShape" value="0.0"/>
+  <PARAM id="gain" value="0.6500000357627869"/>
+  <PARAM id="gateDepth" value="0.8499999642372131"/>
+  <PARAM id="gateDiv" value="2.0"/>
+  <PARAM id="gateGen" value="2.0"/>
+  <PARAM id="gateOn" value="0.0"/>
+  <PARAM id="lfoDepth" value="0.0"/>
+  <PARAM id="lfoDrift" value="0.0"/>
+  <PARAM id="lfoRate" value="1.0"/>
+  <PARAM id="lfoRateDiv" value="3.0"/>
+  <PARAM id="lfoShape" value="0.0"/>
+  <PARAM id="lfoSync" value="0.0"/>
+  <PARAM id="osc1detune" value="0.0"/>
+  <PARAM id="osc1goldint" value="2.0"/>
+  <PARAM id="osc1mix" value="0.8499999642372131"/>
+  <PARAM id="osc1stretch" value="0.0"/>
+  <PARAM id="osc1stretchmode" value="0.0"/>
+  <PARAM id="osc1tilt" value="1.5"/>
+  <PARAM id="osc1waveform" value="9.0"/>
+  <PARAM id="osc2detune" value="3.0"/>
+  <PARAM id="osc2goldint" value="3.0"/>
+  <PARAM id="osc2mix" value="0.2999999821186066"/>
+  <PARAM id="osc2stretch" value="0.0"/>
+  <PARAM id="osc2stretchmode" value="0.0"/>
+  <PARAM id="osc2tilt" value="1.300000071525574"/>
+  <PARAM id="osc2waveform" value="9.0"/>
+  <PARAM id="osc3detune" value="0.0"/>
+  <PARAM id="osc3goldint" value="2.0"/>
+  <PARAM id="osc3mix" value="0.0"/>
+  <PARAM id="osc3stretch" value="0.0"/>
+  <PARAM id="osc3stretchmode" value="0.0"/>
+  <PARAM id="osc3tilt" value="1.0"/>
+  <PARAM id="osc3waveform" value="0.0"/>
+  <PARAM id="pitchQuant" value="0.0"/>
+  <PARAM id="ringMix" value="0.0"/>
+  <PARAM id="spread" value="0.3999999761581421"/>
+  <PARAM id="subLevel" value="0.1499999910593033"/>
+  <PARAM id="tempoSync" value="1.0"/>
+  <PARAM id="unison" value="0.0"/>
+  <ENVELOPE0 sustainIndex="7">
+    <PT t="0.0" l="0.0" c="0.0"/>
+    <PT t="0.004999999888241291" l="1.0" c="0.0"/>
+    <PT t="0.4549999833106995" l="0.6180340051651001" c="-0.3499999940395355"/>
+    <PT t="0.7331152558326721" l="0.3819659948348999" c="-0.3499999940395355"/>
+    <PT t="0.9049999713897705" l="0.2360679656267166" c="-0.3499999940395355"/>
+    <PT t="1.01123058795929" l="0.1458980292081833" c="-0.3499999940395355"/>
+    <PT t="1.076884746551514" l="0.09016993641853333" c="-0.3499999940395355"/>
+    <PT t="1.117461204528809" l="0.0" c="-0.3499999940395355"/>
+  </ENVELOPE0>
+  <ENVELOPE1 sustainIndex="1">
+    <PT t="0.0" l="1.0" c="0.0"/>
+    <PT t="0.5" l="0.0" c="-0.4000000059604645"/>
+  </ENVELOPE1>
+  <ENVELOPE2 sustainIndex="2">
+    <PT t="0.0" l="0.0" c="0.0"/>
+    <PT t="0.05000000074505806" l="1.0" c="0.0"/>
+    <PT t="0.1500000059604645" l="0.800000011920929" c="0.0"/>
+    <PT t="0.550000011920929" l="0.0" c="0.0"/>
+  </ENVELOPE2>
+  <ENVELOPE3 sustainIndex="2">
+    <PT t="0.0" l="0.0" c="0.0"/>
+    <PT t="0.05000000074505806" l="1.0" c="0.0"/>
+    <PT t="0.1500000059604645" l="0.800000011920929" c="0.0"/>
+    <PT t="0.550000011920929" l="0.0" c="0.0"/>
+  </ENVELOPE3>
+  <GATE flips="0"/>
+</PARAMETERS>

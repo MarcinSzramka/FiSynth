@@ -80,6 +80,13 @@ FiSynthAudioProcessor::FiSynthAudioProcessor()
     par.dlyFeedback = rp ("dlyFeedback");
     par.dlyMix      = rp ("dlyMix");
 
+    par.fxOn      = rp ("fxOn");
+    par.fxDist    = rp ("fxDist");
+    par.fxSat     = rp ("fxSat");
+    par.fxShape   = rp ("fxShape");
+    par.fxRevSize = rp ("fxRevSize");
+    par.fxRevMix  = rp ("fxRevMix");
+
     for (int o = 0; o < 3; ++o)
     {
         const juce::String prefix = "osc" + juce::String (o + 1);
@@ -428,6 +435,35 @@ FiSynthAudioProcessor::createParameterLayout()
         juce::ParameterID { "dlyMix", 1 }, "Golden Delay Mix",
         juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f }, 0.25f));
 
+    // === Efektor (distortion / saturation / waveshaper / reverb) ===
+    // Każdy stopień drive'u miksowany dry/wet swoim amountem — 0 = neutralnie,
+    // a głośność nie ucieka z gainem.
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { "fxOn", 1 }, "FX On", false));
+
+    // Hard clip z gainem do ×10 (agresywny przester).
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "fxDist", 1 }, "FX Distortion",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f }, 0.0f));
+
+    // Nasycenie tanh (ciepły, lampowy soft clip).
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "fxSat", 1 }, "FX Saturation",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f }, 0.0f));
+
+    // Waveshaper: folder sinusoidalny, drive rośnie do 1+2φ (fałdowanie fali).
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "fxShape", 1 }, "FX Waveshaper",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f }, 0.0f));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "fxRevSize", 1 }, "FX Reverb Size",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f }, 0.5f));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { "fxRevMix", 1 }, "FX Reverb Mix",
+        juce::NormalisableRange<float> { 0.0f, 1.0f, 0.01f }, 0.0f));
+
     return { params.begin(), params.end() };
 }
 
@@ -487,6 +523,11 @@ void FiSynthAudioProcessor::prepareToPlay (double sampleRate, int /*samplesPerBl
     // Bufor filtra MIDI arpa: pojemność z zapasem TERAZ, żeby processArp
     // nie alokował na wątku audio.
     arpFiltered.ensureSize (4096);
+
+    // Pogłos efektora.
+    fxReverb.setSampleRate (sampleRate);
+    fxReverb.reset();
+    fxRevWasOn = false;
 
 #if FISYNTH_TEST_MODE
     // Krok sekwencji w próbkach (min. 1, żeby nie zapętlić się w processBlock).
@@ -716,9 +757,16 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // Gate Fibonacciego przed master gainem; FIFO widma bierze to, co słychać.
     applyFibGate (buffer, blockStartBeat, beatsPerSample);
 
+    // Efektor, część drive (dist → sat → fold): za gate'em, przed delayem —
+    // echa niosą już przester, feedback nie przesterowuje się kumulacyjnie.
+    applyFxDrive (buffer);
+
     // Golden Delay za gate'em (bramka tnie sygnał, delay rozmywa echa —
     // odwrotna kolejność zjadałaby ogony taktem bramki).
     applyGoldenDelay (buffer, bpm);
+
+    // Pogłos na końcu łańcucha: ogona nie tnie gate ani nie klipuje drive.
+    applyFxReverb (buffer);
 
     const float gain = par.gain->load();
     buffer.applyGainRamp (0, buffer.getNumSamples(), previousGain, gain);
@@ -1058,6 +1106,85 @@ void FiSynthAudioProcessor::applyGoldenDelay (juce::AudioBuffer<float>& buffer, 
     delaySmoothSamples = t;
 }
 
+void FiSynthAudioProcessor::applyFxDrive (juce::AudioBuffer<float>& buffer)
+{
+    const float dist  = par.fxDist->load();
+    const float sat   = par.fxSat->load();
+    const float shape = par.fxShape->load();
+
+    if (par.fxOn->load() < 0.5f || (dist < 0.001f && sat < 0.001f && shape < 0.001f))
+        return;
+
+    // Gainy stopni raz na blok. Każdy stopień miksowany dry/wet swoim amountem,
+    // więc małe wartości wchodzą płynnie, a głośność zostaje w ryzach.
+    const float distGain  = 1.0f + 9.0f * dist;                    // hard clip, do ×10
+    const float satGain   = 1.0f + 5.0f * sat;                     // tanh
+    const float foldGain  = juce::MathConstants<float>::halfPi
+                          * (1.0f + 2.0f * (float) fiPhi * shape); // folder: >π/2 fałduje
+
+    const int numCh  = buffer.getNumChannels();
+    const int numSmp = buffer.getNumSamples();
+
+    for (int ch = 0; ch < numCh; ++ch)
+    {
+        auto* d = buffer.getWritePointer (ch);
+        for (int i = 0; i < numSmp; ++i)
+        {
+            float x = d[i];
+
+            if (dist > 0.001f)
+            {
+                const float wet = juce::jlimit (-1.0f, 1.0f, x * distGain) * 0.8f;
+                x += dist * (wet - x);
+            }
+            if (sat > 0.001f)
+            {
+                const float wet = std::tanh (x * satGain);
+                x += sat * (wet - x);
+            }
+            if (shape > 0.001f)
+            {
+                const float wet = std::sin (x * foldGain);
+                x += shape * (wet - x);
+            }
+
+            d[i] = x;
+        }
+    }
+}
+
+void FiSynthAudioProcessor::applyFxReverb (juce::AudioBuffer<float>& buffer)
+{
+    const float mix = par.fxRevMix->load();
+    const bool  on  = par.fxOn->load() > 0.5f && mix > 0.001f;
+
+    if (! on)
+    {
+        // Reset przy wyłączeniu — ponowne włączenie startuje z ciszy,
+        // nie ze stęchłego ogona (jak Golden Delay).
+        if (fxRevWasOn)
+            fxReverb.reset();
+        fxRevWasOn = false;
+        return;
+    }
+    fxRevWasOn = true;
+
+    juce::Reverb::Parameters rp;
+    rp.roomSize = par.fxRevSize->load();
+    rp.damping  = 0.5f;
+    rp.wetLevel = mix * 0.9f;
+    rp.dryLevel = 1.0f;
+    rp.width    = 1.0f;
+    fxReverb.setParameters (rp);
+
+    const int numSmp = buffer.getNumSamples();
+    if (buffer.getNumChannels() >= 2)
+        fxReverb.processStereo (buffer.getWritePointer (0),
+                                buffer.getWritePointer (1), numSmp);
+    else
+        fxReverb.processMono (buffer.getWritePointer (0), numSmp);
+}
+
 void FiSynthAudioProcessor::pushAnalyzerSamples (const juce::AudioBuffer<float>& buffer)
 {
     const int numSmp = buffer.getNumSamples();
@@ -1287,6 +1414,14 @@ void FiSynthAudioProcessor::resetToInit()
     set ("dlyTime", 400.0f);
     set ("dlyFeedback", 0.45f);
     set ("dlyMix", 0.25f);
+
+    // Efektor wyłączony, amounty do zera.
+    set ("fxOn", 0.0f);
+    set ("fxDist", 0.0f);
+    set ("fxSat", 0.0f);
+    set ("fxShape", 0.0f);
+    set ("fxRevSize", 0.5f);
+    set ("fxRevMix", 0.0f);
 
     // Modulacje wyzerowane.
     for (int s = 0; s < 3; ++s)

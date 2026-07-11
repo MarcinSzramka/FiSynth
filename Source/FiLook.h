@@ -36,6 +36,7 @@ namespace fiCol
     inline const juce::Colour lfo       { 0xff261a12 };  // siena
     inline const juce::Colour goldSec   { 0xff2e2410 };  // sekcja φ — najjaśniejsza
     inline const juce::Colour gate      { 0xff271d10 };  // rdza wygaszona
+    inline const juce::Colour fx        { 0xff2b1a12 };  // przepalona umbra (efektor)
     inline const juce::Colour stereo    { 0xff1e2015 };  // szałwia
     inline const juce::Colour viz       { 0xff17130c };  // studnie wizualizerów
     inline const juce::Colour widget    { 0xff100d08 };  // wnętrza widżetów (spirala itp.)

@@ -52,7 +52,7 @@ private:
     // modulacja/filtr/LFO/φ-engine po prawej, pas gate|widmo|stereo na dole.
     juce::Rectangle<int> gainBounds, oscPanelBounds[3], envBounds, filterBounds,
                          lfoBounds, goldBounds, spiralBounds, gateBounds,
-                         phylloBounds, spectrumBounds;
+                         phylloBounds, spectrumBounds, fxBounds;
 
     juce::Slider gainSlider;
     juce::Label gainLabel;
@@ -164,6 +164,13 @@ private:
     juce::Slider       arpVelSlider;
     juce::Label        arpVelLabel;
 
+    // === Efektor (dolny pas, między Gate a widmem) ===
+    juce::ToggleButton fxOnButton;
+    juce::Slider       fxDistSlider, fxSatSlider, fxShapeSlider,
+                       fxRevSizeSlider, fxRevMixSlider;
+    juce::Label        fxDistLabel, fxSatLabel, fxShapeLabel,
+                       fxRevSizeLabel, fxRevMixLabel;
+
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
     using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
@@ -189,6 +196,9 @@ private:
     std::unique_ptr<ButtonAttachment>   arpOnAttachment, arpWordAttachment;
     std::unique_ptr<ComboBoxAttachment> arpDivAttachment, arpLenAttachment, arpModeAttachment;
     std::unique_ptr<SliderAttachment>   arpVelAttachment;
+    std::unique_ptr<ButtonAttachment>   fxOnAttachment;
+    std::unique_ptr<SliderAttachment>   fxDistAttachment, fxSatAttachment, fxShapeAttachment,
+                                        fxRevSizeAttachment, fxRevMixAttachment;
 
     // Nakładka pierścieni modulacji trzyma surowe wskaźniki do sliderów-celów,
     // więc jest zadeklarowana OSTATNIA — niszczona PRZED sliderami (odwrotna

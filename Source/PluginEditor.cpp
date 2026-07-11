@@ -470,6 +470,48 @@ FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor&
     content.addAndMakeVisible (arpVelSlider);
     arpVelAttachment = std::make_unique<SliderAttachment> (processorRef.apvts, "arpVel", arpVelSlider);
 
+    // === Efektor: dist → sat → fold przed delayem, pogłos na końcu łańcucha ===
+    fxOnButton.setButtonText ("FX On");
+    fxOnButton.setTooltip (juce::String (juce::CharPointer_UTF8 (
+        "Efektor: distortion \xe2\x86\x92 saturation \xe2\x86\x92 waveshaper przed delayem, "
+        "pog\xc5\x82os na ko\xc5\x84""cu \xc5\x82""a\xc5\x84""cucha")));
+    content.addAndMakeVisible (fxOnButton);
+    fxOnAttachment = std::make_unique<ButtonAttachment> (processorRef.apvts, "fxOn", fxOnButton);
+
+    auto setupFxSlider = [this] (juce::Slider& s, juce::Label& l, const char* text,
+                                 const juce::String& paramID,
+                                 std::unique_ptr<SliderAttachment>& att)
+    {
+        s.setSliderStyle (juce::Slider::LinearHorizontal);
+        s.setTextBoxStyle (juce::Slider::TextBoxRight, false, 44, 16);
+        content.addAndMakeVisible (s);
+        l.setText (juce::String (juce::CharPointer_UTF8 (text)), juce::dontSendNotification);
+        content.addAndMakeVisible (l);
+        att = std::make_unique<SliderAttachment> (processorRef.apvts, paramID, s);
+    };
+
+    setupFxSlider (fxDistSlider, fxDistLabel, "Dist", "fxDist", fxDistAttachment);
+    fxDistSlider.setTooltip (juce::String (juce::CharPointer_UTF8 (
+        "Distortion: hard clip z gainem do \xc3\x97""10 \xe2\x80\x94 agresywny przester; "
+        "suwak = dry/wet")));
+
+    setupFxSlider (fxSatSlider, fxSatLabel, "Sat", "fxSat", fxSatAttachment);
+    fxSatSlider.setTooltip (juce::String (juce::CharPointer_UTF8 (
+        "Saturation: nasycenie tanh \xe2\x80\x94 ciep\xc5\x82y, lampowy soft clip")));
+
+    setupFxSlider (fxShapeSlider, fxShapeLabel, "Fold", "fxShape", fxShapeAttachment);
+    fxShapeSlider.setTooltip (juce::String (juce::CharPointer_UTF8 (
+        "Waveshaper: folder sinusoidalny (drive do 1+2\xcf\x86) \xe2\x80\x94 "
+        "fa\xc5\x82""dowanie fali, metaliczne g\xc3\xb3rne partiale")));
+
+    setupFxSlider (fxRevSizeSlider, fxRevSizeLabel, "Rev Size", "fxRevSize", fxRevSizeAttachment);
+    fxRevSizeSlider.setTooltip (juce::String (juce::CharPointer_UTF8 (
+        "Rozmiar pomieszczenia pog\xc5\x82osu")));
+
+    setupFxSlider (fxRevMixSlider, fxRevMixLabel, "Rev Mix", "fxRevMix", fxRevMixAttachment);
+    fxRevMixSlider.setTooltip (juce::String (juce::CharPointer_UTF8 (
+        "Poziom pog\xc5\x82osu (wet); 0 = pog\xc5\x82os wy\xc5\x82\xc4\x85""czony")));
+
     updateBpmEnablement();
     updateLfoSyncEnablement();
     updateDelaySyncEnablement();
@@ -601,9 +643,37 @@ void FiSynthAudioProcessorEditor::refreshPresetList()
 {
     presetBox.clear (juce::dontSendNotification);
 
+    // Bank fabryczny nazywa presety "XX Nazwa" (2-literowy prefiks kategorii);
+    // lista jest posortowana, więc kategorie są ciągłe — wstawiamy nagłówek
+    // sekcji przy każdej zmianie prefiksu. Id pozycji = indeks listy + 1
+    // (nagłówki nie mają id), więc stepPreset/loadPresetByName działają bez zmian.
+    static const std::pair<const char*, const char*> categories[] = {
+        { "BL", "Bells & Metals" }, { "BS", "Bass" },      { "DI", "Destroyed" },
+        { "DR", "Drones & Atmos" }, { "FX", "FX" },        { "KY", "Keys & Organs" },
+        { "LD", "Leads" },          { "PD", "Pads" },      { "PH", "Phi Studies" },
+        { "PL", "Plucks" },         { "RV", "Reverb Spaces" },
+        { "SQ", "Sequences" },      { "ST", "Ensemble" },
+    };
+    auto headingFor = [] (const juce::String& name) -> juce::String
+    {
+        for (const auto& [prefix, title] : categories)
+            if (name.startsWith (juce::String (prefix) + " "))
+                return title;
+        return "User";
+    };
+
     const auto list = processorRef.getPresetList();
+    juce::String lastHeading;
     for (int i = 0; i < list.size(); ++i)
+    {
+        const auto heading = headingFor (list[i]);
+        if (heading != lastHeading)
+        {
+            presetBox.addSectionHeading (heading);
+            lastHeading = heading;
+        }
         presetBox.addItem (list[i], i + 1);
+    }
 
     const int idx = list.indexOf (processorRef.currentPresetName);
     if (idx >= 0)
@@ -719,6 +789,7 @@ void FiSynthAudioProcessorEditor::paintContent (juce::Graphics& g)
     section (lfoBounds,      fiCol::lfo);
     section (goldBounds,     fiCol::goldSec, "\xcf\x86 ENGINE");
     section (gateBounds,     fiCol::gate);
+    section (fxBounds,       fiCol::fx, "FX");
     section (spectrumBounds, fiCol::viz);
     section (phylloBounds,   fiCol::stereo);
 
@@ -822,14 +893,34 @@ void FiSynthAudioProcessorEditor::layoutContent()
     arpVelSlider.setBounds (tempoRow.removeFromLeft (76).reduced (2, 1));
     area.removeFromTop (8);  // margin
 
-    // === DOLNY PAS: gate Fibonacciego | widmo | pole stereo ===
+    // === DOLNY PAS: gate Fibonacciego | efektor | widmo | pole stereo ===
     {
         auto bottom = area.removeFromBottom (206);
         gateBounds = bottom.removeFromLeft (330);
         bottom.removeFromLeft (8);
         phylloBounds = bottom.removeFromRight (330);
         bottom.removeFromRight (8);
+
+        // Efektor między gate'em a widmem — kosztem szerokości widma.
+        fxBounds = bottom.removeFromLeft (250);
+        bottom.removeFromLeft (8);
         spectrumBounds = bottom;
+
+        auto fxArea = fxBounds.reduced (8);
+        fxArea.removeFromTop (16);                 // malowany tytuł "FX"
+        fxOnButton.setBounds (fxArea.removeFromTop (22).removeFromLeft (84));
+
+        auto fxRow = [&fxArea] (juce::Label& l, juce::Slider& s)
+        {
+            auto row = fxArea.removeFromTop (30);
+            l.setBounds (row.removeFromLeft (58));
+            s.setBounds (row.reduced (2, 4));
+        };
+        fxRow (fxDistLabel,    fxDistSlider);
+        fxRow (fxSatLabel,     fxSatSlider);
+        fxRow (fxShapeLabel,   fxShapeSlider);
+        fxRow (fxRevSizeLabel, fxRevSizeSlider);
+        fxRow (fxRevMixLabel,  fxRevMixSlider);
 
         fibGate.setBounds (gateBounds.reduced (5));
         spectrum.setBounds (spectrumBounds.reduced (5));

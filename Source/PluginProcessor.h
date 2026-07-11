@@ -33,8 +33,8 @@ public:
     bool   acceptsMidi()                  const override   { return true; }
     bool   producesMidi()                 const override   { return false; }
     bool   isMidiEffect()                 const override   { return false; }
-    // Ogon Golden Delay (bufor 2 s + wybrzmienie sprzężenia).
-    double getTailLengthSeconds()         const override   { return 2.0; }
+    // Ogon Golden Delay (bufor 2 s + wybrzmienie sprzężenia) i pogłosu FX.
+    double getTailLengthSeconds()         const override   { return 3.0; }
 
     int                getNumPrograms()                    override { return 1; }
     int                getCurrentProgram()                 override { return 0; }
@@ -237,6 +237,14 @@ private:
         std::atomic<float>* dlyFeedback;
         std::atomic<float>* dlyMix;
 
+        // Efektor (distortion / saturation / waveshaper / reverb).
+        std::atomic<float>* fxOn;
+        std::atomic<float>* fxDist;
+        std::atomic<float>* fxSat;
+        std::atomic<float>* fxShape;
+        std::atomic<float>* fxRevSize;
+        std::atomic<float>* fxRevMix;
+
         struct Osc
         {
             std::atomic<float>* waveform;
@@ -300,6 +308,15 @@ private:
     float delaySmoothSamples { -1.0f };   // wygładzony czas (bez zgrzytu przy zmianie)
     bool  dlyWasOn { false };
     void  applyGoldenDelay (juce::AudioBuffer<float>&, float bpm);
+
+    // === Efektor ===
+    // Drive (dist → sat → fold) siedzi PRZED delayem (echa niosą już przester,
+    // a feedback nie przesterowuje się kumulacyjnie); pogłos za delayem, na
+    // końcu łańcucha (ogona nie tnie gate ani nie klipuje drive).
+    void applyFxDrive (juce::AudioBuffer<float>&);
+    void applyFxReverb (juce::AudioBuffer<float>&);
+    juce::Reverb fxReverb;
+    bool fxRevWasOn { false };
 
     // Analizator widma: lock-free FIFO mono sumy wyjścia.
     juce::AbstractFifo analyzerFifo { 1 << 14 };
