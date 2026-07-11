@@ -12,6 +12,38 @@ std::vector<AboutPanel::Section> AboutPanel::makeSections (bool english)
 
     if (english)
     {
+        s.push_back ({ utf8 ("Quick start"), utf8 (
+            "FOR MUSICIANS — the short version. No math required: φ works in the\n"
+            "background, your job is to listen.\n"
+            "\n"
+            "1. PRESETS — the < > arrows at the top cycle the factory bank. Prefixes:\n"
+            "   BL bells · BS basses · DI dirty/broken · DR drones · FX effects/hits ·\n"
+            "   KY keys & organs · LD leads · PD pads · PH \"pure φ\" showcase ·\n"
+            "   PL plucks · RV huge spaces · SQ sequences (hold one key!) · ST strings & brass.\n"
+            "\n"
+            "2. PLAY — a MIDI keyboard just works (DAW: add FiSynth as an instrument;\n"
+            "   standalone: Options → Audio/MIDI Settings), or click the on-screen keys.\n"
+            "\n"
+            "3. THE SPIRAL in the centre is the main sound control. Drag on the dial:\n"
+            "   towards the rim = more metallic and inharmonic; the angle picks the\n"
+            "   character (bell, stiff piano, chorus-detune…). Buttons 1/2/3 choose\n"
+            "   which oscillator you are shaping. Start from a preset and just push it.\n"
+            "\n"
+            "4. MOVEMENT — Gate chops the sound into a golden rhythm; the Arp plays\n"
+            "   Fibonacci melodies from a single held key. Both follow the DAW tempo.\n"
+            "\n"
+            "5. SPACE & DIRT — Golden Delay and Reverb for space; Dist/Sat/Fold for grit.\n"
+            "\n"
+            "6. HARDWARE KNOBS — right-click any knob (or the spiral) → \"MIDI Learn\",\n"
+            "   twist a knob on your controller — mapped. Right-click again to unmap.\n"
+            "   The map is saved with the DAW project / standalone session, never with\n"
+            "   presets — switching sounds won't touch your controller layout.\n"
+            "\n"
+            "7. AUTOMATION — in a DAW every knob is a normal automation lane; the\n"
+            "   spiral is two of them (Osc N Stretch / Stretch Mode).\n"
+            "\n"
+            "Save keeps your own sound in the preset list; New gives a clean init patch.") });
+
         s.push_back ({ utf8 ("Overview"), utf8 (
             "FiSynth — a subtractive/additive synthesizer built around the golden ratio φ = 1.618…\n"
             "\n"
@@ -267,6 +299,10 @@ std::vector<AboutPanel::Section> AboutPanel::makeSections (bool english)
             "reset to its default — an old preset sounds exactly as it did on the day it was\n"
             "saved, no matter what you had cranked before loading it.\n"
             "\n"
+            "The MIDI CC map (MIDI Learn — right-click any knob) travels with the DAW project\n"
+            "and the standalone session, deliberately NOT with presets: loading a sound never\n"
+            "rewires your controller.\n"
+            "\n"
             "The standalone build additionally remembers audio/MIDI devices and window state\n"
             "in ~/.config/FiSynth.settings.") });
 
@@ -288,6 +324,9 @@ std::vector<AboutPanel::Section> AboutPanel::makeSections (bool english)
             "    injects its own notes sample-accurately; delay runs on the master bus with\n"
             "    a time-smoothed (~80 ms) interpolated read — knob turns glide, never crunch.\n"
             "  • Spectrum: lock-free AbstractFifo (16k samples) audio→GUI.\n"
+            "  • MIDI Learn: raw CC bytes go through a lock-free FIFO to a message-thread\n"
+            "    timer, which applies them via setValueNotifyingHost (VST3-safe); the\n"
+            "    CC→param map itself sits behind a spinlock (host state calls vs timer).\n"
             "\n"
             "ONE SOURCE OF TRUTH\n"
             "PartialTables.h holds the ratio tables of all modes and the waveform amplitudes.\n"
@@ -299,6 +338,41 @@ std::vector<AboutPanel::Section> AboutPanel::makeSections (bool english)
 
         return s;
     }
+
+    s.push_back ({ utf8 ("Szybki start"), utf8 (
+        "DLA MUZYKÓW — wersja skrócona. Matematyka nie jest wymagana: φ pracuje\n"
+        "w tle, Twoje zadanie to słuchać.\n"
+        "\n"
+        "1. PRESETY — strzałki < > u góry przewijają bank fabryczny. Prefiksy:\n"
+        "   BL dzwony · BS basy · DI brudne/uszkodzone · DR drony · FX efekty ·\n"
+        "   KY klawisze i organy · LD leady · PD pady · PH seria \"czyste φ\" ·\n"
+        "   PL plucki · RV wielkie przestrzenie · SQ sekwencje (przytrzymaj jeden\n"
+        "   klawisz!) · ST smyczki i dęte.\n"
+        "\n"
+        "2. GRANIE — klawiatura MIDI po prostu działa (DAW: dodaj FiSynth jako\n"
+        "   instrument; standalone: Options → Audio/MIDI Settings). Można też grać\n"
+        "   myszą na klawiaturze ekranowej.\n"
+        "\n"
+        "3. SPIRALA w centrum to główna gałka brzmienia. Przeciągaj po tarczy:\n"
+        "   ku obwodowi = bardziej metalicznie i nieharmonicznie; kąt wybiera\n"
+        "   charakter (dzwon, sztywny fortepian, chorus-detune…). Przyciski 1/2/3\n"
+        "   wybierają oscylator. Zacznij od presetu i po prostu go popchnij.\n"
+        "\n"
+        "4. RUCH — Gate tnie dźwięk w złoty rytm; Arp gra melodie Fibonacciego\n"
+        "   z jednego przytrzymanego klawisza. Oba trzymają tempo DAW-a.\n"
+        "\n"
+        "5. PRZESTRZEŃ I BRUD — Golden Delay i Reverb dają przestrzeń;\n"
+        "   Dist/Sat/Fold dają pazur.\n"
+        "\n"
+        "6. GAŁKI SPRZĘTOWE — prawy klik na dowolnej gałce (lub na spirali) →\n"
+        "   \"MIDI Learn\", kręć gałką na swoim kontrolerze — zmapowane. Prawy klik\n"
+        "   ponownie = usunięcie. Mapa zapisuje się z projektem DAW / sesją\n"
+        "   standalone, nigdy z presetami — zmiana brzmienia nie rusza kontrolera.\n"
+        "\n"
+        "7. AUTOMATYZACJA — w DAW-ie każda gałka to zwykły tor automatyzacji;\n"
+        "   spirala to dwa tory (Osc N Stretch / Stretch Mode).\n"
+        "\n"
+        "Save zapisuje Twoje brzmienie na liście presetów; New daje czysty patch.") });
 
     s.push_back ({ utf8 ("Przegląd"), utf8 (
         "FiSynth — syntezator subtraktywno-addytywny zbudowany wokół złotej liczby φ = 1.618…\n"
@@ -553,6 +627,10 @@ std::vector<AboutPanel::Section> AboutPanel::makeSections (bool english)
         "wartości domyślnej — stary preset brzmi dokładnie jak w dniu zapisu, niezależnie\n"
         "od tego, co było podkręcone przed wczytaniem.\n"
         "\n"
+        "Mapa MIDI CC (MIDI Learn — prawy klik na gałce) wędruje z projektem DAW\n"
+        "i sesją standalone, celowo NIE z presetami: wczytanie brzmienia nigdy nie\n"
+        "przepina kontrolera.\n"
+        "\n"
         "Wersja standalone dodatkowo pamięta urządzenia audio/MIDI i stan okna\n"
         "w ~/.config/FiSynth.settings.") });
 
@@ -576,6 +654,10 @@ std::vector<AboutPanel::Section> AboutPanel::makeSections (bool english)
         "    z wygładzonym (~80 ms) interpolowanym czasem — kręcenie gałką płynie,\n"
         "    nigdy nie zgrzyta.\n"
         "  • Widmo: lock-free AbstractFifo (16k próbek) audio→GUI.\n"
+        "  • MIDI Learn: surowe bajty CC idą lock-free FIFO do timera na wątku\n"
+        "    komunikatów, który aplikuje je przez setValueNotifyingHost (bezpiecznie\n"
+        "    dla VST3); sama mapa CC→parametr siedzi za spinlockiem (wywołania\n"
+        "    stanu z hosta vs timer).\n"
         "\n"
         "JEDNO ŹRÓDŁO PRAWDY\n"
         "PartialTables.h trzyma tablice ratio wszystkich trybów i amplitudy waveformów.\n"

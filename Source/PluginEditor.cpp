@@ -478,16 +478,13 @@ FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor&
     content.addAndMakeVisible (fxOnButton);
     fxOnAttachment = std::make_unique<ButtonAttachment> (processorRef.apvts, "fxOn", fxOnButton);
 
-    auto setupFxSlider = [this] (juce::Slider& s, juce::Label& l, const char* text,
-                                 const juce::String& paramID,
-                                 std::unique_ptr<SliderAttachment>& att)
+    // Ten sam helper co sekcja GOLD, tylko węższy textbox.
+    auto setupFxSlider = [&] (juce::Slider& s, juce::Label& l, const char* text,
+                              const juce::String& paramID,
+                              std::unique_ptr<SliderAttachment>& att)
     {
-        s.setSliderStyle (juce::Slider::LinearHorizontal);
+        setupGoldSlider (s, l, text, paramID, att);
         s.setTextBoxStyle (juce::Slider::TextBoxRight, false, 44, 16);
-        content.addAndMakeVisible (s);
-        l.setText (juce::String (juce::CharPointer_UTF8 (text)), juce::dontSendNotification);
-        content.addAndMakeVisible (l);
-        att = std::make_unique<SliderAttachment> (processorRef.apvts, paramID, s);
     };
 
     setupFxSlider (fxDistSlider, fxDistLabel, "Dist", "fxDist", fxDistAttachment);

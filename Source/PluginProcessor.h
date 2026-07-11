@@ -19,7 +19,10 @@ class FiSynthAudioProcessor : public juce::AudioProcessor,
 {
 public:
     FiSynthAudioProcessor();
-    ~FiSynthAudioProcessor() override = default;
+    // Jawny destruktor: stopTimer() PRZED destrukcją składowych. Domyślny
+    // zatrzymałby timer dopiero w ~Timer (bazy niszczą się po składowych),
+    // a tick w tym oknie czytałby martwe ccFifo/ccMap.
+    ~FiSynthAudioProcessor() override;
 
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
@@ -34,8 +37,9 @@ public:
     bool   acceptsMidi()                  const override   { return true; }
     bool   producesMidi()                 const override   { return false; }
     bool   isMidiEffect()                 const override   { return false; }
-    // Ogon Golden Delay (bufor 2 s + wybrzmienie sprzężenia) i pogłosu FX.
-    double getTailLengthSeconds()         const override   { return 3.0; }
+    // Ogon zależny od patcha (delay z feedbackiem i pogłos dzwonią długo) —
+    // liczony z bieżących parametrów, żeby bounce/freeze nie ucinał ogona.
+    double getTailLengthSeconds()         const override;
 
     int                getNumPrograms()                    override { return 1; }
     int                getCurrentProgram()                 override { return 0; }
@@ -329,7 +333,15 @@ private:
     void applyFxDrive (juce::AudioBuffer<float>&);
     void applyFxReverb (juce::AudioBuffer<float>&);
     juce::Reverb fxReverb;
-    bool fxRevWasOn { false };
+
+    // Amounty drive'u wygładzane one-pole (~5 ms) per próbka — włącz/wyłącz
+    // i automacja (też z MIDI Learn) bez skokowej podmiany kształtu fali.
+    float fxDistEnv { 0.0f }, fxSatEnv { 0.0f }, fxShapeEnv { 0.0f };
+
+    // Po wyłączeniu pogłosu krótki dogrywany ogon (wewnętrzny smoothing gainów
+    // Reverbu ściąga wet do zera) — bez cięcia ogona między blokami; dopiero
+    // po nim reset i pełny bypass.
+    int fxRevTailSamples { 0 };
 
     // Analizator widma: lock-free FIFO mono sumy wyjścia.
     juce::AbstractFifo analyzerFifo { 1 << 14 };
@@ -337,15 +349,22 @@ private:
     void pushAnalyzerSamples (const juce::AudioBuffer<float>&);
 
     // === MIDI Learn: FIFO eventów CC (audio pisze, timer czyta) ===
-    // ccMap i learnParam dotykane WYŁĄCZNIE z wątku komunikatów (timer + GUI
-    // + setStateInformation), więc bez atomików. Wskaźniki parametrów żyją
-    // tak długo jak procesor. Przepełnione FIFO gubi nadmiar — kręcenie gałką
-    // wysyła dziesiątki CC, strata paru jest niesłyszalna.
+    // ccMap i learnParam chronione spinlockiem: spec VST3 każe wołać
+    // set/getStateInformation z wątku UI, ale release-build hosta tego nie
+    // egzekwuje (JUCE ma tam tylko debugowy assert) — lock kosztuje grosze,
+    // a zamyka wyścig timer↔host. Audio locka NIE bierze: tylko pisze FIFO
+    // i czyta atomową flagę ccActive (fałsz = mapa pusta i Learn nieuzbrojony,
+    // pętla skanu CC w processBlock w ogóle nie rusza). Wskaźniki parametrów
+    // żyją tak długo jak procesor. Przepełnione FIFO gubi nadmiar — kręcenie
+    // gałką wysyła dziesiątki CC, strata paru jest niesłyszalna.
     void timerCallback() override;
+    void updateCcActive() noexcept;          // wołane pod ccMapLock
+    struct CcEvent { int num; float val; };
     static constexpr int kCcFifoSize = 512;
     juce::AbstractFifo ccFifo { kCcFifoSize };
-    int   ccFifoNum[kCcFifoSize] {};
-    float ccFifoVal[kCcFifoSize] {};
+    CcEvent ccEvents[kCcFifoSize] {};
+    mutable juce::SpinLock ccMapLock;    // mutable: ccForParam/isMidiLearnArmed są const
+    std::atomic<bool> ccActive { false };
     juce::RangedAudioParameter* ccMap[128] {};
     juce::RangedAudioParameter* learnParam { nullptr };
 

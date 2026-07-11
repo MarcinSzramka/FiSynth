@@ -115,6 +115,27 @@ FiSynthAudioProcessor::FiSynthAudioProcessor()
     startTimerHz (60);
 }
 
+FiSynthAudioProcessor::~FiSynthAudioProcessor()
+{
+    stopTimer();
+}
+
+double FiSynthAudioProcessor::getTailLengthSeconds() const
+{
+    // Szacunek z bieżących parametrów. Delay: pełne RT60 przy fb→0.9 to minuty,
+    // więc kompromis 2+20·fb s (ogon poniżej ~-30 dB ginie w mikście). Pogłos:
+    // freeverb przy size→1 ma RT60 ~10-12 s.
+    double tail = 2.0;
+
+    if (par.dlyOn != nullptr && par.dlyOn->load() > 0.5f)
+        tail = juce::jmax (tail, 2.0 + 20.0 * (double) par.dlyFeedback->load());
+
+    if (par.fxOn != nullptr && par.fxOn->load() > 0.5f && par.fxRevMix->load() > 0.001f)
+        tail = juce::jmax (tail, 3.0 + 12.0 * (double) par.fxRevSize->load());
+
+    return tail;
+}
+
 void FiSynthAudioProcessor::commitEnvelope (int idx)
 {
     idx = juce::jlimit (0, kNumEnvelopes - 1, idx);
@@ -528,10 +549,11 @@ void FiSynthAudioProcessor::prepareToPlay (double sampleRate, int /*samplesPerBl
     // nie alokował na wątku audio.
     arpFiltered.ensureSize (4096);
 
-    // Pogłos efektora.
+    // Efektor: pogłos + stan wygładzania drive'u.
     fxReverb.setSampleRate (sampleRate);
     fxReverb.reset();
-    fxRevWasOn = false;
+    fxRevTailSamples = 0;
+    fxDistEnv = fxSatEnv = fxShapeEnv = 0.0f;
 
 #if FISYNTH_TEST_MODE
     // Krok sekwencji w próbkach (min. 1, żeby nie zapętlić się w processBlock).
@@ -592,18 +614,24 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // MIDI Learn: eventy CC do lock-free FIFO — mapowanie na parametry robi
     // timerCallback na wątku komunikatów (setValueNotifyingHost nie może być
     // wołane z audio). Eventy zostają też w buforze (synth i tak ignoruje
-    // wszystko poza sustain/panic).
-    for (const auto meta : midiMessages)
+    // wszystko poza sustain/panic). Trzy pułapki obchodzone celowo:
+    //   • surowe bajty zamiast meta.getMessage() — MidiMessage > 8 bajtów
+    //     (SysEx) malloc'owałby na wątku audio,
+    //   • CC >= 120 (channel mode: panic/reset, DAW śle je same przy stopie
+    //     transportu) nie są "gałkami" — ani do Learn, ani do mapy,
+    //   • gdy mapa pusta i Learn nieuzbrojony (ccActive), pętla w ogóle nie rusza.
+    if (ccActive.load (std::memory_order_relaxed))
     {
-        const auto msg = meta.getMessage();
-        if (! msg.isController())
-            continue;
-
-        const auto scope = ccFifo.write (1);
-        if (scope.blockSize1 == 1)
+        for (const auto meta : midiMessages)
         {
-            ccFifoNum[scope.startIndex1] = msg.getControllerNumber();
-            ccFifoVal[scope.startIndex1] = (float) msg.getControllerValue() / 127.0f;
+            if (meta.numBytes != 3 || (meta.data[0] & 0xf0) != 0xb0
+                || meta.data[1] >= 120)
+                continue;
+
+            const auto scope = ccFifo.write (1);
+            if (scope.blockSize1 == 1)
+                ccEvents[scope.startIndex1] = { (int) meta.data[1],
+                                                (float) meta.data[2] / 127.0f };
         }
     }
 
@@ -1130,81 +1158,103 @@ void FiSynthAudioProcessor::applyGoldenDelay (juce::AudioBuffer<float>& buffer, 
 
 void FiSynthAudioProcessor::applyFxDrive (juce::AudioBuffer<float>& buffer)
 {
-    const float dist  = par.fxDist->load();
-    const float sat   = par.fxSat->load();
-    const float shape = par.fxShape->load();
+    // Cele amountów: 0 gdy sekcja wyłączona — wyłączenie to zjazd wygładzanych
+    // envów do zera, nie skokowa podmiana kształtu fali (klik przy fxOn off
+    // z rozgrzanym dist=1: ±0.8 clip → surowy sygnał w jednej próbce).
+    const bool on = par.fxOn->load() > 0.5f;
+    const float distT  = on ? par.fxDist->load()  : 0.0f;
+    const float satT   = on ? par.fxSat->load()   : 0.0f;
+    const float shapeT = on ? par.fxShape->load() : 0.0f;
 
-    if (par.fxOn->load() < 0.5f || (dist < 0.001f && sat < 0.001f && shape < 0.001f))
+    constexpr float eps = 1.0e-4f;
+    if (distT < eps && satT < eps && shapeT < eps
+        && fxDistEnv < eps && fxSatEnv < eps && fxShapeEnv < eps)
+    {
+        fxDistEnv = fxSatEnv = fxShapeEnv = 0.0f;
         return;
+    }
 
-    // Gainy stopni raz na blok. Każdy stopień miksowany dry/wet swoim amountem,
-    // więc małe wartości wchodzą płynnie, a głośność zostaje w ryzach.
-    const float distGain  = 1.0f + 9.0f * dist;                    // hard clip, do ×10
-    const float satGain   = 1.0f + 5.0f * sat;                     // tanh
-    const float foldGain  = juce::MathConstants<float>::halfPi
-                          * (1.0f + 2.0f * (float) fiPhi * shape); // folder: >π/2 fałduje
+    // One-pole ~5 ms na amountach; gainy stopni liczone z ENVA per próbka,
+    // więc i automacja (block-quantized, także z MIDI Learn) idzie bez zipperu.
+    // Każdy stopień miksowany dry/wet swoim amountem — małe wartości wchodzą
+    // płynnie, a głośność zostaje w ryzach.
+    const float smooth = std::exp (-1.0f / (0.005f * (float) getSampleRate()));
 
+    const bool doDist  = distT  >= eps || fxDistEnv  >= eps;   // hard clip, do ×10
+    const bool doSat   = satT   >= eps || fxSatEnv   >= eps;   // tanh
+    const bool doShape = shapeT >= eps || fxShapeEnv >= eps;   // folder: >π/2 fałduje
+
+    constexpr float foldBase = juce::MathConstants<float>::halfPi;
+    const float     foldPhi  = 2.0f * (float) fiPhi;
+
+    auto* const* chans = buffer.getArrayOfWritePointers();
     const int numCh  = buffer.getNumChannels();
     const int numSmp = buffer.getNumSamples();
 
-    for (int ch = 0; ch < numCh; ++ch)
+    float dEnv = fxDistEnv, sEnv = fxSatEnv, fEnv = fxShapeEnv;
+    for (int i = 0; i < numSmp; ++i)
     {
-        auto* d = buffer.getWritePointer (ch);
-        for (int i = 0; i < numSmp; ++i)
+        dEnv = distT  + (dEnv - distT)  * smooth;
+        sEnv = satT   + (sEnv - satT)   * smooth;
+        fEnv = shapeT + (fEnv - shapeT) * smooth;
+
+        for (int ch = 0; ch < numCh; ++ch)
         {
-            float x = d[i];
+            float x = chans[ch][i];
 
-            if (dist > 0.001f)
+            if (doDist)
             {
-                const float wet = juce::jlimit (-1.0f, 1.0f, x * distGain) * 0.8f;
-                x += dist * (wet - x);
+                const float wet = juce::jlimit (-1.0f, 1.0f, x * (1.0f + 9.0f * dEnv)) * 0.8f;
+                x += dEnv * (wet - x);
             }
-            if (sat > 0.001f)
-            {
-                const float wet = std::tanh (x * satGain);
-                x += sat * (wet - x);
-            }
-            if (shape > 0.001f)
-            {
-                const float wet = std::sin (x * foldGain);
-                x += shape * (wet - x);
-            }
+            if (doSat)
+                x += sEnv * (std::tanh (x * (1.0f + 5.0f * sEnv)) - x);
+            if (doShape)
+                x += fEnv * (std::sin (x * foldBase * (1.0f + foldPhi * fEnv)) - x);
 
-            d[i] = x;
+            chans[ch][i] = x;
         }
     }
+    fxDistEnv = dEnv;
+    fxSatEnv  = sEnv;
+    fxShapeEnv = fEnv;
 }
 
 void FiSynthAudioProcessor::applyFxReverb (juce::AudioBuffer<float>& buffer)
 {
-    const float mix = par.fxRevMix->load();
-    const bool  on  = par.fxOn->load() > 0.5f && mix > 0.001f;
+    const float mix    = par.fxRevMix->load();
+    const bool  on     = par.fxOn->load() > 0.5f && mix > 0.001f;
+    const int   numSmp = buffer.getNumSamples();
 
-    if (! on)
-    {
-        // Reset przy wyłączeniu — ponowne włączenie startuje z ciszy,
-        // nie ze stęchłego ogona (jak Golden Delay).
-        if (fxRevWasOn)
-            fxReverb.reset();
-        fxRevWasOn = false;
+    // Wyłączenie nie tnie ogona między blokami: przez ~0.25 s gramy dalej
+    // z celem wet=0 (wewnętrzne SmoothedValue Reverbu ściągają gain płynnie),
+    // dopiero potem reset (ponowne włączenie startuje z ciszy, jak delay).
+    if (! on && fxRevTailSamples <= 0)
         return;
-    }
-    fxRevWasOn = true;
+
+    if (on)
+        fxRevTailSamples = (int) (0.25 * getSampleRate());
+    else
+        fxRevTailSamples -= numSmp;
 
     juce::Reverb::Parameters rp;
     rp.roomSize = par.fxRevSize->load();
     rp.damping  = 0.5f;
-    rp.wetLevel = mix * 0.9f;
-    rp.dryLevel = 1.0f;
+    // Freeverb mnoży dry ×2 i wet ×3 — 0.5/0.45 daje jedność na dry (bez
+    // skoku +6 dB przy włączaniu sekcji) przy dawnej proporcji wet:dry.
+    rp.wetLevel = on ? mix * 0.45f : 0.0f;
+    rp.dryLevel = 0.5f;
     rp.width    = 1.0f;
     fxReverb.setParameters (rp);
 
-    const int numSmp = buffer.getNumSamples();
     if (buffer.getNumChannels() >= 2)
         fxReverb.processStereo (buffer.getWritePointer (0),
                                 buffer.getWritePointer (1), numSmp);
     else
         fxReverb.processMono (buffer.getWritePointer (0), numSmp);
+
+    if (! on && fxRevTailSamples <= 0)
+        fxReverb.reset();
 }
 
 void FiSynthAudioProcessor::pushAnalyzerSamples (const juce::AudioBuffer<float>& buffer)
@@ -1246,61 +1296,88 @@ int FiSynthAudioProcessor::readAnalyzerSamples (float* dest, int maxNum)
 }
 
 // === MIDI Learn ===
-// Wszystko poniżej żyje na wątku komunikatów — patrz komentarz przy ccMap.
+// Wszystko poniżej bierze ccMapLock — patrz komentarz przy ccMap w nagłówku.
+
+void FiSynthAudioProcessor::updateCcActive() noexcept
+{
+    bool any = (learnParam != nullptr);
+    for (auto* p : ccMap)
+        any = any || (p != nullptr);
+    ccActive.store (any, std::memory_order_relaxed);
+}
 
 void FiSynthAudioProcessor::timerCallback()
 {
+    const juce::SpinLock::ScopedLockType lock (ccMapLock);
+
+    // Koalescencja: nakręcona gałka to dziesiątki eventów na tick, a słychać
+    // tylko ostatnią wartość — na parametr idzie JEDEN gest na tick (host
+    // w trybie touch/latch widzi jedno dotknięcie, nie serię zerowych).
+    float pending[128];
+    bool  dirty[128] {};
+
     int start1 = 0, size1 = 0, start2 = 0, size2 = 0;
     ccFifo.prepareToRead (ccFifo.getNumReady(), start1, size1, start2, size2);
 
-    auto handle = [this] (int idx)
+    auto gather = [&] (int idx)
     {
-        const int cc = juce::jlimit (0, 127, ccFifoNum[idx]);
+        const auto ev = ccEvents[idx];   // producent gwarantuje num 0..119
 
         if (learnParam != nullptr)
         {
-            // Uzbrojony Learn: ten CC przejmuje parametr (1:1 — stare
+            // Uzbrojony Learn: pierwszy CC przejmuje parametr (1:1 — stare
             // przypisanie parametru znika, przypisanie CC nadpisuje się).
             for (auto*& p : ccMap)
                 if (p == learnParam)
                     p = nullptr;
 
-            ccMap[cc]  = learnParam;
-            learnParam = nullptr;
+            ccMap[ev.num] = learnParam;
+            learnParam    = nullptr;
+            updateCcActive();
         }
 
-        if (auto* p = ccMap[cc])
-        {
-            // Para gestów na event: host widzi ruch jak dotknięcie gałki
-            // w GUI (tryby touch/latch automacji działają poprawnie).
-            p->beginChangeGesture();
-            p->setValueNotifyingHost (ccFifoVal[idx]);
-            p->endChangeGesture();
-        }
+        pending[ev.num] = ev.val;
+        dirty[ev.num]   = true;
     };
 
-    for (int i = 0; i < size1; ++i) handle (start1 + i);
-    for (int i = 0; i < size2; ++i) handle (start2 + i);
+    for (int i = 0; i < size1; ++i) gather (start1 + i);
+    for (int i = 0; i < size2; ++i) gather (start2 + i);
     ccFifo.finishedRead (size1 + size2);
+
+    for (int cc = 0; cc < 128; ++cc)
+        if (dirty[cc])
+            if (auto* p = ccMap[cc])
+            {
+                // Para gestów jak dotknięcie gałki w GUI.
+                p->beginChangeGesture();
+                p->setValueNotifyingHost (pending[cc]);
+                p->endChangeGesture();
+            }
 }
 
 void FiSynthAudioProcessor::startMidiLearn (const juce::String& paramID)
 {
+    const juce::SpinLock::ScopedLockType lock (ccMapLock);
     learnParam = apvts.getParameter (paramID);
+    updateCcActive();
 }
 
 void FiSynthAudioProcessor::cancelMidiLearn()
 {
+    const juce::SpinLock::ScopedLockType lock (ccMapLock);
     learnParam = nullptr;
+    updateCcActive();
 }
 
 bool FiSynthAudioProcessor::isMidiLearnArmed (const juce::String& paramID) const
 {
+    const juce::SpinLock::ScopedLockType lock (ccMapLock);
     return learnParam != nullptr && learnParam->paramID == paramID;
 }
 
 int FiSynthAudioProcessor::ccForParam (const juce::String& paramID) const
 {
+    const juce::SpinLock::ScopedLockType lock (ccMapLock);
     for (int cc = 0; cc < 128; ++cc)
         if (ccMap[cc] != nullptr && ccMap[cc]->paramID == paramID)
             return cc;
@@ -1309,9 +1386,11 @@ int FiSynthAudioProcessor::ccForParam (const juce::String& paramID) const
 
 void FiSynthAudioProcessor::clearCcMapping (const juce::String& paramID)
 {
+    const juce::SpinLock::ScopedLockType lock (ccMapLock);
     for (auto*& p : ccMap)
         if (p != nullptr && p->paramID == paramID)
             p = nullptr;
+    updateCcActive();
 }
 
 juce::AudioProcessorEditor* FiSynthAudioProcessor::createEditor()
@@ -1400,13 +1479,16 @@ void FiSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
         // ją ten szczebel, nie stateToXml): preset to brzmienie, mapa to sprzęt
         // użytkownika — wczytanie presetu nie może kasować mapy kontrolera.
         auto* map = xml->createNewChildElement ("MIDIMAP");
-        for (int cc = 0; cc < 128; ++cc)
-            if (ccMap[cc] != nullptr)
-            {
-                auto* m = map->createNewChildElement ("MAP");
-                m->setAttribute ("cc", cc);
-                m->setAttribute ("param", ccMap[cc]->paramID);
-            }
+        {
+            const juce::SpinLock::ScopedLockType lock (ccMapLock);
+            for (int cc = 0; cc < 128; ++cc)
+                if (ccMap[cc] != nullptr)
+                {
+                    auto* m = map->createNewChildElement ("MAP");
+                    m->setAttribute ("cc", cc);
+                    m->setAttribute ("param", ccMap[cc]->paramID);
+                }
+        }
 
         copyXmlToBinary (*xml, destData);
     }
@@ -1421,10 +1503,12 @@ void FiSynthAudioProcessor::setStateInformation (const void* data, int sizeInByt
         // MIDI Learn (bez MIDIMAP) zostawia bieżącą mapę w spokoju.
         if (auto* map = xml->getChildByName ("MIDIMAP"))
         {
+            const juce::SpinLock::ScopedLockType lock (ccMapLock);
             std::fill (std::begin (ccMap), std::end (ccMap), nullptr);
             for (auto* m : map->getChildWithTagNameIterator ("MAP"))
                 if (auto* p = apvts.getParameter (m->getStringAttribute ("param")))
                     ccMap[juce::jlimit (0, 127, m->getIntAttribute ("cc"))] = p;
+            updateCcActive();
 
             xml->removeChildElement (map, true);
         }
