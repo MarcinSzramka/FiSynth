@@ -1,0 +1,319 @@
+High level design — dokument główny, część 3.
+
+Typy komunikacji Klient i usługi mogą komunikować się za pomocą wielu różnych metod, każda dostosowana do konkretnych scenariuszy i celów. Komunikację można klasyfikować w dwóch głównych kategoriach.
+
+Protokół synchroniczny - H-T-T-P jest przykładem protokołu synchronicznego. Klient wysyła żądanie i oczekuje na odpowiedź od usługi. To, czy wykonanie kodu po stronie klienta jest synchroniczne (wątek jest zablokowany) czy asynchroniczne (wątek nie jest zablokowany, a odpowiedź dociera do wywołania zwrotnego), jest niezależne od synchronicznego charakteru protokołu (H-T-T-P lub HTTPS). Kluczowe jest, że protokół jest synchroniczny, a klient może kontynuować działanie dopiero po otrzymaniu odpowiedzi od serwera H-T-T-P.
+
+Protokół asynchroniczny - inne protokoły, takie jak AMQP (obsługiwany przez wiele systemów operacyjnych i środowisk chmurowych), umożliwiają asynchroniczną komunikację. Kod klienta lub nadawca wiadomości zazwyczaj nie oczekuje na odpowiedź, lecz wysyła wiadomość, na przykład do kolejki RabbitMQ lub innego brokera komunikatów.
+
+Pojedynczy odbiorca - każde żądanie jest przetwarzane przez dokładnie jednego odbiorcę lub usługę. Przykładem takiej komunikacji jest wzorzec Command.
+
+Wielu odbiorców - żądanie może być przetwarzane przez jednego lub więcej odbiorców. Ten typ komunikacji jest z założenia asynchroniczny. Przykładem jest mechanizm publikacji lub subskrypcji używany w architekturze sterowanej zdarzeniami, opierający się na magistrali zdarzeń lub brokerze komunikatów do propagowania aktualizacji danych między wieloma mikrousługami za pomocą zdarzeń, zwykle realizowane przez magistralę usług z tematami i subskrypcjami.
+
+Aplikacje oparte na mikrousługach często korzystają z kombinacji tych stylów komunikacji. Najpopularniejszy jest model z pojedynczym odbiorcą przy użyciu protokołu synchronicznego, jak H-T-T-P lub HTTPS, do wywoływania standardowych usług interfejsu A-P-I. Mikrousługi zazwyczaj wykorzystują protokoły przesyłania komunikatów do asynchronicznej komunikacji między sobą. Zrozumienie tych kategorii jest ważne dla jasności możliwych mechanizmów komunikacji, choć nie są one najistotniejsze przy projektowaniu mikrousług. Inny niż asynchroniczny charakter wykonania kodu klienta lub wybór asynchronicznego protokołu nie są kluczowe przy integracji mikrousług. Znaczenie ma zdolność do asynchronicznej integracji mikrousług przy zachowaniu ich niezależności.
+
+Asynchroniczna integracja mikrousług jako metoda na ich autonomię. Jak wspomniano, kluczowym aspektem tworzenia aplikacji opartej na mikrousługach jest strategia ich integracji. Optymalnie, należy dążyć do minimalizacji komunikacji między mikrousługami - im mniej, tym lepiej. Jednak w praktyce często pojawia się potrzeba integracji między mikrousługami. W takich sytuacjach podstawową zasadą jest preferowanie komunikacji asynchronicznej. Nie jest to równoznaczne z koniecznością stosowania konkretnego protokołu, jak asynchroniczne przesyłanie komunikatów czy synchroniczny protokół H-T-T-P. Chodzi raczej.
+
+to, że wymiana danych między mikrousługami powinna odbywać się asynchronicznie, unikając wzajemnego polegania na synchronicznych operacjach żądanie lub odpowiedź wewnętrznych mikrousług.
+
+Jeśli to możliwe, należy unikać synchronicznej komunikacji (żądanie lub odpowiedź) między mikrousługami, nawet w przypadku zapytań. Celem jest zapewnienie, by każda mikrousługa była autonomiczna i dostępna dla klienta, nawet gdy inne usługi wchodzące w skład aplikacji są niedostępne lub zawodzą. Zależność od połączenia z jednej mikrousługi do innej (na przykład poprzez żądanie H-T-T-P o dane) może prowadzić do architektury podatnej na awarie, gdy pewne mikrousługi przestaną funkcjonować.
+
+Ponadto, zależności H-T-T-P między mikrousługami, zwłaszcza tworzenie długich łańcuchów żądań lub odpowiedzi, jak pokazano w pierwszej części, nie tylko zaburzają autonomię mikrousług, ale także negatywnie wpływają na ich wydajność w przypadku awarii jednej z usług w łańcuchu. Wzrost liczby synchronicznych zależności między mikrousługami, takich jak żądania o dane, negatywnie wpłynie na ogólny czas reakcji aplikacji klienckich, degradując doświadczenie użytkownika i wydajność całego systemu.
+
+W mikrousługach, które wykorzystują asynchroniczne wzorce komunikacji z innymi mikrousługami, można stosować asynchroniczne komunikaty lub odpytywanie H-T-T-P. Kluczowe jest, aby żądanie klienta było obsługiwane natychmiast, nie czekając na wynik dodatkowych akcji wykonywanych przez inne mikrousługi.
+
+Jeśli mikrousługa musi zainicjować dodatkową akcję w innej mikrousłudze, zaleca się, aby nie odbywało się to w sposób synchroniczny jako część pierwotnego procesu żądania i odpowiedzi. Lepszym podejściem jest wykonanie tej akcji asynchronicznie, na przykład za pomocą asynchronicznych komunikatów, zdarzeń integracyjnych czy kolejek.
+
+Częstym wyzwaniem jest sytuacja, gdy mikrousługa potrzebuje danych, które pierwotnie należały do innych mikrousług. W takim przypadku nie należy polegać na synchronicznym żądaniu tych danych. Zamiast tego, dane te powinny być replikowane lub propagowane - przy ograniczeniu się tylko do niezbędnych atrybutów do bazy danych mikrousługi inicjującej, wykorzystując ostateczną spójność. Takie podejście zwykle korzysta z integracji opartej na zdarzeniach, co zostanie dokładniej omówione w dalszej części materiału.
+
+Style komunikacji W świecie mikrousług istnieje wiele protokołów i opcji komunikacyjnych, dostosowanych do różnych potrzeb i kontekstów. Dla synchronicznych mechanizmów komunikacji opartych na modelu żądania i odpowiedzi, najczęściej stosowane są protokoły takie jak H-T-T-P i REST, które są szczególnie przydatne, gdy usługi są udostępniane poza środowiskiem klastra Kubernetes. W sytuacjach, gdy komunikacja odbywa się wewnętrznie, to jest W obrębie klastra mikrousług, możliwe jest również wykorzystanie mechanizmów komunikacji w formacie binarnym, na przykład przez korzystanie z Windows Communication Foundation (WCF) z protokołem TCP i formatem binarnym. Alternatywą jest zastosowanie asynchronicznych mechanizmów komunikacji opartych na komunikatach, takich jak AMQP, które umożliwiają efektywną i nieblokującą wymianę informacji między usługami.
+
+Dostępne są różne formaty wiadomości, w tym dżejson, XML, a także formaty binarne, które mogą oferować wyższą wydajność. Wybór formatu binarnego, który nie jest powszechnie przyjętym standardem, może nie być najlepszym rozwiązaniem dla publicznie dostępnych usług. Niestandardowe formaty najlepiej sprawdzają się w komunikacji wewnętrznej, na przykład między mikrousługami działającymi w obrębie tego samego klastra mikrousług, lub w przypadkach, gdy prywatne aplikacje klienckie komunikują się z mikrousługami. Taka strategia umożliwia optymalizację wydajności i bezpieczeństwa komunikacji w kontrolowanym środowisku.
+
+Komunikacja żądania lub odpowiedź za pomocą protokołu H-T-T-P i REST W modelu komunikacji żądanie lub odpowiedź, klient inicjuje wymianę danych, wysyłając żądanie do usługi, która następnie przetwarza to żądanie i zwraca odpowiedź. Taki sposób komunikacji jest szczególnie przydatny do realizacji zapytań o dane potrzebne interfejsowi użytkownika w aplikacjach klienckich, zapewniając aktualne informacje w czasie rzeczywistym. W związku z tym, w architekturze opartej na mikrousługach, mechanizm ten często wykorzystywany jest do obsługi większości zapytań, co umożliwia skuteczną i bezpośrednią wymianę informacji między klientem a usługami.
+
+W modelu komunikacji żądanie lub odpowiedź, istnieje oczekiwanie, że odpowiedź zostanie otrzymana szybko - zazwyczaj w ciągu sekundy lub, w niektórych przypadkach, maksymalnie kilku sekund. W sytuacjach, gdy odpowiedź może zostać opóźniona, zaleca się zastosowanie asynchronicznej komunikacji, która wykorzystuje odpowiednie wzorce i technologie przesyłania wiadomości.
+
+Do realizacji komunikacji żądanie lub odpowiedź zalecane jest wykorzystanie architektury REST, opartej na protokole H-T-T-P. REST, ściśle powiązany z H-T-T-P, korzysta z tzw. czasowników H-T-T-P, takich jak GET, POST i PUT, i jest powszechnie stosowanym podejściem do projektowania interfejsów komunikacyjnych usług.
+
+Wykorzystanie REST jako języka definicji interfejsu A-P-I przynosi dodatkowe korzyści, dzięki możliwości opisu interfejsu za pomocą metadanych, takich jak Swagger. Użycie Swaggera pozwala na generowanie kodów klientów przy użyciu narzędzi, które mogą automatycznie wykrywać usługi i korzystać z nich, ułatwiając integrację i współpracę między różnymi komponentami systemu.
+
+Komunikacja push i w czasie rzeczywistym oparta na protokole H-T-T-P Kolejną opcją jest komunikacja w czasie rzeczywistym w modelu jeden do wielu przy wykorzystaniu zaawansowanych platform takich jak ASP.NET SignalR oraz protokołów jak WebSockets. W takim modelu, serwer może aktywnie przesyłać dane do połączonych klientów w momencie, gdy stają się one dostępne, eliminując konieczność oczekiwania na żądanie od klienta o nowe dane.
+
+Asynchroniczna komunikacja przy użyciu wiadomości jeden do wielu w czasie rzeczywistym.
+
+Wykorzystanie asynchronicznej komunikacji w modelu jeden do wielu umożliwia w czasie rzeczywistym przekazywanie informacji od serwera do klientów. SignalR to skuteczne narzędzie do realizacji takiej komunikacji, pozwalające aplikacjom klienckim na bieżąco odświeżać wyświetlane informacje. Działa to dzięki protokołowi WebSockets, który umożliwia utrzymywanie otwartych połączeń między serwerem, a każdym z klientów. Przykładowo, może to być wykorzystane do natychmiastowego informowania interfejsu użytkownika o konieczności interwencji operatora przy obsłudze suwnicy.
+
+Asynchroniczna komunikacja oparta na komunikatach Asynchroniczne przesyłanie komunikatów i komunikacja sterowana zdarzeniami odgrywają kluczową rolę w propagowaniu zmian między wieloma mikrousługami i ich domenami. Jak już omówiono, w kontekście mikrousług i Bounded Contexts, takie modele jak użytkownik, kontener, zlecenie czy trasa, mogą mieć różne znaczenia w różnych mikrousługach lub kontekstach ograniczonych. Dlatego, kiedy zmiany zachodzą, potrzebny jest efektywny sposób na ich propagację między różnymi modelami. Odpowiedzią jest ostateczna spójność i komunikacja sterowana zdarzeniami, opierająca się na asynchronicznym przesyłaniu komunikatów.
+
+W modelu opartym na przesyłaniu komunikatów, procesy komunikują się poprzez wymianę komunikatów w sposób asynchroniczny. Klient wysyła polecenie lub zapytanie do usługi, przesyłając wiadomość. Usługa może odpowiedzieć, wysyłając zwrotną wiadomość do klienta. W tej formie komunikacji, klient nie oczekuje natychmiastowej odpowiedzi, a czasem odpowiedź może w ogóle nie przyjść.
+
+Wiadomość składa się z nagłówka, zawierającego metadane, takie jak informacje identyfikacyjne czy zabezpieczeń, oraz ciała wiadomości. Komunikaty te zazwyczaj są przesyłane za pomocą protokołów asynchronicznych, takich jak AMQP.
+
+Dla mikrousług preferowanym rozwiązaniem jest lekki broker komunikatów, który różni się od tradycyjnych brokerów i koordynatorów stosowanych w SOA. Taka infrastruktura jest zwykle uproszczona, działając głównie jako broker komunikatów z prostymi implementacjami, takimi jak RabbitMQ. W tym ujęciu, większość zaawansowanego przetwarzania wiadomości odbywa się na poziomie mikrousług, które generują i konsumują komunikaty.
+
+Zasada polega na wykorzystywaniu asynchronicznego przesyłania komunikatów do komunikacji między usługami wewnętrznymi, przy jednoczesnym stosowaniu komunikacji synchronicznej (takiej jak H-T-T-P) wyłącznie do interakcji między aplikacjami klienckimi, a usługami front-end, czyli bramą A-P-I i pierwszym poziomem mikrousług.
+
+Istnieją dwa podstawowe rodzaje asynchronicznej komunikacji z użyciem komunikatów: komunikacja z jednym odbiorcą i komunikacja z wieloma odbiorcami.
+
+Komunikacja oparta na wiadomościach z jednym odbiorcą Asynchroniczna komunikacja oparta na komunikatach z jednym odbiorcą charakteryzuje się modelem punkt-punkt, w którym komunikat dociera do dokładnie jednego odbiorcy z kanału i jest przetwarzany tylko raz. Mimo to, w niektórych sytuacjach, na przykład w systemach chmurowych zaprojektowanych do automatycznego odzyskiwania po awariach, ta sama wiadomość może być dostarczana wielokrotnie. W przypadku problemów sieciowych lub innych awarii, konieczna może być ponowna próba wysłania wiadomości przez nadawcę, podczas gdy odbiorca powinien być w stanie zidentyfikować takie przypadki i przetworzyć daną wiadomość tylko raz, aby uniknąć duplikacji przetwarzania.
+
+Ten rodzaj komunikacji jest szczególnie przydatny do przesyłania asynchronicznych poleceń między mikrousługami, ułatwiając ich niezależne działanie i skalowalność.
+
+Po zdecydowaniu się na korzystanie z komunikacji opartej na komunikatach, za pomocą poleceń lub zdarzeń, należy unikać mieszania tej formy komunikacji z synchroniczną komunikacją H-T-T-P, aby zachować spójność i klarowność architektury.
+
+W kontekście komunikacji z aplikacji klienckich, polecenia zwykle implementuje się jako synchroniczne żądania H-T-T-P. Stosowanie komunikacji opartej na komunikatach jest rekomendowane w sytuacjach, które wymagają wyższej skalowalności lub są tak określone przez proces biznesowy, zapewniając efektywniejszą i bardziej elastyczną wymianę informacji między usługami.
+
+Komunikacja oparta na komunikatach do wielu odbiorców W ramach bardziej elastycznego podejścia, można również zaimplementować mechanizm publikowania lub subskrypcji, co umożliwia przesyłanie komunikatów od nadawcy do wielu mikrousług (subskrybentów) lub aplikacji zewnętrznych. Dzięki temu rozwiązaniu, możliwe jest dodawanie nowych subskrybentów w przyszłości bez potrzeby zmian w usłudze nadawczej.
+
+Podczas stosowania komunikacji typu publikacja lub subskrypcja, magistrala zdarzeń służy jako interfejs do publikowania zdarzeń, które mogą być odbierane przez dowolnych subskrybentów zainteresowanych tymi informacjami.
+
+Asynchroniczna komunikacja sterowana zdarzeniami W ramach asynchronicznej komunikacji opartej na zdarzeniach, mikrousługa publikuje zdarzenie, kiedy następuje znacząca zmiana w jej domenie, której inne mikrousługi muszą być świadome, na przykład aktualizacja ceny w mikroserwisie cennika. Subskrybujące te zdarzenia mikrousługi mogą następnie asynchronicznie odbierać powiadomienia o tych zmianach. Gdy otrzymają takie zdarzenie, mogą zaktualizować własne dane domenowe, co z kolei może prowadzić do publikacji nowych zdarzeń integracyjnych. Cały ten mechanizm publikowania lub subskrypcji jest realizowany za pomocą magistrali zdarzeń, która może być zaprojektowana jako abstrakcja lub interfejs z A-P-I niezbędnym do subskrypcji lub rezygnacji z subskrypcji zdarzeń oraz do ich publikowania. Magistrala zdarzeń może być zaimplementowana na bazie dowolnego mechanizmu komunikacji asynchronicznej, jak kolejki komunikatów czy magistrala usług, wspierająca model publikowania lub subskrypcji.
+
+Jeżeli system stosuje spójność ostateczną, sterowaną przez zdarzenia integracyjne, ważne jest, aby była ona jasno zrozumiała dla użytkowników końcowych. System nie powinien stosować rozwiązań imitujących zdarzenia integracyjne, takich jak SignalR czy polling, które mogą wprowadzać użytkowników w błąd. Użytkownicy i właściciele systemu muszą jasno rozumieć i zaakceptować zasadę ostatecznej spójności, co jest akceptowalne w wielu przypadkach, jak na przykład w Logistyce 4.0, pod warunkiem, że jest to wyraźnie zakomunikowane. Jest to istotne, gdyż użytkownicy mogą oczekiwać natychmiastowych wyników, co może nie być możliwe do osiągnięcia w modelu ostatecznej spójności.
+
+Zdarzenia integracyjne mogą służyć do implementacji zadań biznesowych obejmujących wiele mikrousług, umożliwiając osiągnięcie ostatecznej spójności między nimi. Ostatecznie spójna transakcja składa się z serii rozproszonych akcji, przy czym każda akcja skutkuje aktualizacją domeny przez powiązaną mikrousługę i publikacją nowego zdarzenia integracyjnego, wyzwalającego kolejne działania w ramach tego samego kompleksowego procesu biznesowego. Ważne jest, aby można było komunikować się z wieloma mikrousługami subskrybującymi to samo zdarzenie. Można to osiągnąć za pomocą mechanizmu publikuj lub subskrybuj opartego na komunikacji sterowanej zdarzeniami. Ten model publikowania lub subskrypcji jest stosowany nie tylko w architekturze mikrousług, ale także w kontekście Bounded Contexts w Domain-Driven Design (D-D-D) czy w propagacji aktualizacji z bazy danych zapisu do bazy danych odczytu w modelu Command Query Responsibility Segregation (CQRS). Cel polega na zapewnieniu ostatecznej spójności między różnymi źródłami danych w systemie rozproszonym.
+
+W architekturze sterowanej zdarzeniami, opartej na asynchronicznej komunikacji, mikrousługi publikują zdarzenia do magistrali zdarzeń, a wiele mikrousług subskrybuje te zdarzenia, aby na ich podstawie podejmować odpowiednie działania. Taki model umożliwia elastyczną i skalowalną komunikację między usługami, sprzyjając odseparowaniu logiki biznesowej i zwiększeniu odporności systemu na awarie.
+
+Jednym z wyzwań w implementacji takiej architektury jest zagwarantowanie atomowości aktualizacji stanu w publikującym mikroserwisie wraz z niezawodnym publikowaniem powiązanego zdarzenia integracyjnego w magistrali zdarzeń. Osiągnięcie tego często wymaga użycia transakcji obejmujących zarówno zmianę stanu, jak i publikację zdarzenia, co nie zawsze jest proste w rozproszonym środowisku.
+
+Eksploracja dzienników transakcji - to podejście polega na monitorowaniu dzienników transakcji bazy danych mikroserwisu publikującego, aby wykryć zatwierdzone zmiany i generować na ich podstawie zdarzenia integracyjne. Chociaż skuteczne, wymaga to dogłębnej znajomości mechanizmów bazodanowych i może być trudne w implementacji oraz utrzymaniu.
+
+Event Sourcing - to wzorzec, w którym zmiany stanu są przechowywane jako sekwencja zdarzeń. Każde działanie w systemie jest reprezentowane przez zdarzenie, które jest trwale zapisywane przed zmianą stanu. Dzięki temu publikacja zdarzenia w magistrali jest ściśle związana z aktualizacją stanu, a cała historia zmian jest dostępna i może być wykorzystana do odtworzenia stanu obiektów.
+
+rozkłada obciążenie, ale także zabezpiecza usługi, oferując na przykład terminację protokołu SSL. Dzięki temu obciążenie związane z szyfrowaniem SSL oraz inne zadania związane z routingiem są przenoszone na zewnętrzne komponenty, odciążając tym samym mikrousługi.
+
+Chociaż architektura bezpośredniej komunikacji klient-mikrousługa może być wystarczająca dla aplikacji opartych na mikrousługach o mniejszej skali, zwłaszcza gdy aplikacja kliencka jest serwerową aplikacją internetową, taką jak ASP.NET Blazor, w przypadku rozwoju dużych i złożonych systemów (na przykład obsługujących dziesiątki mikrousług) oraz przy aplikacjach mobilnych lub SPA (Single Page Applications), to podejście może napotkać szereg wyzwań.
+
+Minimalizacja liczby wywołań mikrousług - aby przyspieszyć odpowiedzi interfejsu użytkownika, aplikacje klienckie powinny starać się ograniczyć liczbę wywołań mikroserwisów. Interakcja z wieloma mikrousługami w celu wyświetlenia danych na pojedynczym ekranie U-I zwiększa liczbę wywołań przez sieć, wprowadzając opóźnienia i złożoność. Optymalne jest, aby odpowiedzi były agregowane po stronie serwera, co zmniejsza opóźnienia, ponieważ fragmenty danych są zwracane równolegle.
+
+Wspólne problemy dla wszystkich usług - implementacja zabezpieczeń, takich jak autoryzacja czy transformacja danych, w każdej mikrousłudze może być pracochłonna. Możliwym rozwiązaniem jest umieszczenie wspólnych usług w wewnętrznym klastrze, ograniczając bezpośredni dostęp do nich z zewnątrz i centralizując te funkcje, aby były dostępne tylko wewnętrznie.
+
+Komunikacja z usługami używającymi protokołów nieprzyjaznych Internetowi - protokoły serwerowe takie jak AMQP czy protokoły binarne nie są obsługiwane w aplikacjach klienckich. Żądania muszą być realizowane za pomocą H-T-T-P lub HTTPS i następnie przekształcane na inne protokoły. W takim przypadku, pomocna może być warstwa pośrednicząca odpowiedzialna za translację protokołów.
+
+Dostosowanie A-P-I do potrzeb aplikacji mobilnych - interfejs A-P-I mikrousług może wymagać optymalizacji do różnych typów aplikacji klienckich. W przypadku aplikacji mobilnych, konieczna może być dalsza optymalizacja odpowiedzi, aby były one bardziej efektywne. Funkcję tę można realizować, agregując dane z wielu mikrousług i dostarczając uproszczony zestaw danych, eliminując niepotrzebne informacje.
+
+Te wyzwania podkreślają znaczenie dokładnego planowania i projektowania architektury opartej na mikrousługach, zwłaszcza w kontekście skalowalnych i złożonych systemów.
+
+Agregacja A-P-I - implementacja warstwy agregującej, która zbiera żądania z różnych mikrousług i zwraca je jako pojedynczą, zoptymalizowaną odpowiedź do klienta. Taka warstwa może działać jako brama A-P-I, ułatwiając zarządzanie zapytaniami i zmniejszając liczbę wywołań sieciowych koniecznych do wyświetlenia danych w interfejsie użytkownika.
+
+A-P-I Gateway - wykorzystanie A-P-I Gateway jako pojedynczego punktu wejścia do systemu mikrousług, który zajmuje się routingiem żądań, agregacją odpowiedzi, autoryzacją, oraz oferuje inne funkcje, jak rate limiting czy caching. A-P-I Gateway może również służyć jako punkt terminacji SSL, odciążając mikrousługi od konieczności zarządzania szyfrowaniem.
+
+Wzorce projektowe - stosowanie wzorców projektowych, takich jak BFF (Backend for Frontend), gdzie tworzy się specyficzne dla danego klienta interfejsy A-P-I, które agregują i optymalizują dane z mikrousług. Pozwala to na precyzyjne dostosowanie odpowiedzi A-P-I do potrzeb konkretnego typu klienta (na przykład aplikacji mobilnych, SPA, urządzeń IoT).
+
+Zarządzanie zależnościami i spójnością - w przypadku systemów, gdzie wymagana jest współpraca wielu mikrousług, należy rozważyć użycie asynchronicznej komunikacji opartej na zdarzeniach lub wiadomościach, by zminimalizować bezpośrednie zależności między usługami. Dzięki temu można zapewnić ostateczną spójność danych bez konieczności blokowania operacji na poziomie interfejsu użytkownika.
+
+Zarządzanie protokołami komunikacji - w scenariuszach wymagających translacji między różnymi protokołami, rozważyć można użycie specjalizowanych mikrousług lub adapterów, które pełnią rolę pośredników i umożliwiają bezproblemową komunikację między aplikacjami klienckimi, a mikrousługami korzystającymi z różnorodnych protokołów komunikacyjnych.
+
+Podsumowując, skuteczna komunikacja w architekturze mikrousług wymaga starannego planowania i zastosowania odpowiednich wzorców projektowych oraz technologii. Ważne jest, by pamiętać o potrzebach końcowych użytkowników i dostosować architekturę systemu w taki sposób, by zapewnić im jak najlepsze doświadczenie, jednocześnie utrzymując system elastyczny, skalowalny i łatwy w utrzymaniu. W dalszej części opisano wzorzec A-P-I Gateway jak rozwiązanie powyższych problemów.
+
+Jak działa wzorzec A-P-I Gateway? W kontekście projektowania i wdrażania dużych lub złożonych aplikacji opartych na mikrousługach, które obsługują wiele aplikacji klienckich, skutecznym rozwiązaniem może okazać się brama A-P-I (A-P-I Gateway). Ten wzorzec architektoniczny funkcjonuje jako usługa zapewniająca jednolity punkt dostępu dla określonych grup mikrousług. Jest analogiczny do wzorca fasady z programowania obiektowego, jednak stosowany w kontekście systemów rozproszonych. A-P-I.
+
+Gateway bywa również określane mianem Backend for Frontend (BFF), co wynika z faktu projektowania go z uwzględnieniem specyficznych potrzeb aplikacji klienckich.
+
+Brama A-P-I znajduje się pomiędzy aplikacjami klienckimi, a mikrousługami, pełniąc funkcję reverse proxy, które przekierowuje żądania od klientów do odpowiednich usług. Może również oferować dodatkowe wspólne funkcjonalności, takie jak uwierzytelnianie użytkowników, terminacja protokołu SSL, czy cache'owanie stałych zasobów, zwiększając tym samym efektywność i bezpieczeństwo systemu.
+
+Ilustracja przedstawia zastosowanie bramy A-P-I w architekturze opartej na mikrousługach obsługującej trzy typy aplikacji klienckiej i trzy mikrousługi. Dzięki takiemu podejściu, wszystkie aplikacje klienckie mogą komunikować się z mikrousługami poprzez jednolity, bezpieczny i optymalizowany punkt dostępu, co upraszcza architekturę systemu i poprawia jego skalowalność oraz łatwość zarządzania.
+
+Aplikacje łączą się z jednym wspólnym punktem końcowym, czyli bramą A-P-I, która jest skonfigurowana do przekierowywania żądań do odpowiednich mikrousług. Diagram przedstawia użycie pojedynczej usługi A-P-I Gateway do obsługi wielu różnych aplikacji klienckich. Taka centralizacja może jednak prowadzić do ryzyka nadmiernego skomplikowania tej usługi, w miarę jak zacznie ona ewoluować, aby sprostać rozbieżnym wymaganiom poszczególnych aplikacji klienckich. W efekcie, brama A-P-I może stać się zbyt złożona, zbliżając się do struktury monolitycznej. Aby tego uniknąć, zaleca się podział bramy A-P-I na mniejsze, bardziej wyspecjalizowane bramy, dedykowane konkretnym typom aplikacji klienckich.
+
+Podczas implementacji wzorca A-P-I Gateway należy zachować ostrożność. Posiadanie jednej, centralnej bramy A-P-I, która agreguje wszystkie wewnętrzne mikrousługi, nie jest zalecane. Takie podejście przekształca ją w monolityczny agregator lub koordynator, co stoi w sprzeczności z zasadą autonomii mikrousług, łącząc je wszystkie.
+
+Zamiast tego, bramy A-P-I powinny być organizowane wokół granic biznesowych i aplikacji klienckich, a nie służyć jako uniwersalny agregator dla wszystkich mikrousług. W sytuacji, gdy aplikacja obsługuje wiele aplikacji klienckich, podział warstwy bramy A-P-I na wiele bram może pomóc w lepszym zarządzaniu i dostosowaniu do specyficznych potrzeb każdej z aplikacji. Taki model nazywany jest wzorcem Backend for Frontend (BFF), gdzie każda brama A-P-I dostarcza dostosowany interfejs A-P-I dla konkretnego typu aplikacji klienckiej.
+
+Przyjmując podejście BFF, można stworzyć optymalne i skrojone na miarę środowisko dla każdego typu klienta, co zwiększa efektywność i skuteczność komunikacji między aplikacjami klienckimi, a backendem.
+
+Główne cechy wzorca A-P-I Gateway W architekturze mikrousług, brama A-P-I pełni kluczową rolę, oferując szereg funkcji, które mogą być bardziej zaawansowane lub podstawowe, w zależności od wybranego rozwiązania do jej implementacji.
+
+Podstawowe i niezbędne funkcje każdej bramy A-P-I obejmują między innymi:
+
+Reverse Proxy lub Gateway Routing - brama A-P-I działa jako reverse proxy, przekierowując lub kierując żądania (routing warstwy 7, zwykle żądania H-T-T-P) do wewnętrznych endpoint'ów mikrousług. Zapewnia to pojedynczy punkt dostępu dla aplikacji klienckich, z wewnętrznym mapowaniem żądań do odpowiednich mikrousług. Ta funkcja routingu nie tylko ułatwia oddzielenie klientów od mikrousług, ale również ułatwia modernizację interfejsów A-P-I przez umieszczenie bramy A-P-I między aplikacjami klienckimi, a systemem. W ten sposób, nawet podczas stopniowego przejścia od monolitycznego A-P-I do architektury mikrousług, aplikacje klienckie nie odczują bezpośrednio zmian w URL.
+
+Agregacja żądań - brama A-P-I umożliwia agregowanie wielu żądań klientów do różnych wewnętrznych mikrousług w ramach jednego żądania klienta. Jest to szczególnie przydatne, gdy interfejs użytkownika potrzebuje danych z różnych mikrousług do wyświetlenia na pojedynczej stronie lub ekranie. Poprzez zastosowanie tego wzorca, aplikacja klienta może wysłać jedno żądanie do bramy A-P-I, która następnie wysyła i agreguje żądania do mikrousług, zwracając skonsolidowany zestaw danych. To podejście zmniejsza liczbę wywołań sieciowych i potencjalnych opóźnień, zwłaszcza w przypadku aplikacji działających zdalnie, takich jak mobilne lub SPA. W zależności od konkretnego produktu A-P-I Gateway, możliwe jest wykonanie tej agregacji automatycznie. Często jednak, większą elastyczność oferuje tworzenie dedykowanych mikrousług agregujących działających w ramach bramy A-P-I, co pozwala na dokładniejszą kontrolę logiki agregacji poprzez kod, na przykład w języku C.
+
+Wspólne funkcje - funkcjonalności wspólne dla wielu mikrousług, takie jak uwierzytelnianie, autoryzacja, cache'owanie odpowiedzi, zarządzanie jakością usług (QoS), ograniczanie przepustowości, równoważenie obciążenia, logowanie, śledzenie i korelacja, mogą być centralizowane w bramie A-P-I. To upraszcza wdrażanie mikrousług poprzez konsolidację wspólnych funkcji na jednym poziomie, zmniejszając powtarzalność kodu i ułatwiając zarządzanie zabezpieczeniami i monitorowaniem w skali całego systemu.
+
+Podczas wdrażania bramy A-P-I, ważne jest, aby rozważyć jej podział na bardziej wyspecjalizowane bramy, oparte na granicach biznesowych lub typach klientów, szczególnie w dużych systemach. Taka segmentacja zapewnia lepszą modularność, ułatwia zarządzanie i może pomóc uniknąć ryzyka przekształcenia bramy w niezamierzony monolit.
+
+Model Backend for Frontend (BFF) zyskuje na popularności jako sposób na tworzenie spersonalizowanych punktów końcowych A-P-I dla różnych typów klientów. Każdy Backend dla.
+
+Frontendu jest bramą A-P-I zaprojektowaną specjalnie do obsługi określonego typu aplikacji klienckiej, na przykład aplikacji mobilnej, aplikacji webowej czy urządzenia IoT. Dzięki temu, można bardziej precyzyjnie zarządzać żądaniami i dostarczać dane w formacie najbardziej odpowiadającym potrzebom i ograniczeniom danego klienta.
+
+Podział bramy A-P-I na mniejsze, bardziej specjalizowane komponenty pozwala na bardziej elastyczne i efektywne zarządzanie ruchem sieciowym, bezpieczeństwem i rozwojem systemu.
+
+Aby jednak skutecznie wdrożyć takie podejście, niezbędne jest staranne planowanie i uwzględnienie następujących aspektów:
+
+Granice biznesowe i potrzeby użytkowników - każda dedykowana brama A-P-I powinna odpowiadać na konkretne wymagania biznesowe i potrzeby użytkowników, które obsługuje.
+
+Zarządzanie złożonością - podział na mniejsze bramy A-P-I musi być zrównoważony potrzebą zarządzania zwiększoną złożonością systemu. Należy unikać sytuacji, w której liczba bram staje się trudna do zarządzania oraz do monitorowania.
+
+Optymalizacja wydajności - specjalizowane bramy A-P-I pozwalają na lepszą optymalizację wydajności poprzez dostosowanie logiki routingu, agregacji żądań i przetwarzania odpowiedzi do konkretnych scenariuszy użycia.
+
+Bezpieczeństwo - każda brama A-P-I powinna implementować odpowiednie mechanizmy uwierzytelniania i autoryzacji, zabezpieczając dostęp do mikrousług przed nieautoryzowanym dostępem.
+
+Implementacja wielu bram A-P-I w ramach architektury mikrousług wymaga zastosowania narzędzi i praktyk umożliwiających efektywne zarządzanie konfiguracją, wersjonowaniem oraz monitorowaniem. Odpowiednie narzędzia C-I C-D, zarządzanie kontenerami oraz systemy monitorowania stanu i wydajności są niezbędne do utrzymania zdrowia i dostępności tak zdecentralizowanego systemu.
+
+W rezultacie, odpowiednio zaplanowana i zaimplementowana architektura bram A-P-I nie tylko ułatwia zarządzanie złożonymi systemami mikrousług, ale także zwiększa elastyczność, skalowalność i bezpieczeństwo aplikacji, dostarczając jednocześnie lepsze doświadczenia dla użytkowników końcowych.
+
+Ryzyka związane ze stosowanie wzorca A-P-I Gateway Implementacja bramy A-P-I w architekturze mikrousług może przynieść pewne wyzwania, które warto rozważyć.
+
+Centralizacja autentykacji - wykorzystanie centralnego systemu autentykacji, takiego jak OAuth 2.0 lub OpenID Connect, który umożliwia użytkownikom logowanie się za pomocą jednego konta na różnych serwisach. Zapewnia to jednolite doświadczenie użytkownika podczas logowania i rejestracji poprzez wspólny interfejs użytkownika.
+
+Tokeny dżej-W-T (dżejson Web Tokens) - używanie tokenów dżej-W-T do autentykacji i autoryzacji. Tokeny dżej-W-T są przenośne, bezstanowe i mogą zawierać informacje o uprawnieniach użytkownika. Dodatkowo, dzięki szyfrowaniu, tokeny dżej-W-T zapewniają integralność i poufność danych.
+
+Zabezpieczanie mikroserwisów - każdy mikroserwis powinien być odpowiedzialny za autoryzację otrzymywanych żądań. Wykorzystuje się mechanizm A-P-I Gateway do zabezpieczania dostępu do mikroserwisów, na przykład poprzez weryfikację tokenów dżej-W-T przed przekierowaniem żądania do serwisu docelowego.
+
+Zarządzanie uprawnieniami - zastosowanie modelu opartego na rolach (RBAC - RoleBased Access Control) lub modelu opartego na zasobach (ABAC - Attribute-Based Access Control) do zarządzania uprawnieniami użytkowników. W ramach mikroserwisów zostanie ustalona hierarchia ról i zasobów w systemie, aby precyzyjnie kontrolować dostęp do funkcji i danych.
+
+Audytowanie i monitorowanie - aplikacja będzie posiadała mechanizmy audytowania, które rejestrują aktywności użytkowników, szczególnie dostęp do poufnych danych. Dzięki centralizacji logów będzie możliwe monitorowanie zdarzeń w systemie, aby wykrywać podejrzane lub nieautoryzowane aktywności.
+
+Zarządzanie tożsamościami i sesjami - w ramach systemu będą używane mechanizmy zarządzania sesjami, które zapewniają bezpieczne przechowywanie informacji o sesjach użytkowników oraz zarządzanie ich cyklem życia.
+
+Centralizacja autentykacji Centralizacja autentykacji to podejście polegające na skupieniu procesu uwierzytelniania użytkownika w jednym, scentralizowanym systemie. Jest to szczególnie przydatne w architekturze opartej na mikroserwisach, gdzie wiele usług wymaga dostępu do tych samych danych użytkowników.
+
+System autentykacji - w centralnym systemie autentykacji użytkownik może zarejestrować swoje konto, logować się i zarządzać swoim profilem. Może to być dedykowany serwis autentykacji lub wykorzystanie zewnętrznych usług autentykacji, takich jak OAuth 2.0 lub OpenID Connect.
+
+Logowanie SSO - Single Sign-On - centralny system autentykacji umożliwia logowanie SSO, co oznacza, że użytkownik może zalogować się raz i uzyskać dostęp do wielu usług bez konieczności ponownego logowania. Jest to wygodne dla użytkowników i przyczynia się do poprawy doświadczenia użytkownika.
+
+Wspólny interfejs użytkownika - aplikacje korzystające z centralnego systemu autentykacji powinny oferować wspólny interfejs użytkownika do logowania i rejestracji. To pozwala na spójne doświadczenie użytkownika, niezależnie od tego, do którego mikroserwisu próbuje uzyskać dostęp.
+
+Uprawnienia dostępu - po autentykacji, centralny system może przekazywać informacje o uprawnieniach użytkownika w postaci tokenów dżej-W-T lub innych metod uwierzytelniania. Te tokeny mogą zawierać informacje o roli użytkownika, pozwalając na skuteczną autoryzację w poszczególnych mikroserwisach.
+
+Bezpieczeństwo - centralizacja autentykacji umożliwia również lepsze zarządzanie bezpieczeństwem, ponieważ wszystkie operacje związane z uwierzytelnianiem mogą być monitorowane i zarządzane w jednym miejscu. To ułatwia śledzenie i reagowanie na ewentualne incydenty związane z bezpieczeństwem.
+
+Skalowalność - dzięki centralizacji autentykacji, można łatwo skalować systemy autentykacji w odpowiedzi na zmieniające się wymagania aplikacji i wzrost liczby użytkowników.
+
+Tokeny dżej-W-T Tokeny dżej-W-T są popularnym mechanizmem wykorzystywanym do zabezpieczania aplikacji internetowych. Są one przenośne, bezstanowe i samodokumentujące, co sprawia, że są idealnym narzędziem do autentykacji i autoryzacji w architekturze opartej na mikroserwisach.
+
+Struktura dżej-W-T - token dżej-W-T składa się z trzech części: nagłówka (header), zawartości (payload) i podpisu (signature). Nagłówek zawiera informacje o algorytmie używanym do podpisu, zawartość zawiera dane użytkownika lub inne informacje, a podpis jest używany do weryfikacji autentyczności tokena.
+
+Bezstanowość - tokeny dżej-W-T są bezstanowe, co oznacza, że nie ma potrzeby przechowywania stanu sesji po stronie serwera. Wszystkie niezbędne informacje są zawarte bezpośrednio w tokenie, co znacznie upraszcza zarządzanie sesją użytkownika.
+
+Przenośność - dżej-W-T mogą być przekazywane pomiędzy różnymi serwisami lub mikroserwisami w architekturze opartej na mikroserwisach. Dzięki temu użytkownik może uzyskać dostęp do różnych zasobów bez konieczności ponownego logowania.
+
+Podpis i szyfrowanie - aby zapewnić integralność i poufność danych, tokeny dżej-W-T mogą być podpisane i lub lub zaszyfrowane. Podpisanie tokenu gwarantuje, że jego zawartość nie została zmieniona, podczas gdy szyfrowanie zapewnia poufność danych użytkownika.
+
+Informacje o uprawnieniach - zawartość tokenów dżej-W-T może zawierać informacje.
+
+uprawnieniach użytkownika, takie jak role użytkownika, listy zasobów, do których ma dostęp lub inne niestandardowe dane autoryzacyjne. Te informacje są wykorzystywane do autoryzacji żądań użytkownika w poszczególnych serwisach.
+
+Weryfikacja tokenu - przed zaakceptowaniem żądania, serwis otrzymujący token dżej-W-T musi zweryfikować jego autentyczność i integralność. Weryfikacja ta obejmuje sprawdzenie podpisu tokenu przy użyciu klucza publicznego oraz ewentualne sprawdzenie innych warunków autoryzacyjnych.
+
+Okres ważności - dżej-W-T mogą mieć określony okres ważności, co zapobiega długotrwałemu wykorzystywaniu skradzionych lub utraconych tokenów. Po upływie okresu ważności token jest uznawany za nieważny i użytkownik musi uzyskać nowy token poprzez ponowną autentykację.
+
+Zabezpieczanie mikroserwisów Zabezpieczanie mikroserwisów to kluczowy element architektury opartej na mikroserwisach, który zapewnia ochronę przed nieuprawnionym dostępem i zapewnia bezpieczeństwo całego systemu. Wykorzystanie A-P-I Gateway jako centralnego punktu kontrolnego ułatwia wdrożenie i zarządzanie zabezpieczeniami w systemie opartym na mikroserwisach.
+
+Indywidualne zabezpieczenia - każdy mikroserwis powinien być odpowiedzialny za autoryzację żądań, które otrzymuje. Oznacza to, że każdy mikroserwis powinien posiadać mechanizmy autentykacji i autoryzacji, które kontrolują dostęp do jego funkcji i zasobów.
+
+A-P-I Gateway - stosowanie A-P-I Gateway to jedna z najlepszych praktyk zabezpieczania mikroserwisów. A-P-I Gateway jest punktem wejścia dla wszystkich żądań klientów i może pełnić rolę centralnego punktu kontrolnego w systemie. Pośredniczy on między klientem, a mikroserwisami, zapewniając zabezpieczenie i zarządzanie ruchem sieciowym.
+
+Weryfikacja tokenów dżej-W-T - w przypadku używania tokenów dżej-W-T do autentykacji, A-P-I Gateway może weryfikować poprawność i ważność tokenów przed przekierowaniem żądania do odpowiedniego mikroserwisu. Weryfikacja tokenów może obejmować sprawdzenie podpisu tokena, daty wygaśnięcia i innych zabezpieczeń.
+
+Filtrowanie żądań - A-P-I Gateway może filtrować żądania na podstawie różnych kryteriów, w tym na przykład na podstawie adresów IP, nagłówków H-T-T-P czy danych uwierzytelniających. Można zastosować różne reguły filtrowania w zależności od potrzeb aplikacji i wymagań zabezpieczeń.
+
+Ograniczenia nałożone na dostęp - mikroserwisy mogą mieć różne poziomy dostępu, zależnie od ich roli i funkcji w systemie. A-P-I Gateway może zarządzać tymi ograniczeniami dostępu i kontrolować, które mikroserwisy mogą być wywoływane przez poszczególnych klientów.
+
+Keycloak Keycloak jest zaawansowanym, narzędziem OSS do zarządzania tożsamościami, dostępem oraz kontrolą dostępu, stworzonym przez firmę Red Hat. Jego głównym celem jest zapewnienie kompleksowego i bezpiecznego mechanizmu uwierzytelniania oraz autoryzacji dla aplikacji internetowych, systemów opartych na mikroserwisach oraz innych platform. Keycloak oferuje bogaty zestaw funkcji, które umożliwiają deweloperom i administratorom tworzenie bezpiecznych, skalowalnych i elastycznych systemów informatycznych.
+
+Jednym z kluczowych aspektów Keycloaka jest jego zdolność do obsługi różnorodnych metod uwierzytelniania. Wspiera on tradycyjne metody uwierzytelniania, takie jak logowanie za pomocą loginu i hasła, jak również nowoczesne rozwiązania, w tym uwierzytelnianie dwuetapowe, tokeny, integrację z zewnętrznymi dostawcami usług uwierzytelniania, takimi jak Google, Facebook czy GitHub, oraz standardowe protokoły uwierzytelniania i autoryzacji, takie jak OAuth 2.0, OpenID Connect, czy SAML 2.0.
+
+Dodatkowo, Keycloak umożliwia precyzyjne zarządzanie tożsamościami użytkowników poprzez definiowanie ról, uprawnień oraz grup użytkowników. Administratorzy mogą tworzyć niestandardowe polityki autoryzacji, które precyzyjnie kontrolują dostęp do zasobów aplikacji na podstawie określonych reguł i kryteriów.
+
+Keycloak jest również wyposażony w narzędzia do monitorowania sesji użytkowników, co umożliwia kontrolę nad czasem ich wygaśnięcia, rejestrowanie aktywności użytkowników oraz reagowanie na nieautoryzowane działania. Ponadto, dzięki funkcjom raportowania i audytowania, administratorzy mogą śledzić wydajność systemu, identyfikować potencjalne zagrożenia oraz reagować na incydenty bezpieczeństwa.
+
+W ramach projektu Logistyka 4.0 Keycloak będzie używany jako narzędzie do zarzadzania tożsamością użytkowników. W ramach separacji uprawnień zaleca się założyć osobne 'realm' dla użytkowników wewnętrznych i zewnętrznych. W ramach integracji z istniejącym już rozwiązaniem można założyć ze hasła i użytkownicy będą synchronizowani ze starego systemu do nowego do czasu pełnego wdrożenia. W dalszej fazie można rozważyć integrację logowania dla użytkowników wewnętrznych z Active Directory.
+
+Keycloak - model uprawnień Projektowanie modelu uprawnień dla aplikacji Logistyka 4.0 z Keycloak jako dostawcą uwierzytelniania obejmuje wykorzystanie możliwości Keycloak do zarządzania użytkownikami, rolami, grupami i niestandardowymi atrybutami. Keycloak oferuje kompleksowy zestaw funkcji do zarządzania tożsamościami i dostępem, które można wykorzystać do implementacji solidnego modelu uprawnień.
+
+Realmy i klienci - realm w Keycloak to przestrzeń, w której zarządza się użytkownikami, rolami, grupami i innymi ustawieniami. Każda aplikacja jest reprezentowana jako klient w obrębie realm'u.
+
+Role - role definiują uprawnienia użytkownika. Role mogą być na poziomie realm (globalne role zarządzane na poziomie realm) lub na poziomie klienta (specyficzne dla aplikacji).
+
+Grupy - grupy to sposób organizowania użytkowników i zarządzania ich uprawnieniami zbiorowo.
+
+Atrybuty - atrybuty to informacje potwierdzone o użytkowniku, takie jak e-mail, imię lub niestandardowe dane istotne dla Twojej aplikacji.
+
+Zdefiniowanie ról dla różnych poziomów dostępu w aplikacji, takich jak administrator, handlowiec, operator suwnicy i tym podobne Przypisanie ról użytkownikom lub grupom, aby nadać im odpowiadające uprawnienia.
+
+Wykorzystanie ról kompozytowych, jeśli istnieje potrzeba tworzenia ról dziedziczących uprawnienia z innych ról.
+
+Wykorzystanie grup jako struktury organizacyjnej integracyjne, które mogą być przetworzone przez mikroserwisy, aby zaktualizować dane w ich bazach danych.
+
+Poniżej przedstawiono przykład takiej integracji na podstawie aplikacji mobilnej dla kierowców, która musi wyświetlać listę zleceń z ich szczegółami przechowywanych w systemie TOS oraz wymaga aktualizacji statusu zleceń w przypadku potwierdzenia ich przez kierowcę. Dla potrzeb tej integracji zostanie stworzona dedykowana mikrousługa integracyjna. Jej zadaniem będzie skanowanie tabeli zleceń w systemie TOS w poszukiwaniu nowych wpisów. W momencie wykrycia nowego zlecenia, mikroserwis ten pobierze niezbędne dane i wygeneruje zdarzenie integracyjne informujące o nowym zleceniu dla kierowcy. Następnie, mikroserwis obsługujący aplikację mobilną zasubskrybowany na takie powiadomienie wstawi dane o nowym zleceniu do swojej bazy danych, zapewniając użytkownikowi szybki dostęp do informacji.
+
+Dodatkowo, mikroserwis integrujący będzie nasłuchiwał na zdarzenia integracyjne dotyczące aktualizacji statusu zleceń przez kierowcę. Po otrzymaniu takiego zdarzenia, mikroserwis ten dokona odpowiednich zmian w systemie TOS, aktualizując status zlecenia zgodnie z potwierdzeniem kierowcy. Dzięki temu, zachowany zostanie ciągłość informacji pomiędzy aplikacją mobilną, a systemem TOS, pomimo równoległego funkcjonowania obu platform.
+
+Takie podejście wymaga dodatkowych nakładów pracy, ale w pozwoli w sposób przezroczysty przełączać moduły pomiędzy starym i nowym system. W chwili, gdy pewne dane będą już w całości przechowywane w systemie Logistyka 4.0 i nie będzie potrzeby ich trzymania w starym systemie TOS po prostu dana usługa integracyjna zostanie wyłączona.
+
+Ważne jest, aby usługi integracyjne obejmowały jak najmniejszy kawałek funkcjonalności, żeby uniknąć sytuacji, w której jedna usługa integruje cały system lub jego duża część i powstaje monolit.
+
+Integracje z pozostałymi systemami zewnętrznymi Jeśli zewnętrzny system nie będzie w stanie korzystać z A-P-I udostępnionego przez Logistykę 4.0, a to Logistyka 4.0 będzie musiała inicjować pobieranie danych, konieczne będzie zastosowanie podejścia podobnego do integracji z poprzednim systemem TOS.
+
+W takim podejściu zakłada się, że każdy zewnętrzny system będzie miał własną mikrousługę lub grupę mikrousług, które będą używały zdarzeń integracyjnych do sygnalizowania mikrousługom Logistyki 4.0 zmian w danych zewnętrznych, które należy skopiować do odpowiednich mikrousług. Zdarzenia integracyjne będą również wykorzystywane do powiadamiania mikrousług integrujących konkretne systemy, że konieczne jest wprowadzenie jakichś modyfikacji w zewnętrznych systemach.
+
+Zastosowanie algorytmów genetycznych Algorytm genetyczny (GA) jest metodą wyszukiwania heurystycznego inspirowaną zasadami ewolucji biologicznej, takimi jak selekcja, krzyżowanie (rekombinacja) i mutacja. W kontekście optymalizacji rozmieszczenia kontenerów na placu, gdzie celem jest zoptymalizowanie kolejności i sposobu układania kontenerów tak, aby kontenery, które mają opuścić plac najwcześniej, znajdowały się w najbardziej dostępnych miejscach, algorytm genetyczny może być użyty do znajdowania efektywnych rozwiązań, nawet w przypadku skomplikowanych problemów z wieloma zmiennymi.
+
+Inicjalizacja populacji - należy rozpocząć od zainicjowania populacji składającej się z różnych rozmieszczeń kontenerów na placu. Każde rozmieszczenie (indywiduum) w populacji reprezentuje potencjalne rozwiązanie problemu i jest zakodowane jako ciąg (chromosom), który może przyjmować różne formy (na przykład ciąg liczb odpowiadających pozycjom kontenerów).
+
+Ocena dopasowania - należy ocenić każde rozwiązanie z populacji za pomocą funkcji dopasowania (fitness function), która mierzy, jak dobrze rozmieszczenie kontenerów spełnia kryterium optymalizacji. W tym przypadku, funkcja może uwzględniać preferencje dotyczące kolejności usuwania kontenerów z placu, minimalizację przesunięć kontenerów, czy maksymalizację wykorzystania dostępnego miejsca.
+
+Selekcja - należy wybrać rozwiązania, które będą poddane krzyżowaniu na podstawie ich dopasowania. Techniki selekcji, takie jak selekcja ruletkowa, selekcja turniejowa czy selekcja rangowa, mogą być użyte do preferowania lepiej dopasowanych rozwiązań, dając im większą szansę na przekazanie swoich cech do następnej generacji.
+
+Krzyżowanie - należy stworzyć nowe rozwiązania (potomstwo) poprzez połączenie części chromosomów wybranych rodziców. Operacja ta pozwala na mieszanie cech rozwiązań w celu eksploracji nowych punktów w przestrzeni poszukiwań. Sposób krzyżowania musi być dostosowany do reprezentacji problemu, na przykład przez zastosowanie krzyżowania jednopunktowego, dwupunktowego lub równomiernego.
+
+Mutacja - należy wprowadzić niewielkie zmiany w niektórych rozwiązaniach (potomstwie), aby zapobiec zbieganiu się całej populacji do lokalnego minimum i zachować różnorodność genetyczną. W kontekście tego problemu, mutacja może polegać na losowym przesunięciu kontenera na nową pozycję.
+
+Nowa generacja - należy zastąpić część lub całą aktualną populację nowo utworzonymi potomkami, możliwie zachowując najlepsze rozwiązania (strategia elityzmu), aby zapewnić, że najlepsze rozwiązania nie zostaną utracone.
+
+Powtarzanie procesu - należy powtarzać proces od kroku 2 (ocena dopasowania) przez ustaloną liczbę generacji lub do momentu, gdy zostanie spełniony warunek stopu, na przykład brak znaczącej poprawy w kolejnych generacjach.
+
+Algorytm genetyczny jest dobrze przystosowany do rozwiązywania problemów optymalizacji rozmieszczenia, gdzie tradycyjne metody mogą nie być skuteczne lub efektywne, szczególnie w przypadku dużych i skomplikowanych przestrzeni rozwiązań. Przez symulowanie procesu ewolucji biologicznej, GA potrafi eksplorować przestrzeń rozwiązań w sposób zrównoważony, równocześnie eksploatując obiecujące obszary (poprzez selekcję i krzyżowanie) i eksplorując nowe możliwości (poprzez mutację).
+
+Jego elastyczność pozwala na dostosowanie do różnorodnych problemów optymalizacyjnych, w tym rozmieszczenia kontenerów, przez odpowiednie zdefiniowanie chromosomu (reprezentacji rozwiązania), funkcji dopasowania, operatorów krzyżowania i mutacji. Funkcja dopasowania musi być szczególnie dobrze przemyślana, aby odzwierciedlać cele optymalizacyjne związane z efektywnością i logiką rozmieszczenia kontenerów.
+
+Ponadto, algorytmy genetyczne oferują naturalne podejście do równoległego przetwarzania, co może znacząco przyspieszyć proces znajdowania optymalnych lub suboptymalnych rozwiązań w przypadku bardzo dużych problemów. W związku z tym, GA jest wyjątkowo przydatny w sytuacjach, gdzie tradycyjne metody optymalizacyjne zawodzą z powodu złożoności problemu lub gdy szukane jest nie jedno najlepsze rozwiązanie, a wiele dobrych rozwiązań spełniających określone kryteria.
+
+Kluczem do sukcesu jest jednak staranne zaprojektowanie procesu ewolucyjnego, w tym wybór odpowiednich parametrów algorytmu (takich jak rozmiar populacji, prawdopodobieństwo krzyżowania i mutacji, oraz strategia selekcji), aby zapewnić skuteczną i efektywną eksplorację przestrzeni rozwiązań oraz uniknąć przedwczesnej konwergencji do nieoptymalnych rozwiązań. Praktyka pokazuje, że algorytmy genetyczne mogą dostarczyć bardzo dobre rozwiązania dla problemów optymalizacyjnych, takich jak rozmieszczanie kontenerów, choć wymagają one czasami dość intensywnych obliczeń i eksperymentów z parametrami w celu osiągnięcia najlepszych wyników.
+
+Zastosowanie algorytmów symulowanego wyżarzania Algorytm symulowanego wyżarzania (Simulated Annealing, SA) jest metodą heurystyczną inspirowaną procesem wyżarzania w metalurgii, polegającym na ogrzewaniu i kontrolowanym schładzaniu materiału w celu zredukowania jego wewnętrznych naprężeń. W kontekście optymalizacji rozmieszczenia kontenerów, proces ten można zastosować do iteracyjnego poszukiwania coraz lepszych rozwiązań (konfiguracji kontenerów na placu), które minimalizują daną funkcję kosztu (na przykład maksymalizują efektywność wykorzystania przestrzeni i spełniają warunki dotyczące dat opuszczenia placu).
+
+Definiowanie przestrzeni stanów - należy zdefiniować przestrzeń stanów, gdzie stan to w przypadku terminala specyficzne rozmieszczenie kontenerów na placu. Każdy stan jest więc reprezentacją placu z kontenerami ułożonymi w określonej konfiguracji.
+
+Stan początkowy - należy wybrać losowe lub heurystycznie ustalone rozmieszczenie kontenerów jako stan początkowy.
+
+Funkcja celu (kosztu) - należy określić funkcję oceniającą jakość danego rozmieszczenia kontenerów. Może ona uwzględniać czynniki takie jak liczba kontenerów, które mogą zostać usunięte z placu bez przesuwania innych kontenerów, zgodność z zaplanowanymi datami opuszczenia i tym podobne.
+
+Wybór sąsiada- na każdym kroku algorytmu należy wybrać sąsiedni stan placu, który różni się od obecnego przez niewielką modyfikację, na przykład przeniesienie jednego kontenera na inne miejsce. Można to zrobić na wiele sposobów, na przykład przez losowe wybieranie kontenera i próbę znalezienia dla niego lepszego miejsca.
+
+Ocena sąsiada - należy użyć funkcji celu do oceny, czy nowa konfiguracja (stan sąsiada) jest lepsza od obecnej. Jeśli tak, przechodzisz do nowego stanu.
+
+Akceptacja gorszych rozwiązań - w przeciwieństwie do innych algorytmów, SA pozwala na przejście do gorszych stanów z pewnym prawdopodobieństwem, które maleje wraz z postępem algorytmu (schładzaniem). To pozwala unikać lokalnych minimów i daje szansę na znalezienie globalnego minimum funkcji celu.
+
+Schemat chłodzenia - należy określić harmonogram zmniejszania temperatury algorytmu, czyli parametru kontrolującego prawdopodobieństwo akceptacji gorszych rozwiązań. W miarę postępu algorytmu, temperatura powinna maleć, co sprawia, że algorytm staje się coraz mniej skłonny do akceptowania gorszych stanów.
+
+Zakończenie - algorytm kończy działanie po osiągnięciu określonej liczby iteracji lub gdy zmiany w rozwiązaniu przestają być znaczące (to jest system osiągnął stan równowagi). Ostateczne rozmieszczenie kontenerów jest uznawane za rozwiązanie problemu.
+
+Algorytm symulowanego wyżarzania jest szczególnie użyteczny w problemach, gdzie przestrzeń rozwiązań jest zbyt duża, aby zbadać każdą możliwość, a ryzyko utknięcia w lokalnym minimum jest wysokie. Dzięki zdolności do eksploracji szerokiej przestrzeni rozwiązań i akceptacji gorszych stanów w celu ostatecznego znalezienia globalnego minimum, algorytm symulowanego wyżarzania (SA) może być skutecznym narzędziem do rozwiązywania skomplikowanych problemów optymalizacyjnych, takich jak optymalne rozmieszczenie kontenerów. Poprzez symulację procesu wyżarzania, algorytm pozwala na systematyczne i kontrolowane badanie przestrzeni rozwiązań, unikając zarówno pułapek lokalnych minimów, jak i umożliwiając efektywną eksplorację w poszukiwaniu najbardziej optymalnych konfiguracji.
+
+Algorytm ten jest szczególnie przydatny w sytuacjach, gdzie tradycyjne metody optymalizacji mogą nie być wystarczająco efektywne lub mogą nie być w stanie efektywnie poradzić sobie z złożonością problemu. Jego zdolność do akceptowania gorszych rozwiązań w początkowych fazach pozwala na szeroką eksplorację, a stopniowe chłodzenie systemu prowadzi do koncentracji na coraz bardziej obiecujących obszarach przestrzeni rozwiązań.
+
+W kontekście problemu rozmieszczania kontenerów, gdzie ważne jest nie tylko efektywne wykorzystanie dostępnej przestrzeni, ale także uwzględnienie takich czynników jak daty opuszczenia placu przez kontenery, algorytm symulowanego wyżarzania może pomóc w znalezieniu rozmieszczenia, które optymalizuje procesy logistyczne i minimalizuje potrzebę przemieszczania kontenerów, co jest kluczowe dla efektywnego zarządzania przestrzenią i czasem.
+
+Dzięki swojej uniwersalności i elastyczności, algorytm symulowanego wyżarzania może być dostosowany do wielu różnych problemów optymalizacyjnych, oferując rozwiązania bliskie optymalnym w rozsądnym czasie obliczeniowym, co czyni go cennym narzędziem w obszarze optymalizacji operacyjnej i logistyki.
+
+Zastosowanie algorytmów przeszukiwania tabu Algorytm przeszukiwania tabu (Tabu Search, TS) to zaawansowana technika optymalizacyjna, która wykorzystuje pamięć o przeszłych ruchach (zakazach) do eksploracji przestrzeni rozwiązań i unikania cyklicznego powracania do wcześniej odwiedzonych stanów. Jest to szczególnie użyteczne w problemach optymalizacyjnych z dużą przestrzenią rozwiązań, takich jak optymalne rozmieszczanie kontenerów na placu zgodnie z ich datami opuszczenia.
+
+Definiowanie przestrzeni rozwiązań - należy zdefiniować przestrzeń rozwiązań, gdzie każde możliwe ułożenie kontenerów na placu stanowi punkt w przestrzeni rozwiązań.
+
+Rozwiązanie początkowe - należy wybrać początkowe rozmieszczenie kontenerów, które może być wygenerowane losowo lub za pomocą prostego algorytmu heurystycznego.
+
+Lista tabu - należy utworzyć pustą listę tabu, która będzie przechowywać informacje o niedawno wykonanych ruchach (na przykład przesunięciach kontenerów), aby unikać ich powtarzania w krótkim czasie.
+
+Ocena rozwiązania - należy określić funkcję celu, która pozwala ocenić jakość danego rozmieszczenia kontenerów, na przykład na podstawie efektywności wykorzystania przestrzeni i zgodności z datami opuszczenia placu przez kontenery.
+
+Generowanie sąsiadów - dla bieżącego rozmieszczenia kontenerów, należy wygenerować sąsiadujące rozwiązania poprzez wykonanie niewielkich zmian, takich jak przesunięcie kontenera na inne miejsce. Każdy z tych ruchów reprezentuje potencjalne nowe rozwiązanie.
+
+Ocena sąsiadów - należy ocenić każde z sąsiadujących rozwiązań za pomocą funkcji celu. Należy też sprawdzić, czy dane rozwiązanie nie jest na liście tabu, chyba że spełnia kryterium aspiracji (jest lepsze niż najlepsze dotychczas znalezione rozwiązanie).
+
+Aktualizacja listy tabu - należy wybrać najlepsze dostępne rozwiązanie, które nie jest na liście tabu lub spełnia kryterium aspiracji, i wykonać ruch. Następnie należy zaktualizować listę tabu, dodając nowy ruch i usuwając najstarsze wpisy, jeśli lista osiągnęła maksymalny rozmiar.

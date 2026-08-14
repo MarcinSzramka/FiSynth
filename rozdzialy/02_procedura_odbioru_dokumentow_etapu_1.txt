@@ -1,0 +1,26 @@
+Procedura odbioru dokumentów etapu 1.
+
+Wyciąg z Umowy: Procedura odbioru poszczególnych Etapów będzie wyglądać następująco:
+
+w terminie 10 Dni Roboczych od dostarczenia Zamawiającemu rezultatów usług danego Etapu, Zamawiający zgłosi Wykonawcy uwagi lub zastrzeżenia do przekazanego rezultatu usług lub oświadczy, iż nie zgłasza uwag ani zastrzeżeń. Brak stanowiska Zamawiającego w wyznaczonym terminie oznacza, iż nie zgłasza on uwag ani zastrzeżeń,.
+
+w przypadku zgłoszenia przez Zamawiającego uwag lub zastrzeżeń w terminie wskazanym w punkt. 1) powyżej, Wykonawca zobowiązany będzie do poprawienia lub uzupełnienia przedłożonego rezultatu usług stosownie do zgłoszonych uwag lub zastrzeżeń, lub przedstawienia na piśmie uzasadnienia ich nieuwzględnienia, w terminie 15 Dni Roboczych od dnia otrzymania zastrzeżeń lub uwag,.
+
+W przypadku dalszych uwag lub zastrzeżeń ze strony Zamawiającego, procedura opisana powyżej może zostać zastosowana jeszcze 2krotnie, z zastrzeżeniem, że Zamawiający nie jest uprawniony do zgłaszania uwag lub zastrzeżeń do części rezultatu usług, do których uprzednio nie zgłosił uwag lub zastrzeżeń. Powyższe zastrzeżenie nie ogranicza uprawnienia Zamawiającego wynikającego z 8 ust 11 Umowy.
+
+Zamawiający zwolni Wykonawcę z odpowiedzialności w przypadku zobowiązania Wykonawcy do uwzględnienia uwag lub zastrzeżeń Zamawiającego, które stoją w sprzeczności z obowiązującymi przepisami prawa lub nie są zasadne z punktu widzenia profesjonalnej wiedzy Wykonawcy. Strony zgodnie postanawiają, że Zamawiający nie może odmówić Odbioru Etapu lub Odbioru końcowego, jeśli Moduł, System nie zawiera błędów istotnie wpływających na jego funkcjonalność lub ją ograniczającą.
+
+Produkty prac (na podstawie Umowy) - Etap 1. Diagramy i opisy przedstawiające główne komponenty.
+
+Logistyka 4.0. Architektura systemu. Wersja 1.0 Architektura systemu oprogramowania, ich wzajemne powiązania oraz sposób.
+
+Logistyka 4.0. Dokumentacja aplikacji Keycloak. Wersja 1.0 komunikacji między nimi. Schematy baz danych oraz opisy rodzajów danych.
+
+Logistyka 4.0. Model danych. Wersja 1.0 Model danych przechowywanych i przetwarzanych w systemie, w tym struktury tabel oraz relacje między nimi. Ilustracja przepływu informacji między różnymi Diagramy przepływu danych elementami systemu, pokazująca, jak dane są • Logistyka 4.0. Diagramy przepływów danych. Wersja 1.0 przesyłane, przetwarzane i przechowywane. Wizualne reprezentacje oraz opisy interfejsów użytkownika, które pokazują, jak użytkownicy będą • Logistyka 4.0. Projektowanie interfejsów i doświadczenia Projekt interfejsów korzystać z oprogramowania, w tym układ i wygląd tych użytkownika. Wersja 1.0 interfejsów. Specyfikacja komunikacji między modułami Interfejsy A-P-I oprogramowania, zawierająca opisy dostępnych funkcji,.
+
+Plan integracji z systemami zewnętrznymi. Intefejsy A-P-I formatów danych oraz odpowiednich protokołów. Wersja 1.0 (plik.pptx) Plan integracji z systemami Opis, jak system będzie łączyć się z innymi istniejącymi.
+
+Integracje - lista (plik.xlsx) zewnętrznymi systemami, technologiami oraz usługami, w celu realizacji różnych wspólnych zadań logistycznych Dokumentacja wymagań Szczegóły dotyczące wymagań wydajnościowych, ważnych, niefunkcjonalnych aspektów systemu. Roadmapa projektu z jasno określonymi kamieniami milowymi, definiowanie odpowiedzialności w zespole. • Logistyka 4.0. Karta Projektu. Wersja. 1.0 Plan prac Plan sprintów, backlog, raport ryzyk, problemów i eskalacji.
+
+
+CZĘŚĆ DRUGA. SPECYFIKACJA FUNKCJONALNA, CZYLI HIGH LEVEL DESIGN.

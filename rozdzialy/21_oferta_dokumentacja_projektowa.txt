@@ -1,0 +1,43 @@
+Oferta — dokumentacja projektowa.
+
+Logistyka 4.0 Dokumentacja systemu Oferta w modułu handlowym. Historia zmian i zatwierdzenia.
+
+Lista i opis wykorzystanych i utworzonych głównych obiektów programistycznych oraz interfejsów A-P-I.3 statusie Szkic.
+
+schema konkretnej kombinacji typ lub rozmiar kontenera w danym kroku trasy.
+
+przypisanym VariantPricingElement, elementem price per container: wyceny i cenami List VariantsContainerPriceSave kontenerowymi.
+
+parametry). kontrahent nazwa skrocona, waznosc start, waznosc end, numer oferty, start ladunku, start kontenera, koniec ladunku, koniec kontenera, rodzaj zlecenia, page, per page.
+
+koniec kontenera, rozmiar kontenera: List RozmiarKonteneraInfo, typ kontenera: List TypKonteneraInfo, przedzial wagowy, przewidywana waga max, ladunek adr imo, konkretny ladunek, obsluga pool, oferta.
+
+statusie Szkic, opcjonalnie z jedną trasą i wariantami. pojedynczej oferty. klient id).
+
+(w tym przejście do status id, komentarz odrzucenia) Wysłana). ważności oferty. waznosc od, waznosc do).
+
+Zapis wariantów wyceny w bazie danych odbywa się w następujący sposób: dane wejściowe z formularza są rozbijane na cztery główne poziomy. Tabela WariantElementWyceny przechowuje unikalne WariantCenaElementParametry łączy ceny z określonym elementem wyceny i parametrami kontenera. Tabela WariantWycena grupuje te elementy w kompletne warianty, które można oznaczyć jako aktywne, opisać etykietą i powiązać z konkretną trasą.
+
+Do tej tabeli trafiają rekordy opisujące pojedynczy element wyceny, czyli techniczne odwzorowanie jednego kroku trasy w kontekście sieci sprzedażowej. Podczas zapisu wariantów dla kolejnych kroków system buduje z tych pól klucz, na podstawie którego sprawdza, czy taki element wyceny już istnieje. Jeżeli w bazie znajduje się rekord z identycznym zestawem parametrów, jest on ponownie wykorzystywany. Jeżeli nie, tworzony jest nowy wpis w tabeli WariantElementWyceny. Dzięki temu ta tabela reprezentuje zbiór unikalnych, współdzielonych kroków wyceny, które mogą być później przypisywane do wielu wariantów.
+
+Powiązanie ceny z konkretnym elementem wyceny oraz określonym typem i rozmiarem kontenera realizuje. W praktyce oznacza to, że dla każdego wiersza opisującego cenę z formularza (na przykład cena dla kontenera 40' HC o danym typie) tworzony jest jeden rekord w WariantCenaHandlowa, który przechowuje samą kwotę, oraz jeden rekord w WariantCenaElementParametry, który mówi: ta konkretna cena dotyczy tego elementu wyceny i tego typu oraz rozmiaru kontenera.
+
+Każdy rekord w tej tabeli reprezentuje jeden wariant jako całość, czyli biznesowy byt widoczny dla użytkownika w interfejsie. W tabeli tej przechowywane są informacje o tym, do której trasy dany wariant należy, czy wariant jest aktualnie aktywny oraz czy ma charakter wyłącznie kolejowy, co jest wyliczane na podstawie typów transportu użytych w powiązanych elementach wyceny.
+
+Pomiędzy tabelą WariantWycena a tabelą WariantElementWyceny istnieje relacja wiele-do-wielu. Oznacza to, że jeden wariant może wykorzystywać wiele elementów wyceny (czyli wiele kroków), a dany element wyceny może pojawić się w kilku wariantach, na przykład gdy różne warianty różnią się tylko niektórymi odcinkami trasy lub cenami.
+
+Czyli, aby odnależć cenę danego stepu na wariancie: Wchodzimy w oferte sprawdzamy id.
+
+Wchodzimy w trase sprawdzamy, które trasy są przypisane do oferty.
+
+Wchodzimy w tabele wariant wycena - sprawdzamy, które warianty są przypisane do danej trasy.
+
+Wchodzimy w tabele wariant elementy wyceny - sprawdzamy, które elementy są przypisane do danej trasy.
+
+Wchodzimy w tabele asocjacyjną wariant wycena elementy wyceny - sprawdzamy, które elementy wyceny( stepy) są, w którym wariancie.
+
+Wchodzimy w tabele elementy wyceny parametry - filtrujemy po element wyceny id oraz po typie i rozmiarze kontenera i z tego rekordu bierzesz cenę.
+
+W tej logice wykorzystywana jest między innymi funkcja copy and save route variants, która korzysta z inject real sales prices do wstrzyknięcia aktualnych cen z cenników w strukturę wariantów. Zanim takie zaktualizowane warianty zostaną ostatecznie zapisane, uruchamiana jest funkcja check price vs min price, która sprawdza relację między ceną handlową a ceną minimalną. Przechodzone są wszystkie miejsca, w których przechowywane są ceny - zarówno na poziomie poszczególnych kroków trasy z cenami dla poszczególnych kontenerów, jak i na poziomie ewentualnych podsumowań. Dla każdego wiersza z ceną weryfikowana jest zasada, że cena handlowa nie może być niższa od min price. Wynik tej walidacji wykorzystywany jest następnie przez funkcję handle price flags and save, która decyduje, czy nowe ceny mogą zostać zapisane, czy też należy zablokować zapis bądź przywrócić poprzednie wartości.
+
+Walidacje te były robione niezależnie od siebie, zgodnie z nowymi wymaganiami należałoby je ujednolicić.

@@ -1,0 +1,749 @@
+High level design — dokument główny, część 6.
+
+T US18: Manualne zarządzanie zadaniami terminalowymi Kierujący Zmianą lub Planer, po wygenerowaniu przez system zadań terminalowych, zarządza kolejnością realizacji tych zadań. Przydziela on także te zadania do poszczególnych Pracowników Sekcji Terminalowej. Funkcja manualnego zarządzania zadaniami ma miejsce w sytuacji wyłączenia zarządzania automatycznego. W czasie działania automatu Kierujący Zmianą lub Planer pełni rolę kontrolną nad procesem.
+
+T US19: Nadanie statusów Pracownik Sekcji Terminalowej zaznacza w aplikacji tabletowej odpowiednie statusy w trakcie realizacji poszczególnych usług terminalowych. Przykładowymi statusami są: zaczynam wykonywać zadanie X, zadanie X wykonane.
+
+T US20: Wprowadzanie informacji o stanie kontenera Pracownik Sekcji Terminalowej dokonuje oceny kontenera na placu. Pracownik dokonuje oceny kontenera wewnątrz i zewnątrz. Pracownik Sekcji Terminalowej w aplikacji na tablecie wprowadza wszystkie niezbędne dane będące wynikiem oceny. Aplikacja posiada dwie główne kategorie do wypełnienia:
+
+Klasyfikacja jakości kontenera - Pracownik wybiera poziom jakości kontenera zgodnie z przyjętą skalą 1-5,.
+
+Opisanie uszkodzenia, zabrudzenia kontenera, braku oklejenia - Pracownik wybiera opcję z listy rozwijanej i uzupełnia dodatkowy opis stanu. Pracownik załącza zdjęcia lub filmy z oględzin kontenera.
+
+T US21: Wprowadzenie informacji o zużytych materiałach W przypadku realizacji usługi uzupełniania naklejek informacyjnych oraz zakładania flexitanków w aplikacji tabletowej Pracownik zaznacza z listy rozwijanej jakie materiały zostały przez niego wykorzystane na potrzebę realizacji danej usługi. Materiały wybierane są z listy rozwijanej. Moduł do wprowadzania informacji o wykorzystanych materiałach powiązany jest z systemem magazynowym.
+
+T US22: Udokumentowanie zrealizowanej usługi Po realizacji usługi uzupełniania naklejek ostrzegawczych lub zakładania flexitanków Pracownik sporządza dokumentację zdjęciową przy pomocy tabletu. Zdjęcia (lub film) automatyczne załączane są do danego kontenera i zlecenia w systemie.
+
+T US23: Monitoring temperatury kontenera Pracownik Sekcji Terminalowej w określonych odstępach czasu otrzymuje zadanie sczytywania temperatury na kontenerach. Pracownik wyniki odczytu zapisuje w aplikacji na tablecie. Narzędzie rejestruje wprowadzone pomiary oraz czas ich wprowadzenia. Możliwe jest dodanie przez Pracownika informacji dodatkowej, na przykład kodów alarmowych wyświetlanych przez kontener chłodniczy. Pracownik przy okazji dokonywania pomiaru dokonuje sprawdzenia szczelności optymalizację, aby procesy były jak najbardziej efektywne. Dąży do zapewnienia płynności operacji przeładunkowych, dostosowując się do zmieniających się warunków pracy. (T US1, T US2).
+
+RegułaPrzeładunkowa: Reprezentuje pojedynczą regułę przeładunkową z jej atrybutami, takimi jak typ kontenera, miejsce składowania, warunki przeładunku.
+
+SerwisRegułPrzeładunkowych: Zarządza cyklem życia reguł przeładunkowych, umożliwiając ich tworzenie, modyfikację i usuwanie.
+
+Aktualizacja istniejących reguł na podstawie zmieniających się wymagań operacyjnych.
+
+Przeglądanie i wyszukiwanie reguł według różnych kryteriów, na przykład typu kontenera.
+
+SerwisOptymalizacjiReguł: Analizuje i optymalizuje reguły przeładunkowe wykorzystując algorytmy AI i historyczne dane operacyjne.
+
+Propozycje optymalizacji reguł w celu zwiększenia efektywności operacji przeładunkowych.
+
+Implementacja zatwierdzonych zmian w regułach automatycznie lub z rekomendacją do ręcznej akceptacji.
+
+Zarządzanie zleceniami przeładunkowymi Kontekst zajmuje się całym cyklem zleceń przeładunkowych, od generowania po realizację. Zapewnia zarządzanie przypisywaniem zleceń do urządzeń i operatorów oraz monitorowanie ich statusów. Celem jest optymalizacja i efektywne wykorzystanie zasobów terminala w realizacji zleceń. (T US3 do T US10).
+
+ZleceniePrzeładunkowe: Zawiera informacje o zadaniu przeładunkowym, takie jak typ zadania, docelowy sprzęt, status i priorytet.
+
+UrządzeniePrzeładunkowe: Reprezentuje urządzenia przeładunkowe dostępne w terminalu, z atrybutami takimi jak typ, lokalizacja, status.
+
+SerwisZleceńPrzeładunkowych: Odpowiada za zarządzanie zleceniami przeładunkowymi od ich wygenerowania po finalizację.
+
+Generowanie zleceń przeładunkowych na podstawie aktualnego stanu kontenerów. Przypisywanie zleceń do odpowiednich urządzeń i operatorów. Śledzenie postępu i aktualizacja statusów zleceń.
+
+SerwisAlokacjiZadań: Przypisuje zlecenia przeładunkowe do urządzeń i operatorów, biorąc pod uwagę optymalizację pracy.
+
+Automatyczne przypisywanie zleceń na podstawie dostępności i specyfikacji urządzeń lub operatorów.
+
+Optymalizacja alokacji zleceń w celu zminimalizowania czasów przestoju i maksymalizacji wydajności.
+
+SerwisMonitorowaniaStatusu: Umożliwia śledzenie postępów w realizacji zleceń przeładunkowych i aktualizację ich statusów.
+
+Rejestracja zmian statusów zleceń przez operatorów lub automatycznie przez systemy.
+
+Udostępnianie aktualnych informacji o postępie prac wszystkim zainteresowanym stronom.
+
+Generowanie alertów w przypadku opóźnień lub problemów z realizacją zleceń.
+
+Zarządzanie transportem wewnętrznym Obszar ten obejmuje generowanie, przydzielanie i monitorowanie zadań transportowych wewnątrz terminala. Skupia się na optymalnym wykorzystaniu pojazdów i zasobów ludzkich do transportu kontenerów. Zapewnia efektywną koordynację między różnymi zespołami realizacyjnymi. (T US11 do T US15).
+
+ZadanieTransportuWewnętrznego: Opisuje zadanie transportowe, w tym źródło, cel, typ kontenera i status.
+
+PojazdIMV: Reprezentuje wewnętrzny pojazd transportowy, z informacjami takimi jak typ, lokalizacja, status.
+
+SerwisZadańTransportuWewnętrznego: Tworzy, zarządza i monitoruje realizację zadań transportu wewnętrznego.
+
+Przydział zadań do dostępnych pojazdów I-M-V i ich operatorów.
+
+SerwisAlokacjiTransportu: Decyduje o alokacji zadań transportowych, uwzględniając optymalne wykorzystanie floty.
+
+Optymalne przydzielanie zadań transportowych na podstawie lokalizacji, dostępności pojazdów i priorytetów.
+
+Możliwość ręcznej zmiany alokacji przez uprawnionych pracowników w przypadku specjalnych wymagań.
+
+Śledzenie realizacji zadań i dostosowywanie planów w czasie rzeczywistym.
+
+Zarządzanie zadaniami terminalowymi Kontekst dotyczy zarządzania zadaniami wykonywanymi przez pracowników terminalowych, takimi jak inspekcje kontenerów czy obsługa specjalistyczna. Zadania są generowane automatycznie lub manualnie i przydzielane odpowiednim pracownikom. Jest to kluczowe dla utrzymania jakości usług i efektywności operacyjnej terminala. (T US16 do T US22).
+
+ZadanieTerminalowe: Zawiera informacje o usłudze terminalowej wymaganej dla kontenera, takie jak typ usługi, szczegóły kontenera i status zadania.
+
+PracownikTerminalowy: Reprezentuje pracownika odpowiedzialnego za wykonanie zadań terminalowych. Serwisy: terminalowymi, od ich generacji po zakończenie.
+
+Automatyczne generowanie zadań terminalowych na podstawie stanu kontenerów i potrzeb klientów. z uwzględnieniem ich specjalizacji i dostępności.
+
+SerwisDokumentacji: Zarządza tworzeniem, przechowywaniem i dostępem do dokumentacji dotyczącej zadań terminalowych.
+
+Przechowywanie dokumentacji zdjęciowej i opisowej wykonanych usług. wewnętrznym i zewnętrznym.
+
+Archiwizacja historii realizacji zadań dla celów audytowych i śledzenia jakości usług.
+
+Pracownik nawiguje do modułu odpowiedzialnego za reguły przeładunkowe i składowe.
+
+Pracownik wprowadza nowe reguły przeładunkowe i składowe w ustalonym schemacie, reguły dotyczą:
+
+Wybranych obszarów terminala - obszar nie musi być sektorem na prostokątnym sektorze placu terminala, obszar podlegający reguł może być zbiorem wybranych pól odkładczych terminala.
+
+Wybranych typów ładunków (to de facto też są cechy kontenerów w systemie).
+
+Pracownik zapisuje nową regułę lub zmianę istniejącej reguły składowej.
+
+Reguła zaczyna obowiązywać w momencie jej uruchomienia (musi być oznaczona jako aktywna). Alternatywne przepływy:
+
+A4a. Pracownik modyfikuje istniejące reguły przeładunkowe i składowe Warunki końcowe:
+
+Nowe lub zmodyfikowane reguły przeładunkowe są zapisane w systemie. Wymagania specjalne:
+
+Pracownik musi posiadać aktualną wiedzę o przepisach dotyczących przeładunku i operacji terminalowych. Częstotliwość występowania:
+
+Wprowadzanie i modyfikacja reguł przeładunkowych mogą mieć miejsce regularnie, w zależności od zmian w przepisach, warunkach operacyjnych lub po przeglądach bezpieczeństwa.
+
+T U-C 2: Optymalizacja reguł składowych Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik Sekcji Terminalowej Warunki wstępne:
+
+Istnieją zdefiniowane reguły przeładunkowe i składowe w ustalonym schemacie.
+
+Główny przepływ wydarzeń: Automat P-C-C-I regularnie analizuje dane operacyjne.
+
+Na podstawie zebranych danych, Automat P-C-C-I identyfikuje obszary do poprawy i potencjalne zmiany w regułach.
+
+Automat P-C-C-I na podstawie zdefiniowanych celów optymalizuje reguły przeładunkowe i składowe.
+
+Automat P-C-C-I automatycznie implementuje zmiany w obowiązujących regułach. Alternatywne przepływy:
+
+Automat P-C-C-I jedynie sugeruje zmiany Pracownikowi odpowiedzialnemu za optymalizację reguł składowych.
+
+Automat musi być wyposażony w zaawansowane algorytmy optymalizacji, zdolne do przetwarzania dużych zbiorów danych.
+
+Pracownik Sekcji Terminalowej powinien posiadać wiedzę pozwalającą ocenić i wdrożyć zmiany zaproponowane przez Automat P-C-C-I. Częstotliwość występowania:
+
+Optymalizacja reguł przeładunkowych przez Automat P-C-C-I może być procesem ciągłym z regularnymi cyklami oceny i aktualizacji.
+
+T U-C 3: Generowanie zleceń przeładunkowych Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Automat P-C-C-I ma zdefiniowane reguły przeładunkowe i składowe. Główny przepływ wydarzeń:
+
+Automat P-C-C-I monitoruje aktualne statusy kontenerów - status inicjujący jest efektem poprzedniej akcji na danym kontenerze.
+
+Na podstawie statusu kontenera i reguł przeładunkowych, automat identyfikuje potrzebę przeładunku.
+
+Automat generuje zlecenie przeładunkowe polegające na przeniesieniu kontenera z jedno pola odkładczego na terminalu na inne.
+
+Automat optymalizuje metodę realizacji zadania, wskazując jakie ruchy przeładunkowe niezbędne są do jego wykonania - generowanie ruchów przeładunkowych. Warunki końcowe:
+
+Plan przeładunków jest zoptymalizowany i zgodny z aktualnym stanem terminalu. Wymagania specjalne:
+
+Automat P-C-C-I musi być w stanie szybko reagować na zmiany w statusach kontenerów i aktualizować plany przeładunkowe w czasie rzeczywistym. Częstotliwość występowania:
+
+Generowanie zleceń przeładunkowych jest procesem ciągłym i odbywa się w zależności od dynamiki operacji na terminalu.
+
+T U-C 4: Automatyczne przypisywanie zadania przeładunkowego Aktor główny: Automat P-C-C-I Aktorzy wspierający: Operatorzy Urządzeń Przeładunkowych Warunki wstępne:
+
+Automat P-C-C-I analizuje kolejne zlecenia i ruchy przeładunkowe oczekujące na realizację oraz dostępność urządzeń przeładunkowych.
+
+Automat P-C-C-I optymalizuje proces realizacji wygenerowanych zadań i ruchów przeładunkowych uwzględniając reguły takie jak:
+
+Automat P-C-C-I przypisuje konkretne urządzenia lub operatorów do konkretnych zadań przeładunkowych.
+
+Przypisane zadanie przekazywane jest do danego operatora po zakończeniu przez niego realizacji poprzedniego zadania przeładunkowego. Warunki końcowe:
+
+Zlecenia przeładunkowe są przypisane i realizowane zgodnie z optymalnym planem działania.
+
+Dane operacyjne są zaktualizowane i dostępne dla wszystkich zainteresowanych działów. Wymagania specjalne:
+
+System musi być wyposażony w zaawansowane algorytmy optymalizacyjne i możliwość szybkiego przetwarzania danych w czasie rzeczywistym.
+
+Automatyczne przypisywanie zleceń przeładunkowych odbywa się na bieżąco, zależnie od dynamiki pracy na terminalu i dostępności kontenerów do przeładunku.
+
+T U-C 5: Manualne przypisywanie zadania przeładunkowego Aktor główny: Pracownik Sekcji Terminalowej Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Pracownik Sekcji Terminalowej ma dostęp do systemu. Główny przepływ wydarzeń:
+
+Pracownik Sekcji Terminalowej analizuje listę wygenerowanych i oczekujących na realizację zadań przeładunkowych.
+
+Pracownik Sekcji Terminalowej przegląda dostępność operatorów i urządzeń przeładunkowych oraz ich obecne zaangażowanie w innych zadaniach.
+
+Na podstawie priorytetów operacyjnych i dostępnych zasobów, Pracownik Sekcji Terminalowej ręcznie przypisuje zlecenia do konkretnych operatorów i urządzeń. Warunki końcowe:
+
+Zlecenia przeładunkowe są odpowiednio przypisane i realizowane zgodnie z aktualnymi potrzebami operacyjnymi terminalu.
+
+Dane o realizacji zleceń są dokładnie zarejestrowane w systemie. Wymagania specjalne:
+
+Pracownik powinien posiadać doświadczenie operacyjne i umiejętność szybkiego podejmowania decyzji.
+
+System zarządzania terminalem musi być aktualny i zapewniać pełną widoczność operacji w czasie rzeczywistym. Częstotliwość występowania:
+
+Manualne przypisywanie zleceń przeładunkowych może być stosowane w przypadkach awaryjnych, specjalnych wymagań operacyjnych lub gdy opcja automatycznego przypisywania zleceń jest niewystarczająca lub wyłączona.
+
+T U-C 6: Manualna realizacja czynności przeładunkowych Aktor główny: Operator Urządzeń Przeładunkowych Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Operator posiada odpowiednie kwalifikacje i uprawnienia do obsługi urządzeń przeładunkowych.
+
+Operator jest poinformowany o aktualnych zleceniach przeładunkowych. Główny przepływ wydarzeń:
+
+Operator Urządzeń Przeładunkowych otrzymuje przypisane zadanie przeładunkowe. Operator rozpoczyna przeładunek zgodnie ze zleceniem.
+
+Operator steruje urządzeniem przeładunkowym kierując nim fizycznie z pojazdu lub poprzez mechanizm zdalnego sterowania.
+
+Po zakończeniu zlecenia, Operator zgłasza wykonanie i jest gotowy do przejęcia kolejnego zlecenia. Warunki końcowe:
+
+Urządzenia przeładunkowe są gotowe do dalszej pracy. Wymagania specjalne:
+
+Operatorzy muszą być w pełni przeszkoleni i kompetentni w obsłudze specyficznego sprzętu.
+
+System zarządzania terminalem musi być aktualizowany w czasie rzeczywistym i dostępny dla operatorów na terminalu. Częstotliwość występowania:
+
+Manualne wykonanie zleceń przeładunkowych jest standardową operacją w codziennej pracy terminalu i odbywa się stale przez cały czas pracy terminalu.
+
+T U-C 7: Automatyczna realizacja czynności przeładunkowych Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Zautomatyzowane urządzenia przeładunkowe są sprawne i gotowe do pracy.
+
+Zasady i algorytmy przeładunku są zaktualizowane i zoptymalizowane w systemie. Główny przepływ wydarzeń:
+
+Automat P-C-C-I otrzymuje dane o przypisaniu konkretnych zadań przeładunkowych do konkretnych urządzeń, podlegających automatycznej obsłudze.
+
+Urządzenia przeładunkowe automatycznie realizują zlecone zadania, poruszając się i operując zgodnie z zaszytymi w systemie regułami placowymi.
+
+System monitoruje postęp i efektywność pracy urządzeń, rejestrując wszelkie działania i zdarzenia. Alternatywne przepływy:
+
+W przypadku wystąpienia awarii lub nieprawidłowości, system aktywuje procedury awaryjne, wstrzymując pracę maszyny i powiadamiając dział techniczny.
+
+Jeśli automatyczny system napotka awarię, którą nie może samodzielnie rozwiązać, operatorzy przejmują kontrolę nad urządzeniem. Warunki końcowe:
+
+Wszystkie zlecenia przeładunkowe są zrealizowane automatycznie zgodnie z ustalonymi parametrami operacyjnymi.
+
+System przeładunkowy jest w stanie gotowości do kolejnych zadań. Wymagania specjalne:
+
+Urządzenia muszą być wyposażone w zaawansowane sensory i systemy nawigacyjne umożliwiające autonomiczną pracę.
+
+Powinna istnieć infrastruktura do zdalnego monitorowania i sterowania urządzeniami. Częstotliwość występowania:
+
+Automatyczna realizacja czynności przeładunkowych odbywa się ciągle, w miarę pojawiania się nowych zleceń i zadań w planie pracy terminalu.
+
+T U-C 8: Manualne wprowadzanie statusu czynności przeładunkowych Aktor główny: Operator Urządzeń Przeładunkowych Aktorzy wspierający: Nie dotyczy.
+
+Operator ma dostęp do urządzeń przeładunkowych i systemu. Realizowane zlecenie przeładunkowe. Główny przepływ wydarzeń: Operator rozpoczyna pracę z zadaniami przeładunkowymi.
+
+Operator Urządzeń Przeładunkowych, w czasie realizacji przeładunków, odznacza w aplikacji statusy dokonywanych czynności. Warunki końcowe:
+
+Statusy zadań przeładunkowych są dokładnie i na bieżąco odnotowywane w systemie. Częstotliwość występowania:
+
+Manualne wprowadzanie statusu czynności przeładunkowych jest stałą praktyką w codziennej pracy operatorów urządzeń przeładunkowych.
+
+T U-C 9: Automatyczne wprowadzanie statusu czynności przeładunkowych Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Automatyczne urządzenia przeładunkowe są wyposażone w systemy do automatycznego rejestrowania i przekazywania statusów.
+
+System P-C-C-I jest w pełni zintegrowany z automatycznymi urządzeniami przeładunkowymi.
+
+Automatyczne urządzenia przeładunkowe rozpoczynają prace nad przypisanymi zleceniami przeładunkowymi.
+
+Każde z urządzeń jest wyposażone w sensory i oprogramowanie do monitorowania i rejestrowania postępów pracy.
+
+Automat, w czasie realizacji przeładunków, odznacza w aplikacji statusy dokonywanych czynności. Warunki końcowe:
+
+Wszystkie statusy operacji przeładunkowych są automatycznie rejestrowane i aktualizowane w systemie. Częstotliwość występowania:
+
+Automatyczne wprowadzanie statusu czynności przeładunkowych odbywa się ciągle, z każdym działaniem wykonanym przez automatyczne urządzenia przeładunkowe.
+
+T U-C 10: Alarmowe wstrzymywanie realizacji czynności przeładunkowych Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Terminal jest wyposażony w system czujników (na urządzeniach lub infrastrukturze), które identyfikują w czasie rzeczywistym ruch wszystkich obiektów na placu.
+
+Systemy bezpieczeństwa wpięte są bezpośrednio w urządzenia pracujące automatycznie, za pośrednictwem protokołu na przykład PROFIsafe dla zapewnienia niezawodności (system operacyjny terminala nie pośredniczy w tym). Główny przepływ wydarzeń:
+
+System czujników monitoruje ruch na terminalu, w tym ruch ludzi i pojazdów.
+
+System alarmowy jest aktywowany w przypadku wykrycia potencjalnego zagrożenia, jakim jest na przykład:
+
+wejście poprzez furtkę do ogrodzonego bloku, w którym pracuje suwnica automatyczna.
+
+Aktywacja alarmu powoduje natychmiastowe wstrzymanie ruchu odpowiednich urządzeń, jakim jest na przykład:
+
+Urządzenie kontynuuje działanie, jeżeli człowiek opuści daną strefę terminala. Alternatywne przepływy:
+
+A2a.: Ominięcie obiektu w bezpiecznej odległości chwytakiem z kontenerem (zmiana trasy).
+
+A2c.: Ostateczny dobór rozwiązań poprzedzać będzie etap wdrożeniowy. Warunki końcowe:
+
+Wszelkie zagrożenia są szybko identyfikowane i wstrzymywane są operacje przeładunkowe.
+
+Operacje przeładunkowe są wznowione bez zbędnych opóźnień po wyeliminowaniu zagrożenia. Wymagania specjalne:
+
+System alarmowy musi być niezawodny i zdolny do szybkiego reagowania na różne typy zagrożeń. Częstotliwość występowania:
+
+Alarmowe wstrzymywanie operacji przeładunkowych ma charakter wyjątkowy i jest stosowane tylko w sytuacjach potencjalnego zagrożenia.
+
+T U-C 11: Generowanie zadań transportu wewnętrznego (I-M-V) Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Automat P-C-C-I ma zdefiniowane reguły dla transportu wewnętrznego, w tym zakresy pracy poszczególnych urządzeń I-M-V. Główny przepływ wydarzeń:
+
+Automat P-C-C-I monitoruje aktualne statusy kontenerów - status inicjujący jest efektem poprzedniej akcji na danym kontenerze.
+
+Na podstawie statusu kontenera i reguł przeładunkowych, automat identyfikuje potrzebę przeładunku.
+
+Automat generuje zlecenie przeładunkowe polegające na przeniesieniu kontenera z jedno pola odkładczego na terminalu na inne.
+
+Automat optymalizując metodę realizacji zadania, wskazuje wariant obejmujący transport wewnętrzny I-M-V. Warunki końcowe:
+
+Plan zleceń transportu wewnętrznego jest zoptymalizowany i zintegrowany z planem przeładunków terminalowych. Wymagania specjalne:
+
+Automat P-C-C-I musi być w stanie szybko reagować na zmiany w statusach kontenerów i aktualizować plany transportowe w czasie rzeczywistym. Częstotliwość występowania:
+
+Generowanie zadań transportowych jest procesem ciągłym i odbywa się w zależności od dynamiki operacji na terminalu.
+
+T U-C 12: Automatyczne zarządzanie zadaniami transportu wewnętrznego Aktor główny: Automat P-C-C-I Aktorzy wspierający: Kierowca pojazdu I-M-V Warunki wstępne:
+
+Wygenerowane zadania transportowe i wprowadzone do systemu. Główny przepływ wydarzeń:
+
+Automat P-C-C-I otrzymuje i analizuje dane dotyczące zadanych zleceń transportowych na terminalu.
+
+Automat P-C-C-I zarządza kolejnością zadań na podstawie zdefiniowanych reguł.
+
+Automat P-C-C-I przydziela zadania do Kierowców pojazdów I-M-V, uwzględniając ich:
+
+A1a.: Funkcja automatycznego zarządzania zadaniami może zostać wyłączona na rzecz zarządzania manualnego. Warunki końcowe:
+
+Zadania transportu wewnętrznego są automatycznie przydzielone do Kierowców pojazdów I-M-V. Wymagania specjalne:
+
+System musi być wyposażony w zaawansowane algorytmy do efektywnego zarządzania i optymalizacji zadań transportowych. Częstotliwość występowania:
+
+Automatyczne zarządzanie zadaniami transportu wewnętrznego odbywa się ciągle, zgodnie z bieżącymi potrzebami i wymaganiami operacyjnymi terminalu.
+
+T U-C 13: Manualne zarządzanie zadaniami transportu wewnętrznego Aktor główny: Kierujący Zmianą lub Planer Aktorzy wspierający: Kierowca pojazdu I-M-V Warunki wstępne:
+
+Wyłączone automatyczne zarządzanie zadaniami transportu wewnętrznego. Główny przepływ wydarzeń:
+
+Kierujący Zmianą lub Planer otrzymuje i analizuje manualnie listę zadań transportowych.
+
+Kierujący zmianą ręcznie przydziela zadania do Kierowców pojazdów I-M-V. Warunki końcowe:
+
+Zadania transportu wewnętrznego są manualnie przydzielone do Kierowców pojazdów I-M-V. Wymagania specjalne:
+
+Kierujący zmianą musi posiadać doświadczenie operacyjne i umiejętności zarządzania logistycznego.
+
+Narzędzia i systemy używane przez Planera muszą być aktualne i efektywne w zarządzaniu zadaniami. Częstotliwość występowania:
+
+Manualne zarządzanie zadaniami transportu wewnętrznego może być stosowane w sytuacjach, gdy automatyczne systemy zarządzania są niewystarczające lub gdy szczególne warunki operacyjne wymagają indywidualnego podejścia.
+
+T U-C 14: Realizacja ruchu wewnętrznego na terminalu Aktor główny: Kierowca pojazdu I-M-V Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Kierowca pojazdu I-M-V jest gotowy do przemieszczania kontenerów na terenie terminala.
+
+Przydzielone zadania do Kierowców pojazdów I-M-V. Główny przepływ wydarzeń:
+
+Kierowca loguje się do systemu (Interfejs Operatora I-M-V). System wyświetla dostępne zadania transportowe dla Kierowcy.
+
+Kierowca wybiera zadanie transportowe i przewozi kontener lub y między różnymi lokalizacjami w ramach placu terminalowego lub depotowego Warunki końcowe:
+
+Zadanie transportowe zostało zrealizowane zgodnie z wymaganiami, a kontenery zostały przemieszczone pomiędzy lokalizacjami na terminalu. Specjalne wymagania:
+
+System powinien zapewniać klarowne i zrozumiałe instrukcje dotyczące realizacji zadań transportowych dla Kierowców.
+
+Interfejs użytkownika powinien być intuicyjny i łatwy w obsłudze, aby umożliwić szybki dostęp do funkcji związanych z realizacją zadań transportowych. Częstotliwość występowania:
+
+Realizacja ruchu wewnętrznego jest wykonywana przez kierowców pojazdów I-M-V zgodnie z zaplanowanymi zadaniami, które są generowane przez System w zależności od bieżących potrzeb operacyjnych terminala.
+
+T U-C 15: Nadanie statusów podczas realizacji zadań transportowych Aktor główny: Kierowca pojazdu I-M-V Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Zadanie transportowe zostało przypisane i rozpoczęte przez Kierowcę. Główny przepływ wydarzeń:
+
+Podczas realizacji zadania, Kierowca na bieżąco zaznacza w aplikacji odpowiednie statusy na określonych etapach realizacji zleceń transportowych.
+
+Statusy związane z realizacją zadania transportowego zostały poprawnie odnotowane w systemie. Specjalne wymagania:
+
+Interfejs użytkownika powinien umożliwiać kierowcy szybkie i łatwe zaznaczanie statusów podczas realizacji zadań transportowych. Częstotliwość występowania:
+
+Nadawanie statusów podczas realizacji zadań transportowych jest wykonywane przez kierowców pojazdów I-M-V za każdym razem, gdy realizują przypisane im zadania transportowe na terenie terminala.
+
+T U-C 16: Generowanie zadań terminalowych w ramach usług terminalowych dodatkowych Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik Sekcji Terminalowej Warunki wstępne:
+
+Nadany aktualny status danego kontenera - status inicjujący jest efektem poprzedniej akcji na danym kontenerze. Główny przepływ wydarzeń:
+
+Automat P-C-C-I generuje zlecenie terminalowe dla wybranej usługi: ocena stanu kontenera,.
+
+grzanie i chłodzenie kontenera - podpięcie do odpowiedniej instalacji i monitoring,.
+
+mycie tanków i autocystern, ładowanie elektrycznych urządzeń zainstalowanych na wagonach.
+
+Automat P-C-C-I musi być w stanie szybko reagować na zmiany w statusach kontenerów i generować zlecenia w czasie rzeczywistym. Częstotliwość występowania:
+
+Generowanie zadań jest procesem ciągłym i odbywa się w zależności od dynamiki operacji na terminalu.
+
+T U-C 17: Automatyczne zarządzanie zadaniami terminalowymi w ramach usług terminalowych dodatkowych Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownicy Sekcji Terminalowej, Kierujący Zmianą lub Planer Warunki wstępne:
+
+Zlecenie na usługi terminalowe zostały wygenerowane. Główny przepływ wydarzeń: Automat P-C-C-I analizuje dostępne zlecenia terminalowe.
+
+Automat P-C-C-I zarządza kolejnością realizacji tych zadań na podstawie zdefiniowanych reguł.
+
+Automat P-C-C-I przypisuje zadania do poszczególnych Pracowników Sekcji Terminalowej.
+
+Kierujący Zmianą lub Planer kontroluje na bieżąco automatyczny proces. Alternatywne przepływy:
+
+A1a. Automatyczne zarządzanie zadaniami terminalowymi zostało wyłączone na rzecz zarządzania manualnego. Warunki końcowe:
+
+Zadania terminalowe zostały automatycznie przypisane do poszczególnych Pracowników. Specjalne wymagania:
+
+System powinien dynamicznie zarządzać zleceniami, uwzględniając bieżące potrzeby i priorytety terminalu. Częstotliwość występowania:
+
+Automatyczne zarządzanie zadaniami terminalowymi jest wykonywane na bieżąco, w zależności od dostępnych zleceń. T U-C 18: Manualne zarządzanie zadaniami terminalowymi Aktor główny: Kierujący Zmianą lub Planer Aktorzy wspierający: Pracownicy Sekcji Terminalowej Warunki wstępne:
+
+Wyłączone jest automatyczne zarządzanie zadaniami terminalowymi Główny przepływ wydarzeń:
+
+Kierujący zmianą loguje się do systemu. Kierujący zmianą przegląda i analizuje dostępne zadania terminalowe. Kierujący zmianą zarządza kolejnością realizacji zadań.
+
+Kierujący Zmianą przydziela zadania do konkretnych Pracowników Sekcji Terminalowej. Warunki końcowe:
+
+Zadania terminalowe zostały przypisane do poszczególnych Pracowników. Specjalne wymagania:
+
+System powinien umożliwiać Kierującemu Zmianą elastyczne i intuicyjne zarządzanie zleceniami, uwzględniając bieżące potrzeby i priorytety terminalu.
+
+Interfejs użytkownika powinien być przejrzysty i umożliwiać szybki dostęp do informacji.
+
+Manualne zarządzanie zadaniami terminalowymi jest wykonywane przez Kierującego Zmianą w zależności od bieżących potrzeb i dostępnych zleceń.
+
+T U-C 19: Nadanie statusów realizacji zleceń terminalowych Aktor główny: Pracownik Sekcji Terminalowej Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Zadania dotyczące usług terminalowych zostały przypisane do Pracowników i są dostępne do realizacji. Główny przepływ wydarzeń:
+
+Pracownik Sekcji Terminalowej loguje się do aplikacji tabletowej. Pracownik przegląda dostępne zadania dotyczące usług terminalowych.
+
+Po rozpoczęciu realizacji konkretnego zadania, Pracownik nadaje odpowiednie statusy w aplikacji, informując o postępie realizacji:
+
+zaczynam wykonywać zadanie X, zadanie X zostało wykonane, Wprowadzenie ewentualnych uwag do zadania. Warunki końcowe:
+
+Statusy realizacji usług terminalowych zostały poprawnie nadane i odnotowane w systemie. Specjalne wymagania:
+
+Aplikacja tabletowa powinna umożliwiać przejrzyste i intuicyjne nadawanie statusów, zapewniając jednocześnie możliwość szybkiego dostępu do informacji o postępie prac. Częstotliwość występowania:
+
+Nadawanie statusów realizacji usług terminalowych jest wykonywane przez Pracowników Sekcji Terminalowej dla każdego zadania w miarę jego postępu, aż do zakończenia wszystkich prac.
+
+T U-C 20: Wprowadzanie informacji o stanie kontenera Aktor główny: Pracownik Sekcji Terminalowej Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Kontener znajduje się na placu terminalowym i jest dostępny do oceny. Główny przepływ wydarzeń:
+
+Pracownik Sekcji Terminalowej loguje się do aplikacji tabletowej. Pracownik wybiera w aplikacji opcję Ocena stanu kontenera. Pracownik wybiera konkretny kontener, który ma być oceniony. Pracownik dokonuje oceny kontenera wewnątrz i zewnątrz.
+
+Pracownik tworzy dokumentację zdjęciową przy pomocy urządzenia tabletowego. Pliki są automatycznie zapisywane w systemie.
+
+Pracownik w aplikacji na tablecie wprowadza wszystkie niezbędne dane będące wynikiem oceny:
+
+Klasyfikacja jakości kontenera - Pracownik wybiera poziom jakości kontenera zgodnie z przyjętą skalą 1-5,.
+
+Opisanie uszkodzenia, zabrudzenia kontenera, braku oklejenia - Pracownik wybiera opcję z listy rozwijanej i uzupełnia dodatkowy opis stanu. Pracownik może dołączyć zdjęcia lub filmy z oględzin kontenera w celu udokumentowania jego stanu.
+
+Pracownik zapisuje dane w systemie. Warunki końcowe: Ocena stanu kontenera została poprawnie zarejestrowana w systemie.
+
+Ocena stanu kontenera posiada w systemie dokumentację zdjęciową. Specjalne wymagania:
+
+System musi umożliwiać Pracownikom Sekcji Terminalowej łatwe i intuicyjne dokonywanie oceny stanu kontenerów.
+
+Interfejs użytkownika powinien być przejrzysty i umożliwiać szybki dostęp do funkcji związanych z oceną stanu kontenera. Częstotliwość występowania:
+
+Ocena stanu kontenera jest wykonywana przez Pracowników Sekcji Terminalowej dla każdego kontenera w momencie jego przeglądu lub w ramach regularnych inspekcji.
+
+T U-C 21: Wprowadzenie informacji o zużytych materiałach Aktor główny: Pracownik Sekcji Terminalowej Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Pracownik Sekcji Terminalowej jest w trakcie realizacji usługi uzupełnienia naklejek informacyjnych oraz zakładania flexitanków.
+
+Moduł do wprowadzania informacji o wykorzystanych materiałach powiązany jest z systemem magazynowym. Główny przepływ wydarzeń:
+
+Pracownik realizuję usługę uzupełniania naklejek informacyjnych lub zakładania flexitanków.
+
+Pracownik zaznacza z listy rozwijanej jakie materiały zostały przez niego wykorzystane na potrzebę realizacji danej usługi. Warunki końcowe:
+
+Informacje o pobranych materiałach z magazynu zostały zarejestrowane w systemie. Specjalne wymagania:
+
+Interfejs użytkownika powinien być przejrzysty i umożliwiać szybki dostęp do funkcji związanych z tymi procesami. Częstotliwość występowania:
+
+Uzupełnienie naklejek lub zakładanie flexitanka jest wykonywane przez pracowników sekcji terminalowej w miarę potrzeby, w zależności od wymagań klienta oraz stanu wyposażenia kontenerów lub zbiorników.
+
+T U-C 22: Udokumentowanie zrealizowanej usługi dodatkowej na terminalu Aktor główny: Pracownik Sekcji Terminalowej Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Usługa, taka jak uzupełnienie naklejek ostrzegawczych lub zakładanie flexitanków, została poprawnie wykonana. Główny przepływ wydarzeń:
+
+Pracownik wybiera konkretną usługę, która została zrealizowana (na przykład uzupełnienie naklejek ostrzegawczych lub zakładanie flexitanków).
+
+Pracownik dołącza dokumentację fotograficzną wykonanej usługi, wykonując zdjęcia lub filmy przy pomocy tabletu.
+
+System automatycznie łączy wykonane zdjęcia lub filmy z konkretnym kontenerem lub zbiornikiem, do którego usługa została zastosowana. Warunki końcowe:
+
+Zrealizowana usługa została poprawnie udokumentowana w systemie. Specjalne wymagania:
+
+System musi umożliwiać Pracownikom Sekcji Terminalowej łatwe i intuicyjne dokumentowanie zrealizowanych usług.
+
+Interfejs użytkownika powinien umożliwiać szybkie dodawanie dokumentów fotograficznych do zrealizowanych usług. Częstotliwość występowania:
+
+Udokumentowanie zrealizowanej usługi jest wykonywane przez pracowników sekcji terminalowej po każdorazowym zakończeniu wykonania usługi dla danego kontenera lub zbiornika.
+
+T U-C 23: Monitorowanie temperatury kontenera Aktor główny: Pracownik Sekcji Terminalowej Aktorzy wspierający: Klient, Automat P-C-C-I Warunki wstępne:
+
+Kontenery wymagające monitorowania temperatury są dostępne na placu terminalowym.
+
+Urządzenia pomiarowe są sprawne i zainstalowane na kontenerach. Główny przepływ wydarzeń:
+
+Automat P-C-C-I w określonych odstępach czasu generuje zadanie sczytywania temperatury na kontenerach dla Pracownika Sekcji Terminalowej.
+
+Pracownik wybiera w aplikacji opcję Monitorowanie temperatury kontenera. Aplikacja wyświetla listę kontenerów, które wymagają monitorowania temperatury.
+
+Pracownik wybiera konkretny kontener, dla którego ma dokonać odczytu.
+
+Pracownik odczytuje temperaturę i zapisuje wyniki odczytu w aplikacji na tablecie.
+
+Pracownik opcjonalnie dodaje do aplikacji informacje dodatkowe takie jak na przykład kody alarmowe wyświetlane przez kontener chłodniczy.
+
+Automat P-C-C-I przekazuje do Klienta poprzez Strefę Klienta wyniki wykonanego pomiaru. Warunki końcowe:
+
+Wyniki odczytu temperatury kontenera zostały poprawnie zarejestrowane w systemie i przekazane do Klienta. Specjalne wymagania:
+
+System musi umożliwiać Pracownikom Sekcji Terminalowej łatwe i intuicyjne monitorowanie temperatury kontenerów.
+
+Monitorowanie temperatury kontenerów jest wykonywane przez Pracowników Sekcji Terminalowej regularnie, zgodnie z określonymi odstępami czasu.
+
+T U-C 24: Automatyczny monitoring zużyciu prądu lub czasu ładowania Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Kontenery, które wymagają ładowania, są wyposażone w liczniki elektryczne.
+
+Realizowana jest czynność grzania lub chłodzenia kontenera. Główny przepływ wydarzeń:
+
+Automat P-C-C-I regularnie zbiera dane dotyczące zużycia prądu i czasu ładowania elektrycznego kontenerów. Alternatywne przepływy:
+
+A1a. Automatyczny monitoring zużycia prądu został wyłączony na rzecz manualnego monitoringu. Warunki końcowe:
+
+Zużycie prądu i czas ładowania kontenerów zostały dokładnie automatycznie zarejestrowane przez system. Specjalne wymagania:
+
+System umożliwiać ciągłe monitorowanie zużycia prądu i czasu ładowania urządzeń w czasie rzeczywistym. Częstotliwość występowania:
+
+Monitorowanie zużycia prądu i czasu ładowania urządzeń odbywa się w trybie ciągłym.
+
+T U-C 25: Manualny monitoring zużyciu prądu Aktor główny: Pracownik Sekcji Terminalowej Aktorzy wspierający: Automat P-C-C-I Warunki wstępne:
+
+Kontenery, które wymagają ładowania, są wyposażone w liczniki elektryczne.
+
+Automatyczny monitoring zużycia prądu jest wyłączony. Główny przepływ wydarzeń:
+
+Automat P-C-C-I w określonych odstępach czasu generuje zadanie monitoringu zużycia prądu na kontenerach dla Pracownika Sekcji Terminalowej.
+
+Aplikacja wyświetla listę kontenerów, które wymagają monitorowania zużycia prądu.
+
+Pracownik wybiera konkretny kontener, dla którego ma dokonać odczyt.
+
+Pracownik dokonuje odczytu licznika zużycia prądu i zapisuje wynik pomiaru w aplikacji na tablecie.
+
+System zapisuje odczytany wynik z czasem ich wprowadzenia. Warunki końcowe:
+
+Zużycie prądu zostało manualnie zarejestrowane w systemie. Specjalne wymagania:
+
+System musi umożliwiać Pracownikom Sekcji Terminalowej łatwe i intuicyjne rejestrowanie zużycia prądu.
+
+Interfejs użytkownika powinien umożliwiać szybkie zapisywanie wyników pomiarów. Częstotliwość występowania:
+
+Monitorowanie zużycia prądu na kontenerach jest wykonywane przez Pracowników Sekcji Terminalowej regularnie, zgodnie z określonymi odstępami czasu. T U-C 26: Automatyczny pomiar z wagi terminalowej Aktor główny: Automat P-C-C-I Aktorzy wspierający: Klient Warunki wstępne:
+
+Waga terminalowa jest skonfigurowana i gotowa do pomiarów. Waga terminalowa jest zintegrowana z systemem P-C-C-I.
+
+Operator przemieścił w ramach przeładunków kontener na wagę terminalową. Główny przepływ wydarzeń:
+
+Kontener umieszczany jest na wadze terminalowej. Waga terminalowa odczytuje wynik pomiaru.
+
+Automat P-C-C-I zapisuje automatycznie wartość pomiaru dla danego kontenera.
+
+Automat P-C-C-I generuje odpowiedni kwit wagowy, który automatycznie wysyłany jest do Klienta poprzez Strefę Klienta. Warunki końcowe:
+
+Pomiar z wagi terminalowej został poprawnie zarejestrowany w systemie.
+
+System powinien umożliwiać szybkie dostarczanie danych pomiarowych do klienta w celu zapewnienia transparentności operacji terminalowych. Częstotliwość występowania:
+
+Wprowadzanie pomiaru z wagi terminalowej odbywa się regularnie w zależności od potrzeb operacyjnych terminala, zgodnie z harmonogramem przewozów i załadunków kontenerów.
+
+T U-C 27: Wprowadzanie dat przeglądów do systemu (prowadzenie kalendarza) Aktor główny: Kierownik lub Dyrektor Terminala lub Sekcja Utrzymania Aktorzy wspierający: Technicy Utrzymania, Pracownicy Sekcji Terminalowej Warunki wstępne:
+
+Kierownik lub Dyrektor Terminala lub Sekcja Utrzymania ma dostęp do systemu z modułem kalendarza. Główny przepływ wydarzeń:
+
+Kierownik lub Dyrektor Terminala lub Sekcja Utrzymania wprowadza do systemu daty związane z utrzymaniem budynku lub infrastruktury terminala, takie jak:
+
+Pracownik Sekcji Terminalowej w module w systemie wprowadza obiekt na przykład instalacja elektryczna i następnie przypisuje do niego daną datę planowanego przeglądu. Warunki końcowe:
+
+Nowa data przeglądu została poprawnie zarejestrowana w systemie i zaznaczona w kalendarzu. Specjalne wymagania:
+
+System powinien umożliwiać wygodne i intuicyjne dodawanie, edycję i usuwanie dat przeglądów w kalendarzu utrzymania. Częstotliwość występowania:
+
+Dodawanie dat przeglądów do kalendarza jest wykonywane regularnie przez Kierowników, Dyrektorów Terminali oraz Sekcji Utrzymania, zgodnie z harmonogramem utrzymania i koniecznością przeprowadzenia przeglądów oraz konserwacji.
+
+T U-C 28: Poinformowanie o zbliżającym się przeglądzie Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownicy Sekcji Terminalowej Warunki wstępne:
+
+W systemie zostały wprowadzone daty przeglądu związane z utrzymaniem budynków lub infrastruktury. Główny przepływ wydarzeń:
+
+Automat P-C-C-I monitoruje zbliżające się terminy przeglądów oraz innych zadań utrzymania na podstawie zdefiniowanych reguł.
+
+Określona sztywna data od na przykład ostatniego przeglądu, b. Na podstawie monitorowanego wykorzystania danego obiektu na przykład godziny aktywności, przebieg.
+
+Gdy zbliża się data przeglądu Automat P-C-C-I generuje zadanie do odpowiedniego Pracownika Sekcji Terminalowej.
+
+Automat P-C-C-I z odpowiednim wyprzedzeniem wysyła przypomnienie na podstawie zdefiniowanych reguł:
+
+Odpowiedni % wykorzystania danego zasobu, na przykład zostało 100 km do przeglądu. Warunki końcowe:
+
+Pracownik Sekcji Terminala został poinformowany o zbliżającym się przeglądzie lub innym zadaniu utrzymania. Specjalne wymagania:
+
+System powinien umożliwiać konfigurację reguł przypominania o zbliżających się przeglądach lub innych zadaniach utrzymania, takich jak częstotliwość i sposób powiadomienia.
+
+Interfejs użytkownika powinien umożliwiać szybkie dostosowanie ustawień powiadomień oraz śledzenie terminów przeglądów i innych zadań utrzymania. Częstotliwość występowania:
+
+Powiadomienia o zbliżającym się przeglądzie lub innych zadaniach utrzymania są generowane automatycznie przez system zgodnie z harmonogramem utrzymania i koniecznością przeprowadzenia przeglądów oraz konserwacji.
+
+T U-C 29: Zarzadzanie procesem realizacji zadań terminalowych Aktor główny: TrafÏc Planner Aktorzy wspierający: Operatorzy, Pracownicy Terminala, Automat P-C-C-I Warunki wstępne:
+
+System w zakresie procesów terminalowych jest w pełni zintegrowany z urządzeniami przeładunkowymi oraz bramami terminala. Główny przepływ wydarzeń:
+
+TrafÏc Planner zarządza realizacją procesów terminalowych poprzez panel TrafÏc Planner Interfejs, w tym panelu pracownik:
+
+Ustawia statusy poszczególnych urządzeń terminalowych. Ustawia obszary pracy operacyjnej poszczególnych urządzeń terminalowych. Zarządza powiadomieniami i nieprawidłowościami. Monitoruje natężenie ruchu oraz efektywność pracy poszczególnych urządzeń.
+
+Ustawia wskaźniki niezbędne dla automatycznych procesów terminalowych Warunki końcowe:
+
+Procesy terminalowe są na bieżąco monitorowane i optymalizowane. Specjalne wymagania:
+
+Interfejs użytkownika powinien umożliwiać szybkie dostosowanie parametrów procesów terminalowych oraz ich implementację w procesy bieżąco realizowane.
+
+K US4: Optymalizacja siatki połączeń System dokonuje automatycznej analizy siatki połączeń przez pryzmat strumienia zleceń i danych historycznych. System proponuje zmiany w harmonogramie kolejowym zmieniające siatkę połączeń.
+
+K US5: Zgłaszanie zmiany w harmonogramie Na podstawie rekomendacji US4 i dzięki integracji systemu z SKRJ, Automat dokonuje zgłoszenia zmiany w harmonogramie w systemie PKP PLK. Tą funkcję w systemie można włączyć lub wyłączyć - wtedy zmiana siatki połączeń wprowadzana jest ręcznie przez Planistę.
+
+K US6: Wprowadzanie zasobów przewoźników obcych Dyspozytor wprowadza do systemu do odpowiedniego modułu zasoby obcych przewoźników wykorzystywane do planowania i obsługi przewozów kolejowych - dotyczy to przewoźników zewnętrznych, czyli innych niż DPK. Planista wprowadza:
+
+Maszynistów. Zakres danych dla poszczególnych obiektów do ustalenia na etapie rozwoju odpowiedniego modułu w systemie.
+
+K US7: Wprowadzanie zasobów przewoźników własnych Pracownik Sekcji Technicznej wprowadza do systemu do odpowiedniego modułu zasoby własnych przewoźników wykorzystywane do planowania i obsługi przewozów kolejowych - dotyczy to zasobów DPK. Pracownik wprowadza:
+
+Kontenery własne. Zakres danych dla poszczególnych obiektów do ustalenia na etapie rozwoju odpowiedniego modułu w systemie.
+
+K US8: Planowanie przeglądów lokomotyw i wagonów Pracownik Sekcji Technicznej w odpowiednim module systemu wprowadza dane o planowanych przeglądach dla poszczególnych obiektów (wagonów lub lub i lokomotyw).
+
+K US9: Zarządzanie czasem pracy Maszynistów Pracownik DPK wprowadza do systemu informacje o Maszynistach dotyczące:
+
+Inne dodatkowe informacje wpływające na dostępność Maszynisty (na przykład zwolnienia lekarskie).
+
+K US10: Planowanie przewoźnika Automat przypisuje Przewoźników do poszczególnych tras na podstawie zadanych reguł. System posiada możliwość przypisania dwóch lub więcej przewoźników na różnych odcinkach jednej trasy (na przykład w przypadku zmiany lokomotywy we Frankfurcie).
+
+K US11: Manualna zmiana przewoźnika System daje możliwość manualnej zmiany przewoźnika dla danego przewozu kolejowego.
+
+K US12: Planowanie lokomotyw Automat w systemie przypisuje lokomotywę do danej trasy na podstawie zadanych reguł.
+
+K US13: Planowanie maszynistów Automat w systemie przypisuje maszynistę do danej trasy i do danej lokomotywy. System weryfikuje maszynistów pod względem posiadanych przez nich uprawnień - system uwzględnia również konieczność odbywania przez maszynistów konkretnych tras dla zapewnienia aktualnej znajomości szlaku.
+
+K US14: Planowanie przepięć wagonów Planista w dedykowanym module w systemie planuje przepięcia wagonów na przykład w celu zmiany długości poszczególnych składów. Jest to element planowania zmian w siatce połączeń. Planista może też wymusić poprzez plan przepięć wymianę wagonów na danym składzie - manualna zmiana w planie automatycznym. Mechanizm ma pełnić rolę narzędzia, przede wszystkim, dla sytuacji nieplanowanych.
+
+K US15: Planowanie wagonów Automat przypisuje konkretne wagony do poszczególnych tras na podstawie zadanych reguł. System uwzględnia w planowaniu wagonów informacje o datach ważności ich przeglądów (konieczności zaplanowania konkretnej daty przeglądu i wyjęcia tych wagonów z obiegu). System uwzględnia zaplanowane zmiany długości składów na podstawie siatki połączeń, na przykład planowane skrócenie składu.
+
+K US16: Akceptacja składu pociągu po awaryjnym wybiciu wagonu Planista kolejowy otrzymuje powiadomienie w aplikacji, że nastąpiło awaryjne wybicie wagonu. Planista zaznacza w aplikacji jaką decyzje podejmuje:
+
+Planista zatwierdza w aplikacji, że zleca włączenie nowego wagonu do składu z rezerwy w danej lokalizacji (opcja generalnie docelowa, ale z uwzględnieniem sytuacji),.
+
+Planista zatwierdza w aplikacji, że zgadza się na to, że pociąg pojedzie z mniejszą ilością wagonów.
+
+K US17: Automatyczna weryfikacja planu załadunkowego po zmianie składu pociągu Po US16, w razie potrzeby, system automatycznie dokona weryfikacji lub korekty planu załadunkowego.
+
+K US18: Automatyczne informowanie Planisty Kolejowego o zdarzeniach w obszarze kolejowym System wyposażony jest w mechanizm automatycznego informowania Planisty Kolejowego w formie wiadomości push o zdarzeniach dotyczących transportu kolejowego w ramach działań P-C-C-I, w tym: opóźnień pociągów, dojazdów lub odjazdów pociągów, opóźnień pociągów, etc. (pełna lista zdarzeń generujących komunikaty do ustalenia na etapie projektowania docelowego rozwiązania).
+
+K US19: Planowanie kontenerów (obudowanie składu pociągu) Automat posiadając wiedze o maszynistach, lokomotywach i siatce połączeń przypisuje kontenery z poszczególnych zlecenia do poszczególnych wagonów. Automat posiada zdefiniowane reguły, na podstawie których dokonuje planowania kontenerów:
+
+schematy załadunkowe (rozłożenie kontenerów na pociągu). Mechanizm automatyczny może zostać wyłączony na rzecz planowania manualnego.
+
+K US20: Manualne planowanie kontenerów (obudowanie składu pociągu) W razie wyłączenia automatu do planowania kontenerów, za planowanie odpowiada Planista Kolejowy.
+
+K US21: Zapisanie planu załadunkowego pociągu Automat w godzinie granicznej przed załadunkiem dokonuje zapisu składu pociągu - ostatniego placowego i, ewentualnie, innych zaszytych reguł. Automat wysyła alert na temat tych kontenerów, których nie ma na placu, a miały być (były zaplanowane, zgodnie z regułami). Komunikat o braku kontenerów na załadunku generuje automatycznie zadanie dla Pracownika D-O-K, z uwagi na konieczność modyfikacji zlecenia w porozumieniu z Klientem.
+
+K US22: Automatyczne wzywanie Rewidenta Automat identyfikuje w systemie, że wszystkie zadania załadunkowe zostały zrealizowane. Automat wzywa Rewidenta. Sposób wzywania zależny jest od Rewidenta:
+
+Rewident Wewnętrzny (Pracownik Sekcji Technicznej) - Automat wysyła zadanie poprzez aplikację do Rewidenta. Zadanie pokazuje się jako komunikat push Próba hamulca dla pociągu X do wykonania na torze Y. Rewident wewnętrzny posiada podgląd składu w aplikacji.
+
+Rewident zewnętrzny - Automat wysyła maila o dokonanym załadunku i lub lub Automat dzwoni do rewidenta z automatycznym wezwaniem i lub lub Automat wysyła automatyczny SMS. Niezależnie od ostatecznego kanału komunikacji Rewident poprzez link lub hasło lub sms potwierdza przyjęcie informacji. Rewident może posiadać dostęp do planu załadunku w aplikacji (w dostępnym narzędziu na terminalu). Rewident zewnętrzny posiada podgląd składu w aplikacji terminalowej (lub innej dedykowanej lub lub posługuje się wydrukiem - wtedy komunikacja mailowa w zakresie dokumentów).
+
+K US23: Przyjęcie lub nieprzyjęcie zgłoszenia przez Rewidenta Rewident po otrzymaniu wezwania może:
+
+Przyjąć zgłoszenie - Rewident wewnętrzny zaznacza w aplikacji na narzędziu na terminalu przyjąłem zgłoszenie. Rewident zewnętrzny potwierdza poprzez link lub hasło lub sms.
+
+Nie przyjąć zgłoszenia - Rewident może nie przyjąć zlecenie przeprowadzenia próby hamulca, w takiej sytuacji będzie z nim komunikował się w dalszym kroku Kierujący Zmianą.
+
+K US24: Weryfikacja przyjęcia zgłoszenia przez Rewidenta W sytuacji, gdy z US23 Rewident nie zatwierdzi przyjęcia zlecenia rewizji, system w wyznaczonym czasie od przesłania zlecenia do Rewidenta generuje zadanie dla Kierującego Zmianą, w celu skontaktowania się z Rewidentem.
+
+K US25: Wezwanie Rewidenta Kierujący Zmianą kontaktuje się bezpośrednio z Rewidentem, w celu ustalenia przebiegu realizacji próby hamulca. Kontakt odbywa się drogą telefoniczną.
+
+K US26: Przeprowadzenie próby hamulca Rewident opisuje próbę hamulca w narzędziu (tablecie) na terminalu. Rewident zaznacza w narzędziu, że przeprowadził próbę hamulca. Rewident w narzędziu może zaznaczyć:
+
+Brak zatwierdzenia próby hamulca - Rewident zgłasza usterki, co automatycznie przekazuje odpowiednie zadanie do Sekcji Technicznej danego Terminala (na terminalu obcym komunikacja Rewident-Terminal nie jest zautomatyzowana). Jeżeli próba hamulca za pierwszym razem spowodowała wykrycie usterki, która skutkowała zmianą składu pociągu po dokonaniu manewrów i wypięciu wagonu próba hamulca dokonywana jest jeszcze raz.
+
+K US27: Zgłoszenie usterki w składzie w czasie próby hamulca Rewident, który identyfikuje uszkodzenie lub usterkę lub błąd załadunkowy oznacza to odpowiednio w aplikacji tabletowej. Może to mieć formę wyboru z listy rozwijanej, z dodatkowym polem na opis. Taki opis jest elementem zgłoszenia do Sekcji Technicznej - następuje US41 dla wskazanego obiektu w składzie.
+
+K US28: Przekazanie danych do systemu PKP PLK Automat w momencie zidentyfikowania zatwierdzenia próby hamulca przez Rewidenta przesyła odpowiednie dane do systemu PLK. Wysyłane dane dotyczą w szczególności ostatecznego plan załadunku i dokonanej próby hamulca - przesłane dane mogą mieć formę automatycznie generowanych lub uzupełnianych dokumentów.
+
+K US29: Wysyłka planu załadunku do zewnętrznego terminala Po ostatecznym zatwierdzeniu planu załadunkowego i przeprowadzeniu próby hamulca Automat wysyła plan załadunku do docelowego terminala zewnętrznego (miejsce docelowe przyjazdu pociągu). Automat wysyła tą informację ustalonym kanałem - EDI lub A-P-I lub mail.
+
+K US30: Zatwierdzenie gotowości pociągu do wyjazdu Kierujący Zmianą, po zidentyfikowaniu w aplikacji akceptacji próby hamulca przez Rewidenta, zatwierdza gotowość pociągu do wyjazdu - na tym etapie wskazywana jest oczekiwana godzina wyjazdu pociągu z terminala, zatwierdzenie pociągu generuje zadania dla zespołu manewrowego.
+
+K US31: Poinformowanie Maszynisty Trakcyjnego o statusie pociągu Automat na podstawie zdefiniowanych reguł w systemie przesyła informacje do Maszynisty Trakcyjnego na temat każdego ze statusów załadunku. Maszynista na tej podstawie wie, kiedy ma się zjawić na pociągu. Automat przesyła także informacje w sytuacji, gdy z przyczyn zewnętrznych Maszynista ma nie przychodzić na pociąg na przykład opóźnienie. Powiadomienia ze statusami Automat wysyła za pośrednictwem sms lub poprzez automatyczny kontakt telefoniczny.
+
+K US32: Zlecenie manewrów Automat, po akceptacji próby hamulca przez Rewidenta oraz zatwierdzeniu gotowości pociągu do wyjazdu, przesyła do Pracowników manewrowych zlecenie wyprowadzenia składu z terminala na bocznicę, na której czeka lokomotywa trakcyjna. Zlecenie wysyłane jest w aplikacji. W przypadku składu z lokomotywą o zmiennym napędzie - nie wymaga obsługi lokomotywami manewrowymi - komunikaty dotyczące manewrów na i z terminala otrzymuje na urządzeniu tabletowym maszynista trakcyjny.
+
+K US33: Automatyczne zarządzanie manewrami System, po zleceniu manewrów, zarządza kolejnością manewrów na podstawie zdefiniowanych reguł. System przydziela zadania do Maszynistów manewrowych lub lokomotyw manewrowych. Funkcja automatycznego zarzadzania manewrami może zostać wyłączona na rzecz sterowania manualnego.
+
+K US34: Manualne zarządzanie manewrami Kierujący Zmianą, po zleceniu manewrów, zarządza kolejnością manewrów. Kierujący Zmianą przydziela zadania do Maszynistów manewrowych.
+
+Funkcja manualnego zarządzania manewrami ma miejsce w sytuacji wyłączenia zarządzania automatycznego.
+
+K US35: Nadanie statusu manewrów Maszynista lokomotywy manewrowej w aplikacji widzi zadania i nadaje statusy tych zadań w szczególności zakończenia manewrów. Statusy takie jak:
+
+Dowiozłem wagony, inne (lista do ustalenia na etapie przygotowywania narzędzia).
+
+K US36: Identyfikacja godziny wyjazdu składu z terminala Brama OCR skanuje wyjeżdżający pociąg z terminala. Brama weryfikuje skład pociągu. Dodatkowo do systemu sczytywana jest godzina wyjazdu pociągu. Weryfikacja dokonywana jest jak w opisie US39 i US40.
+
+K US37: Nadanie statusu przewozu kolejowego Maszynista Trakcyjny w aplikacji w tablecie odznacza statusy przejazdu: wyjechałem, zatrzymałem się, i tym podobne Każdy pociąg P-C-C-I jest wyposażony w tablet, na którym Maszynista dokonuje odznaczania statusów i na którym dysponuje dostępem do niezbędnych dokumentów.
+
+K US38: Monitoring pozycji pociągu i szacowanie godziny dojazdu Automat na podstawie GPS dokonuje śledzenia pozycji danego pociągu. Automat na bieżąco, na podstawie zadanych reguł, aktualizuje godziny szacowanego przyjazdu pociągu na terminal docelowy.
+
+K US39: Identyfikacja i weryfikacja kontenerów Brama OCR wyposażona w system kamer liniowych, system detektorów, czujniki, etc. skanuje wszystkie kontenery wjeżdżające na pociągu. System może sczytać takie informacje jak:
+
+Numer plomby na kontenerze (do rozważenia na etapie wdrażania),.
+
+Uszkodzenia kontenerów. System na podstawie danych z identyfikacji, weryfikuje kontenery na składzie z planem załadunku oraz danymi w zleceniach. System weryfikuje dla każdego kontenera:
+
+Czy kontener udało się zeskanować - Jeżeli nie to do oględzin wzywany jest Pracownik Terminala, automatyczne zadanie wysyłane jest na urządzenie tabletowe,.
+
+Czy dany kontener jest w składzie zgodnie z planem - Jeżeli nie następuje zgłoszenie do Pracownika D-O-K,.
+
+Czy kontener stoi na odpowiedniej platformie - Skutkuje ewentualną aktualizacją danych w systemie na potrzeby planowania ruchów rozładunkowych,.
+
+Czy kontener jest uszkodzony - Brama dokonuje rejestracji uszkodzeń. Brama przekazuje powiadomienie do Pracownika D-O-K, który ustala z Klientem dalsze postępowanie.
+
+K US40: Identyfikacja i weryfikacja wagonów (lokomotyw) Brama kolejowa wyposażona w system kamer liniowych, system detektorów, czujniki, etc. skanuje wszystkie wagony (do rozważenia również skan lokomotywy) wjeżdżające na terminal. System może sczytać takie informacje jak:
+
+K US41: Generowanie zadań w zakresie oględzin składu Automat generuje zlecenia i zadania dla Pracowników Sekcji Technicznej dotyczące dokonania przeglądu składu pociągu lub jego konkretnego elementu, na przykład wagonu.
+
+K US42: Automatyczne zarządzanie zleceniami oględzin składu System po wygenerowaniu zadań dla Sekcji Technicznej zarządza kolejnością obsługi tych zadań na podstawie zdefiniowanych reguł. System przydziela zadania do poszczególnych Pracowników Sekcji Technicznej. Funkcja automatyczna może zostać wyłączona na rzecz manualnego zarządzania zleceniami technicznymi.
+
+K US43: Manualne zarządzanie zleceniami oględzin składu W przypadku wyłączenia funkcji automatycznego zarządzania zleceniami dla Sekcji Technicznej Kierownik Sekcji Technicznej zarządza kolejnością przypisania lub realizacji zadań. Kierownik przydziela zadania do poszczególnych Pracowników Sekcji Technicznej.
+
+K US44: Nadawanie statusów w czasie oględzin składu Pracownik Sekcji Technicznej dokonuje przeglądu pociągu, który wjechał na terminal. Po dokonanym przeglądzie Pracownik Sekcji Technicznej musi odznaczyć w aplikacji na tablecie wyniki przeglądu:
+
+Wagon pociągu nie wymaga naprawy - Pracownik Sekcji Technicznej odznacza w aplikacji, że wagony są sprawne i nie wymagają naprawy,.
+
+Wagon pociągu wymaga naprawy - Pracownik Sekcji Technicznej odznacza w aplikacji, że wagon lub y nie są sprawne i wymagają naprawy. Informacje wprowadzane są osobno dla każdego obiektu: wagonu (analogicznie dla kontenera lub lokomotywy). Pracownik opisuje czego dotyczy dana usterka wagonu i czy:
+
+Naprawa będzie wymagała wybicia wagonu, Naprawa nie będzie wymagała wybicia wagonu.
+
+K US45: Wyłączenie wagonu z użycia Pracownik Sekcji Technicznej, po wprowadzeniu statusu usterki wagonu, która wymagać będzie wybicia danego wagonu, dokonuje wyłączenia danego wagonu w systemie. Informacja o wybiciu wpływa na automatyczne procesu planowania.
+
+K US46: Generowanie zadań w zakresie naprawy wagonu Automat generuje zlecenia i zadania dotyczące dokonania naprawy obiektu.
+
+K US47: Automatyczne zarządzanie zleceniami naprawy wagonu System po wygenerowaniu zadań dla Sekcji Technicznej zarządza kolejnością obsługi tych zadań na podstawie zdefiniowanych reguł. System przydziela zadania do poszczególnych Pracowników Sekcji Technicznej. Funkcja automatyczna może zostać wyłączona na rzecz manualnego zarządzania zleceniami technicznymi.
+
+K US52: Manualne zarządzanie zleceniami naprawy W przypadku wyłączenia funkcji automatycznego zarządzania zleceniami dla Sekcji Technicznej Kierownik Sekcji Technicznej zarządza kolejnością przypisania lub realizacji zadań. Kierownik przydziela zadania do poszczególnych Pracowników Sekcji Technicznej. Kierujący Zmianą, po zleceniu naprawy zarządza kolejnością zadań. Kierujący Zmianą przydziela zadania do Pracowników Sekcji Technicznej.

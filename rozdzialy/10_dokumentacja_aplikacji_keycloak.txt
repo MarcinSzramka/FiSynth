@@ -1,0 +1,55 @@
+Dokumentacja aplikacji keycloak.
+
+Logistyka 4.0 Dokumentacja aplikacji Keycloak Wersja 1.0. Historia zmian i zatwierdzenia.
+
+użytkowników niezbędnych grupach użytkowników wartości dla terminalIDs, Dodawanie mappera atrybutu terminalIDs w dla klienta profile.
+
+Konfiguracja zmiennych środowiskowych. W powyższym pliku docker-compose.yml: DB VENDOR określa typ bazy danych, której używamy (postgres).
+
+DB ADDR to adres serwera bazy danych (w tym przypadku nazwa usługi postgres, którą zdefiniowaliśmy w sekcji services).
+
+DB DATABASE, DB USER, DB PASSWORD definiują nazwę bazy danych, użytkownika oraz hasło dla połączenia z bazą danych.
+
+Kliknij przycisk Dodaj użytkownika. Wypełnij formularz, podając wymagane informacje, takie jak Nazwa użytkownika, Adres e-mail, Imię i Nazwisko.
+
+Wybierz użytkownika: Znajdź użytkownika, którego chcesz przypisać do grupy, i kliknij na jego nazwę użytkownika.
+
+Przypisz użytkownika do grupy: Przejdź do zakładki Grupy. Kliknij przycisk Dołącz do grupy.
+
+Wybierz grupę, do której chcesz przypisać użytkownika, i kliknij przycisk Zapisz.
+
+W sekcji Role kont usług dodaj następujące role: view-group: Umożliwia przeglądanie grup. view-users: Umożliwia przeglądanie użytkowników. query-groups: Umożliwia zapytania o grupy.
+
+Narzędzie do zarządzania grupami użytkowników w systemie Keycloak działa na zasadzie wyszukiwania grupy na podstawie jej nazwy, a następnie pobierania listy jej członków. Po zidentyfikowaniu grupy, system uzyskuje jej unikalny identyfikator, co pozwala na dalsze zapytania o szczegóły dotyczące użytkowników przypisanych do tej grupy.
+
+Ustawienia A-P-I Keycloak do stworzenia użytkowników i dodania ich bezpośrednio do grupy.
+
+Dodanie roli do klienta w celu umożliwienia tworzenia użytkowników.
+
+Zaloguj się do konsoli administracyjnej Keycloak. Przejdź do sekcji Klienci: Wybierz odpowiedniego klienta, dla którego chcesz skonfigurować uprawnienia. Wybierz zakładkę Role kont usług. Kliknij przypisz role. Wyszukaj role “manage-users: Umożliwia tworzenie użytkowników.
+
+Zapisz. Dodanie grupy użytkownicy kontrahenta: Przejdź do sekcji Grupy. Dodaj grupę Uzytkownicy kontrahenta.
+
+Dodanie atrybutów do schematu klienta: Zaloguj się do konsoli administracyjnej Keycloak. Przejdź do sekcji Ustawienia obszaru: Znajdź zakładkę Profil użytkownika. Utwórz atrybuty language oraz phone. Pamiętaj o dodaniu tłumaczenia language: język, phone:numer telefonu.
+
+Upewnij się, że grupa, do której chcesz dodać użytkownika istnieje, jeśli nie przejdź do sekcji Grupy i ją utwórz.
+
+A-P-I do edycji użytkownika w keycloaku. Przejdź do sekcji Ustawienia obszaru: Znajdź zakładkę Logowanie.
+
+Zaznacz opcję Email jako nazwa użytkownika(docelowo ta opcja ma być włączona, ale na chwilę obecną nie włączamy żebym nie zmieniać logowanie po nazwie użytkownika).
+
+Aby utworzyć atrybut terminalIDs należy przejść do Ustawienia obszaru Profil użytkownika następnie Utwórz atrybut:
+
+Dodajemy tłumaczenie klikając ikonę globusa po prawej stronie od textboxa Nazwa wyświetlana:
+
+KlikamyOk a następnie “Dodaj walidator i wprowadzamy wartości wartości (poniższe dane są przykładowe).
+
+Dodawanie wartości dla terminalIDs. Poniższe dane są przykładowe. Dodawanie mappera atrybutu terminalIDs w dla klienta profile.
+
+Aby dodać mapera należy przejść do zakładki Zakresy klienta - profile - Mapery:
+
+Następnie dodaj mapowanie - Zgodnie z konfiguracją. Wypełniamy poniższymi danymi:
+
+Po utworzeniu użytkownika przechodzimy do nowo utworzonego użytkownika i w zakładce Poświadczenia - Ustaw Hasło wypełnij pola hasłem imv.
+
+Ustaw zgodnie ze zdjęciami. Ustawienie obszary - Sesje. Ustawienie obszary - Tokeny. Dodanie konfiguracji pocztowego serwera.

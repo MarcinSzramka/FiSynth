@@ -693,8 +693,9 @@ void FiSynthAudioProcessorEditor::refreshPresetList()
         { "BL", "Bells & Metals" }, { "BS", "Bass" },      { "DI", "Destroyed" },
         { "DR", "Drones & Atmos" }, { "FX", "FX" },        { "KY", "Keys & Organs" },
         { "LD", "Leads" },          { "PD", "Pads" },      { "PH", "Phi Studies" },
-        { "PL", "Plucks" },         { "RV", "Reverb Spaces" },
-        { "SQ", "Sequences" },      { "ST", "Ensemble" },
+        { "PL", "Plucks" },         { "QT", "Quantic" },
+        { "RV", "Reverb Spaces" },  { "SQ", "Sequences" },
+        { "ST", "Ensemble" },
     };
     auto headingFor = [] (const juce::String& name) -> juce::String
     {

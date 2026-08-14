@@ -1,0 +1,719 @@
+High level design — dokument główny, część 8.
+
+Generowanie zadań naprawczych może być stosowane w zależności od potrzeb i stanu technicznego taboru, ale może być realizowane regularnie, na przykład co dzień lub co tydzień, w celu zapewnienia ciągłości eksploatacji wagonów.
+
+K U-C 47: Automatyczne zarządzanie zleceniami naprawy wagonu Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik Sekcji Technicznej Warunki wstępne:
+
+Wygenerowane zadania dla Sekcji Technicznej w celu wykonania naprawy obiektu (wagonu, lokomotywy lub kontenera). Główny przepływ wydarzeń:
+
+Automat P-C-C-I zarządza kolejnością obsługi napraw obiektu na podstawie zdefiniowanych reguł.
+
+Automat P-C-C-I przydziela zadania napraw obiektu do poszczególnych Pracowników Sekcji Technicznej. Alternatywne przepływy:
+
+A2a. Funkcja automatyczna może zostać wyłączona na rzecz manualnego zarządzania zleceniami technicznymi. Warunki końcowe:
+
+Zlecenia napraw obiektu zostały rozdysponowane pomiędzy Pracowników Sekcji Technicznej. Specjalne wymagania:
+
+System musi umożliwiać elastyczne zarządzanie automatycznym generowaniem zleceń napraw obiektu w czasie rzeczywistym. Częstotliwość występowania:
+
+Automatyczne zarządzanie zleceniami naprawy może być stosowane w czasie rzeczywistym, w zależności od monitorowania stanu technicznego taboru i identyfikacji potrzeb naprawczych.
+
+K U-C 48: Manualne zarządzanie zleceniami naprawy Aktor główny: Kierownik Sekcji Technicznej Aktorzy wspierający: Pracownik Sekcji Technicznej Warunki wstępne:
+
+Wygenerowane zadania dla Sekcji Technicznej w celu wykonania naprawy obiektu (wagonu, lokomotywy, kontenera).
+
+Funkcja automatycznego zarządzania zleceniami napraw obiektu została wyłączona. Główny przepływ wydarzeń:
+
+Kierownik Sekcji Technicznej loguje się do systemu i przechodzi do modułu zarządzania zleceniami napraw obiektu.
+
+Kierownik Sekcji Technicznej wybiera opcję manualnego zarządzania zleceniami napraw obiektu.
+
+Kierownik Sekcji Technicznej manualnie przydziela zadania do poszczególnych Pracowników Sekcji Technicznej. Warunki końcowe:
+
+Zlecenia napraw zostały rozdysponowane pomiędzy Pracowników Sekcji Technicznej. Specjalne wymagania:
+
+Interfejs użytkownika powinien być intuicyjny i łatwy w obsłudze Kierownika Sekcji Technicznej. Częstotliwość występowania:
+
+Manualne zarządzanie zleceniami naprawy może być stosowane w zależności od potrzeb i konieczności interwencji Kierownika Sekcji Technicznej w planowaniu napraw.
+
+K U-C 49: Nadanie statusu naprawy wagonu Aktor główny: Pracownik Sekcji Technicznej Technik kolejowy Aktorzy wspierający: Inna grupa pracowników na przykład Pracownicy Terminala Warunki wstępne:
+
+Zlecenie naprawy wagonu zostało wcześniej wygenerowane i przypisane do Pracownika Sekcji Technicznej. Główny przepływ wydarzeń:
+
+Pracownik kolejowy loguje się do systemu. Pracownik przegląda listę zleceń naprawczych przypisanych do niego.
+
+Pracownik odznacza w aplikacji na tablecie aktualny status realizowanej naprawy:
+
+Pracownik wprowadza do aplikacji szczegóły dotyczące przebiegu procesu naprawy, w tym wykorzystania materiałów i części. Alternatywne przepływy:
+
+Sprzątanie kontenerów będzie traktowane tożsamo do napraw, w takim wypadku proces będzie realizowany w ten sam sposób, z uwzględnieniem zaszytych w systemie reguł.
+
+Do realizacji procesu sprzątania może zostać przypisana inna grupa pracowników, wtedy proces będzie tożsamy z tym, że realizować go będzie ta inna grupa na przykład Pracownicy Terminala. Warunki końcowe:
+
+Status zlecenia naprawy został poprawnie zaktualizowany w systemie. Specjalne wymagania:
+
+System musi umożliwiać technikom kolejowym łatwe i intuicyjne aktualizowanie statusu zleceń naprawczych.
+
+Interfejs użytkownika powinien być przejrzysty i umożliwiać szybki dostęp do funkcji aktualizacji statusu zleceń naprawczych. Częstotliwość występowania:
+
+Aktualizacja statusu zleceń naprawczych może być wykonywana regularnie przez techników kolejowych w miarę postępu prac naprawczych.
+
+K U-C 50: Przegląd wagonu przed dopuszczeniem do ruchu Aktor główny: Rewident (pracownik Sekcji Technicznej) Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Rewident posiada odpowiednie specjalne uprawnienia i dostęp do systemu poprzez aplikację. Główny przepływ wydarzeń:
+
+Po zakończonej naprawie wagonu system automatycznie przydziela zadania do Rewidenta.
+
+Rewident otrzymuje zadanie z informacją, że wagon został naprawiony i jest gotowy do przeglądu przed dopuszczeniem do ruchu.
+
+Przegląd przebiegł pomyślnie i Rewident wprowadza odpowiedni status w aplikacji. Alternatywne przepływy:
+
+Możliwe obsłużenie przypisywania analogicznie do zadań naprawczych w sposób manualny przez Kierownika Sekcji Technicznej.
+
+Jeśli podczas przeglądu zostaną zauważone jakiekolwiek usterki lub niedociągnięcia, technik może oznaczyć wagon jako niewłaściwy i przekazać go do ponownej naprawy lub konserwacji.
+
+D US4: Manualna weryfikacja przewoźnika 1.Jeżeli Przewoźnik został pozytywnie zweryfikowany automatycznie Pracownik Księgowości dostawie zadanie ostatecznej akceptacji Przewoźnika w systemie. Następnie następuje US5. 2.Jeżeli Przewoźnik nie został pozytywnie zweryfikowany automatycznie Pracownik Księgowości otrzymuje zadanie weryfikacji manualnej nowego Przewoźnika. Dalsze postępowanie zależy od wyniku weryfikacji: 2.1. Weryfikacja pozytywna - Pracownik Księgowości zatwierdza przewoźnika w systemie. Po zatwierdzeniu Przewoźnika następuje US6. 2.2. Weryfikacja negatywna - Pracownik Księgowości nie zatwierdza przewoźnika w systemie. W związku z tym Pracownik zaznacza w systemie brak akceptacji przewoźnika. Automat wysyła systemowe powiadomienie do Pracownika Sekcji Transportu Drogowego, iż weryfikacja jest negatywna i należy zweryfikować kompletność lub poprawność wprowadzonych danych Przewoźnika.
+
+D US5: Założenie konta przewoźnika Automat po pozytywnej weryfikacji zakłada Przewoźnikowi konto w systemie Enova, a także zakłada konto w Aplikacji Kierowców. Login wysyłany jest do Przewoźnika automatycznie po pozytywnej weryfikacji. Hasło ustanawiane jest przy pierwszym logowaniu.
+
+D US6: Rejestracja nowego kierowcy przez przewoźnika Przewoźnik w Aplikacji Kierowców wprowadza dane nowego Kierowcy, zaznacza w niej jego uprawnienia oraz dopina w formie zdjęć niezbędne dokumenty. Dokumenty na potrzeby rejestracji Kierowcy:
+
+Certyfikat kompetencji zawodowych w krajowym lub międzynarodowym transporcie drogowym rzeczy,.
+
+Zaświadczenie z przeszkoleniu Kierowcy w zakresie przewozu towarów niebezpiecznych.
+
+D US7: Weryfikacja nowego Kierowcy Pracownik Sekcji Transportu Drogowego otrzymuje powiadomienie push o dopięciu przez Przewoźnika nowego Kierowcy. Następnie weryfikuje zgodność dopiętych w aplikacji dokumentów. Jeżeli wszystkie dane są kompletne zatwierdza w systemie nowego Kierowcę. Jeżeli brakuje jakichkolwiek informacji kontaktuje się z Przewoźnikiem w celu wyjaśnienia przyczyny braku akceptacji nowego Kierowcy.
+
+D US8: Weryfikacja Uprawnień ADR Kierowcy Automat, po wprowadzeniu przez Przewoźnika danych nowego Kierowcy weryfikuje czy kierowca posiada uprawnienia do przewozu ładunków niebezpiecznych. Automat pobiera informacje z centralnego rejestru. Informacja o uprawnieniach ADR weryfikowana jest także w ramach procesu planowania podstawień.
+
+D US9: Rejestracja pojazdu przez przewoźnika Przewoźnik w Aplikacji Kierowców wprowadza dane nowego pojazdu, wprowadza odpowiednie dane oraz dopina w formie zdjęć niezbędne dokumenty. Dokumenty na potrzeby rejestracji pojazdu:
+
+Dowód rejestracyjny ciągnika i lub lub naczepy, Świadectwo dopuszczenia pojazdu do przewozu niektórych towarów niebezpiecznych.
+
+D US10: Weryfikacja nowego pojazdu przewoźnika Pracownik Sekcji Transportu Drogowego otrzymuje powiadomienie push o dopięciu przez Przewoźnika nowego pojazdu. Następnie weryfikuje zgodność dopiętych w aplikacji dokumentów. Jeżeli wszystkie dane są kompletne zatwierdza w systemie nowy pojazd. Jeżeli brakuje jakichkolwiek informacji kontaktuje się z Przewoźnikiem w celu wyjaśnienia przyczyny braku akceptacji nowego pojazdu.
+
+D US11: Uzupełnienie informacji o dostępności kierowców Przewoźnik uzupełnia informacje o dostępności kierowców w aplikacji. Przewoźnik wchodzi w aplikacji w daną zakładkę, w której widzi wszystkich swoich kierowców. Przewoźnik uzupełnia w aplikacji informacje o urlopach kierowców lub lub i zwolnieniach lekarskich lub lub i innych niedyspozycjach kierowców. Przewoźnik ma obowiązek dokonać takiego zgłoszenia.
+
+niedyspozycyjności kierowcy co najmniej 48h przed daną nieobecnością (zmniejszeniem zasobów floty). Zdarzenia nieplanowane lub nadzwyczajne należy wprowadzać w ten sam sposób.
+
+D US12: Poinformowanie o niedyspozycyjności kierowcy z wyprzedzeniem mniejszym niż 48h W sytuacji, gdy Przewoźnik zgłosi brak dyspozycyjność kierowcy z wyprzedzeniem mniejszym niż 48h automat wysyła do Planisty Drogowego komunikat i jednocześnie tworzy dla niego zadanie polegające na weryfikacji skutków nieobecności danego kierowcy w planie podstawień.
+
+D US13: Uzupełnienie informacji o dostępności kierowców floty centralnej Planista Drogowy w odpowiednim module systemu określa przypisanie Kierowców centralnych do poszczególnych regionów obsługi na potrzeby planowania. Planista powinien wprowadzać zmiany w przypisaniu Kierowców do regionów z 2-dniowym wyprzedzeniem. Planista może pozostawić część Kierowców centralnych bez przypisania do jakiegokolwiek regionu - tacy Kierowcy nie będą uwzględniani w planowaniu automatycznym.
+
+D US14: Uzupełnienie informacji o godzinach pracy kierowców Kierowcy uzupełniają informacje o godzinach pracy w Aplikacji Kierowców, w szczególności informacje o realizowanych pauzach.
+
+D US15: Estymowanie czasu obsługi zlecenia Automat na podstawie znanego dystansu w km, który jest znany w zleceniu i lub lub danych historycznych i lub lub GPS szacuje czas obsługi danego zlecenia. Informacja ta uwzględniana jest w procesie planowania, w tym przy planowaniu możliwości realizacji drugiego kółka.
+
+D US16: Planowanie podstawień - przypisywanie zleceń transportowych do konkretnych kierowców System automatycznie przypisuje zlecenia transportowe do poszczególnych Kierowców. Automat bierze pod uwagę dostępność Kierowców, ich godziny pracy (w tym pauzy) oraz charakterystyki zleceń (w celu określenia możliwości realizacji więcej niż jednego przejazdu dziennie). System planuje także równocześnie godziny podstawień na terminalu dla poszczególnych Kierowców - wykorzystuje w tym celu sloty systemu VBS przeznaczone do automatycznego planowania P-C-C-I. System zachowuje także zasadę losowości przydzielana kierowców w ramach danego regionu - system powinien dążyć do wyrównywania średnich długości pojedynczych tras zlecanych Kierowcom, chodzi o to, żeby nie było kierowców realizujących tylko krótkie lub tylko długie kółka. Efekty automatycznego planowania:
+
+Kierowca dostaje poprzez Aplikację dla Kierowców informacje o przypisanym zleceniu,.
+
+Do Klienta wysyłana jest automatyczna awizacja danego kierowcy, Zlecenia nieprzypisane automatycznie zgłaszane są do Planisty Drogowego.
+
+D US17: Weryfikacja nieprzypisanych podstawień, informowanie D-O-K W przypadku nieprzypisania zlecenia transportowego do kierowcy automat generuje dla Planisty Drogowego zadania weryfikacji takiej sytuacji. Planista rozpatruje zadanie, weryfikuje faktyczny brak możliwości obsługi podstawienia i albo dokonuje ręcznego zaplanowania podstawienia (jeżeli ma możliwość wskazania zasobów jakimi nie dysponował automat), albo zatwierdza brak możliwości przypisania zlecenia i przekazuje informację poprzez system do D-O-K.
+
+D US18: Przeplanowanie podstawienia Jeżeli w trakcie obsługi lub w innym momencie występującym po zatwierdzeniu planu podstawień wystąpi zdarzenie skutkujące zmianą stanu zasobów (floty) lub zmianą możliwości obsługi podstawień zgodnie z planem, automat dokonuje próby automatycznego przeplanowania pozostałych zleceń na dany dzień w sposób pozwalający na ich obsługę. Mogą wystąpić 2 scenariusze:
+
+Automat skutecznie przeplanował podstawienia i możliwe jest ich zrealizowanie - skutkuje to ponownym wysłaniem nowych zleceń transportowych (i jednoczesnym anulowaniem poprzednich) oraz ponownym wysłaniem aktualnej awizacji kierowców do Klientów,.
+
+Automat nie przypisał części podstawień - do wytypowania co ma zostać bez przypisania automat wykorzystuje szereg reguł na przykład hierarchię obsługi Klientów - w takiej sytuacji automat informuje Planistę Drogowego i następuje US17.
+
+D US19 Weryfikacja dostępności kontenera Zgodnie z przyjętą regułą system dokonuje automatycznej weryfikacji czy kontener, dla którego zaplanowane jest podstawienie znajduje się fizycznie na terminalu. W razie braku kontenera nastąpi zgłoszenie danej sytuacji do Planisty Drogowego, który zdecyduje, czy sytuacja wymaga przeplanowania podstawień.
+
+D US20: Weryfikacja dostępności kontenera - manualna Planista weryfikuje lokalizację kontenera przypisanego do podstawienia i zgłoszonego przez automat jako nieobecny przed załadunkiem. Planista oznacza taki kontener jako niedostępny lub oznacza zlecenie jako zdatne do realizacji (na przykład w sytuacji trwającego wjazdu pociągu na terminal).
+
+D US21: Zarządzanie slotami obsługi terminalowej trucków Narzędzie VBS musi dawać możliwość zarządzania slotami godzinowymi obsługi. Dedykowany Pracownik P-C-C-I będzie mógł ustalać jaki % wydajności terminala w każdym slocie ma być dedykowany do obsługi kierowców planowanych przez P-C-C-I, a jaki dla kierowców zewnętrznych.
+
+D US22: Automatyczne generowanie optymalnych reguł dla systemu VBS System automatycznie podpowiada nowe reguły dzielenia slotów obsługi trucków pomiędzy własnych i obcych kierowców - na przykład na bazie strumienia zleceń, danych historycznych.
+
+D US23: Automatyczna rezerwacja slotów w VBS Automatyczne planowanie podstawień będzie dokonywało przypisania poszczególnych zleceń podstawień do określonych slotów w systemie VBS (US16). Sloty niezagospodarowane przez automat będą udostępniane zewnętrznym kierowcom.
+
+D US24: Manualna rezerwacja slotów w VBS Zewnętrzni kierowcy, realizujący zlecenia in-out, będą poprzez dedykowaną aplikację korzystać z systemu VBS do rezerwacji slotów obsługi na terminalach P-C-C-I. Manualna rezerwacja będzie wymagać wprowadzenia danych zlecenia, kierowcy i pojazdu. Samo korzystanie z aplikacji będzie wymuszać akceptację regulaminu poszczególnych terminali P-C-C-I - w zależności od terminalu na jaki podjechać chce dany kierowca.
+
+D US25: Realizacja podstawienia - automatyczne wskazywanie kolejnych zadań w ramach zlecenia transportowego System samodzielnie podpowiada Kierowcy kolejne zadanie w ramach podstawienia:
+
+godzinę obsługi na terminalu, realizację usługi dodatkowej przed podstawieniem, miejsce i planowany czas podstawienia, realizację usługi dodatkowej po podstawieniu, pole docelowe na terminalu,.
+
+D US26: Wprowadzanie statusu podstawienia Kierowca wprowadza wszystkie niezbędne statusy do Aplikacji Kierowców w czasie podstawienia:
+
+dojazd i odjazd na każdy z rodzajów usług dodatkowych realizowanych w ramach podstawienia,.
+
+dojazd do miejsca podstawienia, oczekiwanie na rozładunek po 15min, 2h i 4h, rozpoczęcie przeładunku na podstawieniu, odmowa obsługi na podstawieniu, odjazd z podstawienia, wjazd na bramę terminala, podjazd we wskazaną strefę terminala,.
+
+zdarzenia nadzwyczajne skutkujące potencjalnym opóźnieniem - z opcją komentarza tekstowego.
+
+D US27: Automatyczne informowanie klienta o przedłużającym się oczekiwaniu na podstawieniu Klient dostaje automatyczny komunikat systemowy w kilku sytuacjach:
+
+Kierowca czeka 15min na obsługę - Automat wysyła powiadomienie do Klienta w postaci maila i lub lub sms, że Kierowca oczekuje na odbiór ładunku.
+
+Kierowca czeka 2h na obsługę - Automat wysyła powiadomienie do Klienta w postaci maila i lub lub sms, że Kierowca oczekuje na odbiór ładunku od 2h i w razie nieodebrania ładunku w przeciągu następnych 2h (łącznie 4h od przyjazdu kierowcy) zostanie nałożona kara zgodna z warunkami zawartymi w umowie.
+
+Kierowca czeka 4h na obsługę - Automat wysyła powiadomienie do Klienta w postaci maila i lub lub sms, że Kierowca w dalszym ciągu oczekuje na odbiór ładunku i że dalsze oczekiwanie skutkuje naliczeniem kary za przestój.
+
+Klient zrezygnował z podjęcia ładunku - Automat wysyła powiadomienie do Klienta w postaci maila i lub lub sms, że w związku z rezygnacją z realizacji przeładunku na podstawieniu zostanie on obciążony za pusty podjazd, i że nowa data podstawienia może zostać ustalona na drodze komunikacji z D-O-K. Komunikat ten trafia także do Pracownika D-O-K - wymagana jest modyfikacja zlecenia.
+
+D US28: Weryfikacja numerów pojazdu Terminal wyposażony jest w bramę lub system pre-gate która lub y potrafi rozpoznać numery rejestracyjne ciągnika (i naczepy - do rozważenia). System porównuje zarejestrowane dane z danymi ze zlecenia w systemie - są to albo dane z zaplanowanego podstawienia albo dane z awizacji zewnętrznego kierowcy przez klienta. Wynik weryfikacji:
+
+Weryfikacja pozytywna - kierowca realizuje proces obsługi bramowej US30,.
+
+Weryfikacja negatywna - kierowca nie może przejechać przez bramę, odmowa obsługi - to po stronie kierowcy leży ustalenie, dlaczego nie został wpuszczony; o przyczynie odmowy kierowcę informuje aplikacja, przykłady: kierowca jest o złej godzinie (system VBS dopuszcza ramy czasowe obsługi według zadanych reguł), system nie ma zlecenia dla danego samochodu (brak awizacji), brak akceptacji regulaminu terminala.
+
+D US29: Weryfikacja numeru kontenera Terminal wyposażony jest w bramę lub system pre-gate która lub y potrafi rozpoznać numery kontenera. System porównuje zarejestrowane dane z danymi ze zlecenia w systemie - są to albo dane z zaplanowanego podstawienia albo dane z awizacji zewnętrznego kierowcy przez klienta. Wynik weryfikacji:
+
+Weryfikacja pozytywna - kierowca realizuje proces obsługi bramowej US30.
+
+Weryfikacja negatywna - kierowca nie może przejechać przez bramę, odmowa obsługi - to po stronie kierowcy leży ustalenie, dlaczego nie został wpuszczony; o przyczynie odmowy kierowcę informuje aplikacja, przykłady: numer kontenera nie jest zgodny ze zleceniem.
+
+D US30: Weryfikacja kierowcy na bramie terminalu Weryfikacja kierowcy potwierdzana będzie poprzez indywidualne konto kierowcy w aplikacji - Aplikacji dla Kierowcy lub aplikację dla przewoźników zewnętrznych (do rezerwacji slotów terminalowych). W momencie podjazdu na pre-gate w aplikacji kierowca będzie musiał oznaczyć status podjazdu.
+
+D US31: Zdawanie dokumentów przez kierowcę Wszystkie dokumenty papierowe jakie kierowca ma do zdania na terminalu będą przez niego fotografowane i dopinane do zlecenia w aplikacji, w ramach realizacji danego podstawienia. Oryginały dokumentów kierowca będzie wrzucał do wrzutni na pre-gacie terminala.
+
+D US32: Weryfikacja zewnętrznego stanu kontenera Kierowca przejeżdża na bramę OCR po pozytywnej weryfikacji z US28, US29 i US30. Brama OCR dokonuje oceny stanu technicznego kontenera. Wynik weryfikacji:
+
+Weryfikacja pozytywna - kontener nie posiada uszkodzeń, brama wyposażona w kamery dokonuje zdjęć kontenera, kierowca może wjechać na terminal, chyba że wymagane są dodatkowo oględziny wewnątrz kontenera (tylko dla pustych) - wtedy kierowca kierowany jest w pole oględzin kontenerów i system generuje zadanie dla Pracownika Terminala oględziny pustego kontenera na bramie,.
+
+Weryfikacja negatywna - kontener posiada uszkodzenie lub a w związku z tym brama OCR wyposażona w kamery dokonuje zdjęć uszkodzeń w celu dokumentacji w systemie, kierowca nie może wjechać na terminal - kierowany jest w pole oględzin kontenerów, system generuje zadanie dla Pracownika Terminala oględziny uszkodzonego kontenera na bramie.
+
+D US33: Ocena stanu kontenera na bramie Pracownik wezwany przez system do oceny stanu kontenera (każdego pustego, każdego uszkodzonego z zewnątrz) dokonuje wizualnej oceny kontenera. Wykorzystuje w tym celu urządzenie tabletowe, którym zdjęciowo dokumentuje oględziny. W przypadku stwierdzenia szkody opisuje uszkodzenia i odpowiednio oznacza w aplikacji.
+
+kontener bez uszkodzeń - kierowca może wjechać na terminala w celu obsługi zgodnej ze zleceniem,.
+
+kontener uszkodzony lub brudny - jeżeli umowa z klientem pozwala na przyjęcie kontenera i późniejsze ustalenie ścieżki postępowania kierowca wpuszczany jest na terminal, jeżeli takich ustaleń nie ma kierowca musi poczekać na decyzję o wpuszczeniu go na terminal - pozyskanie decyzji wymaga kontaktu Pracownik Terminala-Pracownik D-O-K-Klient.
+
+D US34: Zarządzanie ruchem kierowcy truckowego na placu terminala Kierowca informacje o tym, gdzie ma podjechać na terminalu dostaje poprzez aplikację, tam też dostępną ma ścieżkę dojazdu we wskazane miejsce. Dodatkowo na bramie zainstalowany będzie wyświetlacz podający informację wpuszczanemu kierowcy w jakie miejsce ma się kierować. Po załadunku lub obsłudze w aplikacji Kierowca otrzymuje automatyczny komunikat pozwalający na przemieszczenie się lub wyjazd z terminala.
+
+D US35: Oznaczanie statusu w ruchu na terminalu Kierowca w trakcie obsługi na terminalu w aplikacji oznacza statusy takie jak:
+
+dojazd w wyznaczone pole, odjazd po zrealizowanych czynnościach terminalowych, i inne do ustalenia w toku prac.
+
+D US36: Identyfikacja daty i godziny wyjazdu z terminala Automat pobiera informacje na temat wyjazdu Kierowcy z terminala po przejechaniu przez bramę wyjazdową. Automat przekazuje informacje do systemu.
+
+D US37: Automatyczne wysłanie specyfikacji do faktury do Przewoźnika Automat generuje dla każdego zakończonego zlecenia transportowego specyfikację do faktur dla Przewoźnika. Specyfikacja wysyłana jest automatycznie mailowo na adres mailowy danego przewoźnika. Możliwe jest wysyłanie specyfikacji do faktury per zlecenie lub cyklicznie. Specyfikacje dostępne są dla Przewoźnika w Aplikacji Kierowców.
+
+D US38: Wprowadzanie limitów odwozów Planista Delivery wprowadza do systemu informację o limitach dobowych dla odwozów portowych w danej lokalizacji. Informacja te jest niezbędna do automatycznego planowania odwozów portowych.
+
+D US39: Automatyczne wyznaczanie dat odwozów na terminale morskie Automat na podstawie danych w zleceniach oraz danych o limitach dobowych podwykonawców planuje odwozy na terminale morskie. Daty wywozu są ustalane w oparciu o zaszyte reguły na przykład minimalizowanie okresu składowania kontenera na terminalu morskim.
+
+Walidacja kompletności przesłanych danych i dokumentów. Przekazywanie danych do weryfikacji podatkowej i licencyjnej.
+
+SerwisWeryfikacjiPrzewoźnika: Odpowiada za weryfikację statusu podatkowego i licencji przewoźników.
+
+Sprawdzanie czy przewoźnik znajduje się na białej liście podatników VAT.
+
+Weryfikacja ważności i autentyczności złożonych dokumentów, takich jak licencje transportowe.
+
+Automatyczna akceptacja lub odrzucenie przewoźnika na podstawie wyników weryfikacji.
+
+Eskalacja do manualnej weryfikacji w przypadkach wymagających dodatkowego sprawdzenia.
+
+Zarzadzanie kierowcami I pojazdami Obejmuje rejestrację Kierowców przez Przewoźników (D US6, D US7, D US8), zarządzanie danymi pojazdów (D US9, D US10), oraz zarządzanie dostępnością Kierowców i pojazdów (D US11, D US12). W tym kontekście kluczowe jest zarządzanie danymi, weryfikacja uprawnień i dokumentów, a także planowanie dostępności zasobów.
+
+Kierowca: Reprezentuje kierowcę, zawiera dane osobowe, prawo jazdy, certyfikaty i zaświadczenia.
+
+Pojazd: Przedstawia pojazd, zawiera dane o rejestracji, certyfikatach dopuszczenia do transportu towarów niebezpiecznych.
+
+DostepnośćKierowcy: Informacje o dostępności kierowcy, w tym urlopy, zwolnienia lekarskie i inne nieobecności.
+
+SerwisRejestracjiKlientów: Zarządza procesem rejestracji kierowców, włączając w to weryfikację złożonych dokumentów.
+
+Walidacja dokumentów kierowców, takich jak prawa jazdy i certyfikaty kompetencji.
+
+Zatwierdzanie lub odrzucanie rejestracji kierowcy na podstawie wyników weryfikacji.
+
+SerwisRejestracjiPojazdów: Odpowiada za proces rejestracji pojazdów przewoźników w systemie.
+
+Zbieranie i weryfikacja danych pojazdów oraz niezbędnych dokumentów (na przykład dowód rejestracyjny).
+
+Sprawdzanie zgodności pojazdów z normami bezpieczeństwa i wymaganiami przewozu towarów niebezpiecznych.
+
+Dodawanie zatwierdzonych pojazdów do systemu i przypisywanie ich do przewoźników.
+
+SerwisDostępnościKierowców: Zarządza informacjami o dostępności kierowców, umożliwiając efektywne planowanie zadań transportowych.
+
+Aktualizacja statusów dostępności kierowców (urlopy, zwolnienia, inne nieobecności). Informowanie systemu planowania o zmianach w dostępności kierowców. Monitorowanie i zarządzanie zgłoszeniami o nadzwyczajnych niedyspozycjach kierowców.
+
+Planowanie zleceń Skupia się na planowaniu zleceń transportowych (D US15 do D US18), zarządzaniu niedyspozycjami Kierowców (D US12, D US13, D US14), automatycznym przekazywaniu zleceń (D US40), oraz korektach planowania (D US38, D US39, D US41). Ten kontekst wymaga zaawansowanych algorytmów planowania i optymalizacji, jak również elastyczności w reagowaniu na zmiany w dostępności zasobów i wymaganiach zleceń.
+
+ZlecenieTransportowe: Reprezentuje zlecenie transportowe, zawiera informacje. trasie, ładunku i terminach.
+
+PlanPodstawień: Plan podstawień i rozkład pracy kierowców, łączy zlecenia transportowe z dostępnymi kierowcami i pojazdami.
+
+SerwisPlanowania: Odpowiada za tworzenie optymalnych planów transportowych na podstawie dostępności zasobów i wymagań zleceń.
+
+Generowanie propozycji planowania z uwzględnieniem priorytetów i optymalizacji tras.
+
+Aktualizacja planów w przypadku zmian w dostępności lub wymaganiach zleceń.
+
+SerwisPrzydziałuZleceń: Zarządza przydzielaniem zleceń transportowych do kierowców i monitoruje realizację zadań.
+
+Komunikacja ze wszystkimi stronami w przypadku zmian w planach lub warunkach realizacji zlecenia.
+
+Monitorowanie statusu realizacji zleceń i reagowanie na potencjalne problemy.
+
+Operacje drogowe na terminalu Zajmuje się zarządzaniem operacjami na terminalu (D US19 do D US37), w tym rezerwacją slotów (D US23, D US24), weryfikacją stanu pojazdów i kontenerów (D US28, D US29, D US32, D US33), oraz zarządzaniem ruchem na terminalu (D US34, D US35, D US36). Wymaga to integracji z systemami terminali, zarządzaniem przepływem pracy oraz śledzeniem statusów w czasie rzeczywistym.
+
+SlotTerminalowy: Slot czasowy na terminalu dla pojazdów, używany do planowania obsługi.
+
+SerwisZarządzaniaSlotami: Zarządza slotami czasowymi na terminalach, umożliwiając efektywne planowanie i obsługę podstawień.
+
+Przydzielanie i zarządzanie slotami czasowymi dla operacji załadunku i rozładunku.
+
+Zapewnienie dostępności slotów dla planowanych podstawień i kierowców zewnętrznych.
+
+Monitorowanie wykorzystania slotów i dostosowywanie planowania w czasie rzeczywistym.
+
+SerwisWeryfikacjiKontenerów: Przeprowadza weryfikację stanu kontenerów, zarządzając procesem dokumentacji uszkodzeń.
+
+Automatyczna weryfikacja stanu technicznego kontenerów przy użyciu systemów OCR na bramach terminali.
+
+Generowanie zadań dla inspektorów w przypadku potrzeby manualnych oględzin kontenerów.
+
+Obsługa płatności i klienta Obejmuje komunikację z klientami dotyczącą statusu zleceń (D US25, D US27) oraz generowanie i wysyłanie specyfikacji do faktur dla Przewoźników (D US37). Wymaga to systemu komunikacji, który efektywnie informuje klientów o postępie zleceń oraz systemu fakturowania integrującego się z innymi procesami.
+
+Informacja odpowiadająca odpisowi aktualnemu z Rejestru Przedsiębiorców Krajowego Rejestru Sądowego (KRS) lub wydruk Informacji o Działalności Gospodarczej ze strony Centralnej Ewidencji i Informacji o Działalności Gospodarczej (CEIDG).
+
+Licencja lub zezwolenie na wykonanie krajowego lub międzynarodowego transportu drogowego rzeczy.
+
+Polisa OC Przewoźnika drogowego odpowiednio w ruchu krajowym lub międzynarodowym wraz z zasadniczą treścią umowy ubezpieczenia, w tym z treścią klauzul wyłączających odpowiedzialność oraz dowód opłaconej składki.
+
+Decyzję właściwego lekarza weterynarii o nadaniu weterynaryjnego numeru identyfikacyjnego i umieszczeniu Przewoźnika w rejestrze podmiotów nadzorowanych w zakresie działalności przewozu UPPZ (opcjonalnie).
+
+Zezwolenie na transport odpadów na terenie Polski lub innego kraju, w którym ma być realizowany przewóz.
+
+Przewoźnik przekazuje wymagane dan drogą mailową. Pracownik weryfikuje kompletność danych. Alternatywne przepływy: A3a. Niekompletne lub błędne dane:
+
+Pracownik Sekcji Transportu Drogowego kontaktuje się z Przewoźnikiem w celu uzupełnienia wymaganych dokumentów. Warunki końcowe:
+
+System musi zabezpieczać dane osobowe i biznesowe przewoźnika zgodnie z obowiązującymi przepisami o ochronie danych.
+
+System powinien logować wszelkie działania użytkowników dla celów audytu i monitoringu bezpieczeństwa. Częstotliwość występowania:
+
+W zależności od aktywności rynkowej, może występować wielokrotnie w ciągu dnia.
+
+D U-C 2: Przekazanie do weryfikacji Aktor główny: Pracownik Sekcji Transportu Drogowego Aktorzy wspierający: Nie dotyczy Warunki wstępne: Przewoźnik przekazał wszystkie wymagane dokumenty. Główny przepływ wydarzeń:
+
+Pracownik uzupełnia dane Przewoźnika w systemie na podstawie otrzymanej dokumentacji.
+
+Pracownik wprowadza dane Przewoźnika do systemu. Pracownik załącza skany dokumentów. Pracownik wysyła prośbę o weryfikację danych Przewoźnika.
+
+Następuje przekazanie danych Przewoźnika do dalszej weryfikacji. Wymagania specjalne:
+
+System musi zabezpieczać dane osobowe i biznesowe przewoźnika zgodnie z obowiązującymi przepisami o ochronie danych.
+
+System powinien logować wszelkie działania użytkowników dla celów audytu i monitoringu bezpieczeństwa. Częstotliwość występowania:
+
+W zależności od aktywności rynkowej, może występować wielokrotnie w ciągu dnia.
+
+D U-C 3: Automatyczna weryfikacja statusu podatkowego Przewoźnika Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne: Pracownik wysłał prośbę o weryfikację danych Przewoźnika. Główny przepływ wydarzeń:
+
+Automat sprawdza Przewoźnika, czy jest na białej liście podatników VAT.
+
+Automat wysyła wiadomość push do Pracownika Księgowości do ostatecznego zaakceptowania nowego Przewoźnika. Alternatywne przepływy:
+
+A3a.: Przewoźnik nie znajduje się na białej liście podatników VAT.
+
+Automat tworzy zadanie dla Pracownika Księgowości, aby dokonał manualnej weryfikacji Przewoźnika. Warunki końcowe:
+
+Wynik weryfikacji status podatkowego zostaje wysłany do Księgowości w celu ostatecznej akceptacji lub manualnej weryfikacji. Częstotliwość występowania:
+
+W zależności od aktywności rynkowej, może występować wielokrotnie w ciągu dnia.
+
+D U-C 4.1: Manualna akceptacja Przewoźnika Aktor główny: Pracownik Księgowości Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Otrzymana wiadomość push od Automatu P-C-C-I z prośbą o ostateczną akceptację Przewoźnika. Główny przepływ wydarzeń:
+
+Pracownik Księgowości otrzymuje automatyczną informację o pozytywnej automatycznej weryfikacji Przewoźnika.
+
+Status Przewoźnika jest zaktualizowany w systemie jako zatwierdzony. Specjalne wymagania:
+
+Interfejs użytkownika powinien być przejrzysty i umożliwiać łatwą akceptację Przewoźnika. Częstotliwość występowania:
+
+Akceptacja Przewoźnika może mieć miejsce wielokrotnie w ciągu dnia, według zapotrzebowania.
+
+D U-C 4.2: Manualna weryfikacja Przewoźnika Aktor główny: Pracownik Księgowości Aktorzy wspierający: Pracownika Sekcji Transportu Drogowego Warunki wstępne:
+
+Stworzone zadanie dla księgowości w celu manualnej weryfikacji Przewoźnika. Główny przepływ wydarzeń:
+
+Pracownik Księgowości analizuje dostarczone poprzez system dokumenty i manualnie sprawdza, czy Przewoźnik znajduje się na białej liście podatników VAT.
+
+Weryfikacja jest pozytywna i Pracownik Księgowości zatwierdza Przewoźnika w systemie. Alternatywne przepływy:
+
+A2a.: Weryfikacja manualna dokumentów jest negatywna i Pracownik Księgowości nie zatwierdza Przewoźnika w systemie.
+
+Automat wysyła systemowe powiadomienie do Pracownika Sekcji Transportu Drogowego z informacją negatywnej weryfikacji Przewoźnika.
+
+Pracownik Sekcji Transportu Drogowego otrzymuje informacje, że należy zweryfikować kompletność lub poprawność wprowadzonych danych przewoźnika. Warunki końcowe:
+
+Status podatkowy Przewoźnika jest zaktualizowany w systemie jako zatwierdzony lub oczekujący na uzupełnienie danych. Specjalne wymagania:
+
+Interfejs użytkownika powinien być przejrzysty i umożliwiać łatwą weryfikację Przewoźnika. Częstotliwość występowania:
+
+Weryfikacja Przewoźnika może mieć miejsce wielokrotnie w ciągu dnia, według zapotrzebowania.
+
+D U-C 5: Założenie konta Przewoźnika Aktor główny: Automat P-C-C-I Aktorzy wspierający: Przewoźnik Warunki wstępne: Status podatkowy Przewoźnika został zatwierdzony. Główny przepływ wydarzeń:
+
+Automat P-C-C-I tworzy konto dla Przewoźnika w systemie Enova.
+
+Automat P-C-C-I wysyła login i hasło tymczasowe do Przewoźnika.
+
+Przewoźnik otrzymuje login oraz hasło tymczasowe i ustala własne hasło przy pierwszym logowaniu. Alternatywne przepływy:
+
+Przewoźnik posiada aktywne konto w systemie i może rozpocząć korzystanie z aplikacji. Specjalne wymagania:
+
+System musi zabezpieczać dane osobowe i biznesowe zgodnie z obowiązującymi przepisami o ochronie danych. Częstotliwość występowania:
+
+Założenie konta Przewoźnika może mieć miejsce wielokrotnie w ciągu dnia, według zapotrzebowania.
+
+D U-C 6: Rejestracja nowego Kierowcy przez Przewoźnika Aktor główny: Przewoźnik Aktorzy wspierający: Pracownik Sekcji Transportu Drogowego Warunki wstępne: Przewoźnik posiada aktywne konto w Aplikacji Kierowców. Główny przepływ wydarzeń:
+
+Przewoźnik wprowadza dane osobowe Kierowcy i zaznacza jego uprawnienia.
+
+Przewoźnik dołącza w formie zdjęć niezbędne dokumenty takie jak:
+
+Certyfikat kompetencji zawodowych w krajowym lub międzynarodowym transporcie drogowym rzeczy,.
+
+Zaświadczenie z przeszkoleniu Kierowcy w zakresie przewozu towarów niebezpiecznych.
+
+A2a.: Jeśli dane są niekompletne lub błędne, system generuje powiadomienie dla Przewoźnika w celu ich uzupełnienia. Warunki końcowe:
+
+Nowy Kierowca został zarejestrowany w aplikacji i oczekuje na weryfikację przez Pracownika Sekcji Transportu Drogowego.
+
+System musi zabezpieczać dane osobowe i biznesowe zgodnie z obowiązującymi przepisami o ochronie danych.
+
+System powinien logować wszelkie działania użytkowników dla celów audytu i monitoringu bezpieczeństwa. Częstotliwość występowania:
+
+Rejestracja Przewoźnika może mieć miejsce wielokrotnie w ciągu dnia, według zapotrzebowania.
+
+D U-C 7: Weryfikacja nowego Kierowcy Aktor główny: Pracownik Sekcji Transportu Drogowego Aktorzy wspierający: Nie dotyczy Warunki wstępne: Przewoźnik zarejestrował nowego Kierowcę w systemie. Główny przepływ wydarzeń:
+
+Pracownik Sekcji Transportu Drogowego otrzymuje powiadomienie push o rejestracji nowego Kierowcy.
+
+Dane w systemie są kompletne i Pracownik zatwierdza Kierowcę w systemie. Alternatywne przepływy:
+
+A3a.: Jeżeli dane w systemie są nieprawidłowe, Pracownik kontaktuje się z Przewoźnikiem w celu uzupełnienia informacji. Warunki końcowe:
+
+Kierowca jest zatwierdzony w systemie lub wymaga dalszych działań weryfikacyjnych. Specjalne wymagania:
+
+System musi zabezpieczać dane osobowe i biznesowe zgodnie z obowiązującymi przepisami o ochronie danych. Częstotliwość występowania:
+
+Weryfikacja Kierowcy może mieć miejsce wielokrotnie w ciągu dnia, według zapotrzebowania.
+
+D U-C 8: Weryfikacja Uprawnień ADR Kierowcy Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Informacja o uprawnieniach ADR weryfikowana jest także w ramach procesu planowania podstawień. Główny przepływ wydarzeń:
+
+Automat P-C-C-I weryfikuje czy kierowca posiada uprawnienia do przewozu ładunków niebezpiecznych.
+
+Automat P-C-C-I sprawdza dane Kierowcy w centralnym rejestrze uprawnień ADR.
+
+Kierowca posiada zweryfikowane uprawnienia ADR w systemie lub zostaje oznaczony jako brakujący odpowiednich uprawnień. Specjalne wymagania:
+
+System musi zapewniać zgodność z przepisami o ochronie danych osobowych i poufności danych.
+
+Weryfikacja powinna być zautomatyzowana w jak największym stopniu, aby zminimalizować czas potrzebny na weryfikację. Częstotliwość występowania:
+
+Weryfikacja uprawnień ADR Kierowcy może mieć miejsce wielokrotnie w ciągu dnia, według zapotrzebowania.
+
+D U-C 9: Rejestracja Pojazdu przez Przewoźnika Aktor główny: Przewoźnik Aktorzy wspierający: Nie dotyczy Warunki wstępne: Przewoźnik posiada konto w Aplikacji Kierowców. Główny przepływ wydarzeń:
+
+Przewoźnik załącza niezbędne dokumenty w formie zdjęć, takie jak:
+
+Dowód rejestracyjny ciągnika i lub lub naczepy, Świadectwo dopuszczenia pojazdu do przewozu niektórych towarów niebezpiecznych.
+
+Przewoźnik wysyła formularz do dalszej weryfikacji przez Pracownika Sekcji Transportu Drogowego. Warunki końcowe:
+
+Pojazd został zarejestrowany w systemie i przekazany do dalszej weryfikacji. Specjalne wymagania:
+
+System musi zapewniać intuicyjny interfejs umożliwiający Przewoźnikowi samodzielną rejestrację pojazdu. Częstotliwość występowania:
+
+Rejestracja nowego pojazdu może mieć miejsce wielokrotnie w ciągu dnia, według zapotrzebowania.
+
+D U-C 10: Weryfikacja nowego pojazdu Przewoźnika Aktor główny: Pracownik Sekcji Transportu Drogowego Aktorzy wspierający: Nie dotyczy Warunki wstępne: Pojazd został zarejestrowany w systemie i przekazany do dalszej weryfikacji. Główny przepływ wydarzeń:
+
+Pracownik Sekcji Transportu Drogowego otrzymuje powiadomienie push o dodaniu nowego pojazdu przez Przewoźnika.
+
+Dane Pojazdu są kompletne i Pracownik zatwierdza pojazd w systemie. Alternatywne przepływy:
+
+A3a.: Jeśli dokumenty są niezgodne lub niewystarczające, Pracownik Sekcji Transportu Drogowego odrzuca pojazd i informuje Przewoźnika o potrzebie uzupełnienia dokumentacji. Warunki końcowe:
+
+Pojazd jest zatwierdzony w systemie lub wymaga dodatkowych działań weryfikacyjnych. Specjalne wymagania:
+
+System musi zabezpieczać dane osobowe i biznesowe zgodnie z obowiązującymi przepisami o ochronie danych. Częstotliwość występowania:
+
+Weryfikacja dany pojazdu może mieć miejsce wielokrotnie w ciągu dnia, według zapotrzebowania.
+
+D U-C 11: Uzupełnienie informacji o dostępności kierowców Aktor główny: Przewoźnik Aktorzy wspierający: Nie dotyczy Warunki wstępne: Przewoźnik ma dostęp do Aplikacji Kierowców i widzi listę swoich kierowców. Główny przepływ wydarzeń:
+
+Przewoźnik przechodzi do zakładki dostępności kierowców, w której widzi wszystkich swoich kierowców.
+
+Przewoźnik aktualizuje nieobecności swoich kierowców uwzględniając urlopy, zwolnienia lekarskie lub inne niedyspozycje kierowców.
+
+Przewoźnik ma obowiązek zgłaszać zmniejszenie zasobów floty z co najmniej 48h wyprzedzeniem.
+
+Wszelkie nieplanowane nieobecności z wyprzedzeniem krótszym niż 48h Przewoźnik wprowadza w ten sam sposób i oznacza jako nadzwyczajne. Warunki końcowe:
+
+Informacje o dostępności kierowców są zaktualizowane w systemie. Specjalne wymagania:
+
+System musi zapewniać intuicyjny interfejs umożliwiający Przewoźnikowi samodzielną uzupełnianie dostępności kierowców.
+
+Uzupełnianie danych o dostępności kierowców może mieć miejsce wielokrotnie w ciągu dnia, według zapotrzebowania.
+
+D U-C 12: Poinformowanie o niedyspozycyjności kierowcy z wyprzedzeniem mniejszym niż 48h Aktor główny: Automat P-C-C-I Aktorzy wspierający: Planista Drogowy Warunki wstępne: Przewoźnik zgłasza zmianę w dostępności kierowcy z wyprzedzeniem mniejszym niż 48h.
+
+Automat P-C-C-I wysyła komunikat do Planisty Drogowego o zgłoszeniu braku dostępności z wyprzedzeniem mniejszym niż 48h.
+
+Automat P-C-C-I tworzy zadanie do Planisty Drogowego w celu weryfikacji wpływu nieobecności kierowcy na plan podstawień. Warunki końcowe:
+
+Planista Drogowy jest poinformowany o zmianie dostępności kierowcy i może podjąć odpowiednie działania. Specjalne wymagania:
+
+System umożliwiać szybkie i skuteczne przekazywanie informacji o niedyspozycyjności kierowcy. Częstotliwość występowania:
+
+Wprowadzanie danych o niedyspozycyjności kierowców to czynność sporadyczna, zależna od bieżącej sytuacji danego Przewoźnika.
+
+D U-C 13: Uzupełnienie informacji o dostępności kierowców floty centralnej Aktor główny: Planista Drogowy Aktorzy wspierający: Nie dotyczy Warunki wstępne: Planista Drogowy ma dostęp do systemu i aktualnych danych kierowców. Główny przepływ wydarzeń:
+
+Planista na potrzeby planowania określa z 2 dniowym wyprzedzeniem przypisanie kierowców centralnych do poszczególnych regionów obsługi.
+
+Planista może pozostawia część kierowców centralnych bez przypisania do regionów. Tacy kierowcy nie są uwzględniani w planowaniu automatycznym. Warunki końcowe:
+
+Informacje o dostępności kierowców floty centralnej są zaktualizowane i gotowe do wykorzystania w planowaniu. Specjalne wymagania:
+
+Interfejs systemu musi być intuicyjny i łatwy w obsłudze, aby planiści mogli szybko i sprawnie uzupełniać informacje o dostępności kierowców. Częstotliwość występowania:
+
+Uzupełnianie danych o dostępności kierowców floty centralnej może mieć miejsce wielokrotnie w ciągu dnia, według zapotrzebowania.
+
+D U-C 14: Uzupełnienie informacji o godzinach pracy kierowców Aktor główny: Kierowca Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Kierowcy mają dostęp do Aplikacji dla Kierowców. Ścieżka główna:
+
+Kierowcy wprowadzają informacje o godzinach pracy, w szczególności o realizowanych pauzach.
+
+System posiada aktualne dane dotyczące godzin pracy kierowców. Specjalne wymagania:
+
+Interfejs Aplikacji dla Kierowców musi być intuicyjny i łatwy w obsłudze, aby Kierowcy mogli szybko i sprawnie uzupełniać informacje o godzinach pracy. Częstotliwość występowania:
+
+Uzupełnianie informacji o godzinach pracy kierowców może mieć miejsce wielokrotnie w ciągu dnia, według zapotrzebowania.
+
+D U-C 15: Estymowanie czasu obsługi zlecenia Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Zlecenie musi zawierać informacje o dystansie i być zarejestrowane w systemie. Ścieżka główna:
+
+znanego dystansu w km, który jest podany w zleceniu,.
+
+Szacowany czas obsługi jest uwzględniany w procesie planowania, w tym przy planowaniu możliwości realizacji tzw. drugiego kółka, to jest drugiego zlecenia transportowego danego dnia. Warunki końcowe:
+
+Planowanie transportu uwzględnia estymowany czas obsługi zlecenia. Specjalne wymagania:
+
+Wymagana jest wysoka dokładność danych, aby uniknąć błędów i opóźnień w realizacji zleceń. Częstotliwość występowania:
+
+Estymacja czasu obsługi zlecenia realizowana jest dla każdego nowego zlecenia, które posiada element związany z realizacją transportu drogowego.
+
+D U-C 16: Planowanie podstawień - przypisywanie zleceń transportowych do konkretnych kierowców Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne: Dane o dostępności kierowców i szczegóły zleceń są dostępne w systemie. Ścieżka główna:
+
+Automat P-C-C-I pobiera dane o dostępności kierowców i szczegóły zleceń transportowych.
+
+Automat przypisuje zlecenia do kierowców uwzględniając: godziny pracy kierowców (w tym pauzy),.
+
+charakterystykę zleceń (w celu określenia możliwości realizacji więcej niż jednego przejazdu dziennie).
+
+Automat P-C-C-I planuje godziny podstawień na terminalu dla poszczególnych Kierowców wykorzystując sloty systemu VBS.
+
+Automat dba o równomierną dystrybucję długości tras pomiędzy kierowcami.
+
+Automat P-C-C-I wysyła na aplikację Kierowcy informacje o zleceniu.
+
+Automat P-C-C-I zgłasza do Planisty Drogowego nieprzypisane automatycznie zlecenia. Warunki końcowe:
+
+Wysłana informacja o zleceniu do Kierowcy, wysłana awizacja danego Kierowcy do Klienta oraz zgłoszenie do Planisty Drogowego nieprzypisane zlecenia. Specjalne wymagania:
+
+Wymagana jest wysoka dokładność danych, aby uniknąć błędów i opóźnień w realizacji zleceń. Częstotliwość występowania:
+
+Planowanie podstawień to proces powtarzający się w cyklach dniowych, zlecenia planowane są z 2-dniuowym wyprzedzeniem.
+
+D U-C 17: Weryfikacja nieprzypisanych podstawień, informowanie D-O-K Aktor główny: Planista Drogowy Aktorzy wspierający: Dział Obsługi Klienta (D-O-K) Warunki wstępne:
+
+Automat P-C-C-I wygenerował listę nieprzypisanych zleceń i stworzył zadanie weryfikacji dla Planisty Drogowego. Ścieżka główna:
+
+Automat P-C-C-I przekazuje listę nieprzypisanych zleceń do Planisty Drogowego i tworzy zadanie w celu weryfikacji sytuacji.
+
+Planista ma możliwość wskazania zasobów jakimi nie dysponował Automat i dokonuje ręcznego zaplanowania podstawienia. Alternatywne przepływy:
+
+W przypadku braku możliwości obsługi podstawienia, Planista poprzez system przekazuje informacje o sytuacji do D-O-K.
+
+D-O-K komunikuje z klientem w celu znalezienia rozwiązania. Warunki końcowe:
+
+Wszystkie zlecenia są przypisane do kierowców lub odnotowane jako niemożliwe do realizacji. Specjalne wymagania:
+
+Interfejs systemu musi być intuicyjny i łatwy w obsłudze, aby Planiści mogli szybko i sprawnie dokonywać ręcznego planowania podstawienia.
+
+Weryfikacja nieprzypisanych zleceń to proces powtarzający się w cyklach dniowych, pod warunkiem wystąpienia zleceń nieprzypisanych w procesie planowania automatycznego.
+
+D U-C 18: Przeplanowanie podstawienia Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Zmiany stanu w zasobach (floty) lub zmiany w możliwości obsługi podstawień zostały wykryte przez system. Ścieżka główna:
+
+Automat P-C-C-I analizuje zmiany i ich wpływ na aktualny plan podstawień.
+
+Automat P-C-C-I podejmuje próbę przeplanowania pozostałych zleceń na dany dzień w sposób pozwalających na ich obsługę.
+
+Automat skutecznie przeplanował podstawienia i możliwe jest ich zrealizowanie.
+
+Automat P-C-C-I wysyła ponownie aktualną awizację Kierowców do Klientów. Alternatywne przepływy:
+
+Automat P-C-C-I nie przypisał części podstawień wykorzystując szereg reguł na przykład hierarchię obsługi klientów.
+
+Automat informuje Planistę Drogowego w celu weryfikacji nieprzypisanych automatycznie podstawień. Warunki końcowe:
+
+Wysłana aktualna awizacja Kierowców do Klientów lub przeplanowanie skierowane do manualnej weryfikacji. Specjalne wymagania:
+
+Wymagana jest wysoka dokładność danych, aby uniknąć błędów i opóźnień w realizacji zleceń. Częstotliwość występowania:
+
+Przeplanowywanie jest procesem ad hocowym realizowanym jedynie w sytuacji, w której automatyczne planowanie nie jest w stanie przypisać zlecenia transportowego do kierowcy.
+
+D U-C 19 Weryfikacja dostępności kontenera Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Zgodnie z przyjętą regułą Automat P-C-C-I dokonuje weryfikacji czy kontener, dla którego zaplanowane jest podstawienie znajduje się fizycznie na terminalu.:
+
+Kontener może znajdować się fizycznie na terminalu b. Kontener może znajdować się w innym miejscu w sieci P-C-C-I z zaplanowanym dostarczeniem na terminal przed datą i godziną realizacji podstawienia.
+
+Jeśli kontener jest dostępny, podstawienie jest kontynuowane. Alternatywne przepływy:
+
+A2a.: Jeżeli kontener nie jest dostępny, system zgłasza to do Planisty Drogowego w celu weryfikacji manualnej. Warunki końcowe:
+
+Status dostępności kontenera jest zaktualizowany, co umożliwia kontynuację lub modyfikację planu podstawień. Specjalne wymagania:
+
+Wymagana jest wysoka dokładność danych, aby uniknąć błędów i opóźnień w realizacji zleceń. Częstotliwość występowania:
+
+Dostępność kontenera weryfikowana jest w godzinie granicznej dla jego pojawienia się na terminalu, poprzedzając podjęcie go przez transport drogowy lub kolejowy.
+
+D U-C 20: Weryfikacja dostępności kontenera - manualna Aktor główny: Planista Drogowy Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Automat P-C-C-I zgłosił brak obecności kontenera na terminalu. Ścieżka główna:
+
+Planista Drogowy otrzymuje informację o braku obecności kontenera w danej lokalizacji.
+
+Planista weryfikuje lokalizację kontenera w systemie przypisanego do podstawienia i zgłoszonego przez Automat P-C-C-I jako nieobecny przed załadunkiem.
+
+Jeśli kontener dotrze na czas (na przykład w sytuacji trwającego wjazdu pociągu na terminal), planista aktualizuje zlecenie jako gotowe do realizacji. Alternatywne przepływy:
+
+A3a.: w przypadku braku obecności kontenera i nieobecności przed załadunkiem, Planista oznacza kontener jako niedostępny. Warunki końcowe:
+
+Kontener jest zlokalizowany i zlecenie podstawienia jest kontynuowane lub kontener jest oznaczony jako niedostępny. Specjalne wymagania:
+
+Interfejs systemu musi być intuicyjny i łatwy w obsłudze, aby Planiści mogli szybko i sprawnie dokonywać manualnej weryfikacji dostępności kontenera. Częstotliwość występowania:
+
+Dostępność kontenera manualnie weryfikowana jest jedynie w sytuacji zgłoszenia przez automat braku kontenera zaplanowanego do obsługi. Jest to proces ad hoc.
+
+D U-C 21: Zarządzanie slotami obsługi terminalowej trucków Aktor główny: Dedykowany Pracownik P-C-C-I.
+
+Narzędzie VBS jest dostępne i zintegrowane z systemem planowania.
+
+Narzędzie VBS musi dawać możliwość zarządzania slotami godzinowymi obsługi. Ścieżka główna:
+
+Pracownik ustala i wprowadza do systemu jaki % wydajności terminala w każdym slocie ma być dedykowany do obsługi kierowców planowanych przez P-C-C-I, a jaki dla kierowców zewnętrznych:
+
+Dla każdej godziny działania terminala określona jest maksymalna przepustowość obsługi trucków, tzw. limit truckowy.
+
+Dla każdej godziny działania terminala określona jest liczba trucków zewnętrznych (third party) jaka może być obsługiwana w ramach całkowitego limitu truckowego.
+
+Pracownik w procesie ustalania limitów % bierze pod uwagę rekomendacje systemowe oraz aktualny strumień zleceń w systemie.
+
+Sloty obsługi są efektywnie zarządzane, maksymalizując wykorzystanie zasobów terminala. Specjalne wymagania:
+
+Poziom limitu truckowego nie musi być stały w całej dobie i może być różny na różnych terminalach. Częstotliwość występowania:
+
+Dostępność kontenera manualnie weryfikowana jest jedynie w sytuacji zgłoszenia przez automat braku kontenera zaplanowanego do obsługi. Jest to proces ad hoc.
+
+D U-C 22: Automatyczne generowanie optymalnych reguł dla systemu VBS Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+System P-C-C-I jest zintegrowany z systemem VBS. Główny przepływ wydarzeń:
+
+System P-C-C-I automatycznie podpowiada nowe reguły dzielenia slotów obsługi trucków pomiędzy własnych i obcych, na bazie między innymi:
+
+System na bazie potoku zleceń klientów szacuje jaka liczba slotów jest niezbędna do zablokowania do obsługi floty własnej, to jest planowanej przez P-C-C-I. Warunki końcowe:
+
+System P-C-C-I generuje optymalne reguły dzielenia slotów obsługi trucków.
+
+Dedykowany pracownik z uprawnieniami do zarzadzania limitami VBS optymalizuje proces rezerwacji slotów w oparciu o rekomendacje systemowe.
+
+System nie powinien dopuścić do ustalania limitów, które uniemożliwią obsługę zleceń drogowych planowanych przez P-C-C-I.
+
+System P-C-C-I powinien umożliwiać konfigurację priorytetów oraz wag dla różnych czynników wpływających na generowanie reguł dzielenia slotów obsługi trucków.
+
+Interfejs użytkownika systemu P-C-C-I powinien być intuicyjny i umożliwiać szybką akceptację, odrzucenie lub modyfikację proponowanych reguł. Częstotliwość występowania:
+
+System P-C-C-I automatycznie generuje optymalne reguły dzielenia slotów obsługi trucków na bieżąco, w zależności od zmieniających się warunków, takich jak strumień zleceń transportowych, dostępność kierowców i tym podobne.
+
+D U-C 23: Automatyczna rezerwacja slotów w VBS Aktor główny: Automat P-C-C-I Aktorzy wspierający: Planista Transportu, Kierowcy wewnętrzni, Kierowcy zewnętrzni, System VBS Warunki wstępne:
+
+Ustalony podział wydajności terminala do obsługi kierowców własnych i obcych. Główny przepływ wydarzeń:
+
+System automatycznie analizuje dostępność slotów w systemie VBS na podstawie bieżących rezerwacji oraz ustalonych reguł.
+
+Automatyczne planowanie podstawień będzie dokonywało przypisania poszczególnych zleceń podstawień do określonych slotów w systemie VBS (UC16).
+
+Jeśli istnieją niezagospodarowane sloty, system udostępnia je kierowcom zewnętrznym poprzez Aplikację dla Kierowców. Alternatywne przepływy:
+
+W pierwszej kolejności system sprawdza czy sloty dedykowane dla zewnętrznych kierowców zostały zarezerwowane, jeżeli nie system zwiększa limit dla trucków własnych do poziomu, który umożliwia przypisanie slotów do wszystkich własnych zleceń transportowych.
+
+Jeżeli system nie ma możliwości automatycznego przypisania zlecenia do slotów dedykowanych dla floty planowanej przez P-C-C-I generuje powiadomienie do Planisty Drogowego oraz Pracownika z uprawnieniami do zarządzania slotami VBS. Warunki końcowe:
+
+Sloty zostały automatycznie zarezerwowane dla zleceń podstawienia. Kierowcy wewnętrzni i zewnętrzni otrzymali potwierdzenia rezerwacji slotów.
+
+Planista Transportu może monitorować aktualny status rezerwacji slotów w systemie VBS. Specjalne wymagania:
+
+System VBS musi być zoptymalizowany pod kątem szybkiego przetwarzania i rezerwacji slotów, aby uniknąć opóźnień w obsłudze zleceń.
+
+Interfejs aplikacji mobilnej dla kierowców zewnętrznych powinien być intuicyjny i łatwy w obsłudze, umożliwiając szybką rezerwację slotów.
+
+Automatyczna rezerwacja slotów w VBS odbywa się za każdym razem, gdy pojawi się nowe zlecenie podstawienia wymagające dostępu do terminalu.
+
+D U-C 24: Manualna rezerwacja slotów w VBS Aktor główny: Kierowca zewnętrzny Aktorzy wspierający: Kierowca zewnętrzny, System VBS, Aplikacja mobilna dla kierowców Warunki wstępne:
+
+Kierowcy zewnętrzni mają dostęp do aplikacji mobilnej, która umożliwia rezerwację slotów w systemie VBS. Główny przepływ wydarzeń:
+
+Kierowca zewnętrzny otwiera aplikację mobilną i loguje się na swoje konto.
+
+W aplikacji mobilnej, kierowca wybiera opcję rezerwacji slotu w systemie VBS.
+
+Kierowca wprowadza niezbędne dane, takie jak numer zlecenia, dane pojazdu oraz dane kierowcy.
+
+Jeśli istnieje dostępny slot zgodny z preferencjami kierowcy, system wymusza akceptację regulaminu określonego terminala P-C-C-I.
+
+Kierowca otrzymuje potwierdzenie rezerwacji w aplikacji mobilnej oraz ewentualne dodatkowe instrukcje dotyczące obsługi na terminalu. Alternatywne przepływy:
+
+Jeśli nie ma dostępnych slotów zgodnych z preferencjami kierowcy, system informuje o tym kierowcę i proponuje inne dostępne opcje. Warunki końcowe:
+
+Kierowca zewnętrzny dokonał manualnej rezerwacji slotu w systemie VBS.
+
+System VBS potwierdził rezerwację i przypisał slot do konkretnego zlecenia podstawienia. Specjalne wymagania:
+
+Interfejs aplikacji mobilnej musi być intuicyjny i łatwy w obsłudze, aby kierowcy zewnętrzni mogli szybko i sprawnie dokonywać rezerwacji slotów.
+
+System VBS musi być zoptymalizowany pod kątem szybkiego przetwarzania i potwierdzania rezerwacji slotów. Częstotliwość występowania:
+
+Manualna rezerwacja slotów w VBS odbywa się za każdym razem, gdy kierowca zewnętrzny potrzebuje dostępu do terminalu i musi zarezerwować slot dla swojego zlecenia podstawienia.
+
+D U-C 25: Realizacja podstawienia - Automatyczne wskazywanie kolejnych zadań w ramach zlecenia transportowego Aktor główny: Automat P-C-C-I Aktorzy wspierający: Kierowca.
+
+System P-C-C-I jest skonfigurowany do śledzenia zleceń transportowych oraz przypisywania kolejnych zadań w ramach podstawienia.
+
+Zlecenie transportowe zostało przypisane do konkretnego kierowcy i jest dostępne w systemie P-C-C-I. Główny przepływ wydarzeń:
+
+System P-C-C-I automatycznie podpowiada Kierowcy kolejne zadanie w ramach podstawienia.
+
+Kierowca otrzymuje powiadomienie w aplikacji mobilnej zawierające następujące informacje:
+
+godzinę obsługi na terminalu. realizację usługi dodatkowej przed podstawieniem. miejsce i planowany czas podstawienia. realizację usługi dodatkowej po podstawieniu. pole docelowe na terminalu.
+
+Kierowca akceptuje nowe zadanie i rozpoczyna jego realizację. Warunki końcowe:
+
+Kierowca otrzymał automatycznie wskazane kolejne zadanie w ramach zlecenia transportowego.
+
+Kierowca rozpoczął realizację nowego zadania zgodnie z instrukcjami zawartymi w powiadomieniu. Specjalne wymagania:
+
+System P-C-C-I musi być zoptymalizowany pod kątem szybkiego wyznaczania kolejnych zadań dla kierowców, uwzględniając różne czynniki, takie jak priorytety, harmonogramy oraz dostępność zasobów na terminalu.
+
+Powiadomienia dla kierowcy powinny być klarowne i zawierać wszystkie niezbędne informacje dotyczące nowego zadania. Częstotliwość występowania:
+
+Automatyczne wskazywanie kolejnych zadań w ramach zlecenia transportowego występuje za każdym razem, gdy system P-C-C-I zidentyfikuje nowe dostępne zadania dla danego kierowcy, zgodnie z harmonogramem i priorytetami.

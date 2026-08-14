@@ -1,0 +1,23 @@
+Dokumentacja słowników aplikacji.
+
+Logistyka 4.0 Dokumentacja systemu Dokumentacja Słowników Aplikacji. Historia zmian i zatwierdzenia.
+
+Lista i opis wykorzystanych i utworzonych głównych obiektów programistycznych oraz interfejsów A-P-I.2.
+
+Kontrahent ma pełny dostęp do systemu. Może korzystać ze wszystkich funkcjonalności.
+
+Kontrahent ma zablokowany dostęp do systemu. Nie może logować się ani korzystać z funkcjonalności.
+
+Kontrahent przeszedł proces weryfikacji. Ma dostęp do podstawowych funkcjonalności.
+
+Kontrahent jest w trakcie procesu weryfikacji. Ma ograniczony dostęp do systemu. Konto zostało utworzone i aktywowane.
+
+Oferta została wysłana do klienta. Oczekuje na decyzję klienta.
+
+Oferta została zaakceptowana przez klienta. Można przejść do realizacji zlecenia.
+
+Oferta jest w trakcie przygotowania. Nie została jeszcze wysłana do klienta. Statusy zapytania ofertowego:
+
+Świeżo utworzone zapytanie ofertowe. Oczekuje na rozpoczęcie przetwarzania przez handlowca.
+
+Zapytanie jest aktualnie obsługiwane przez handlowca. Trwa przygotowywanie oferty. Zamknięte - oferta. Zapytanie zostało przetworzone i utworzono ofertę. Proces zapytania zakończony sukcesem. Zamknięte - odrzucone. Zapytanie zostało odrzucone.

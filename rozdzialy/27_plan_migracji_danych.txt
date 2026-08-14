@@ -1,0 +1,35 @@
+Plan migracji danych.
+
+Komunikacja przebiega po HTTPS lub TLS 1.3 (kiedy to jest możliwe) z wybranym uwierzytelnianiem, a logi są pseudonimizowane, aby spełnić wymagania GDPR.
+
+Typ II - dane przenoszone jednorazowo z KROL-a do Logistyki 4.0, a następnie pozostawiane wyłącznie w nowym systemie.
+
+Ta kategoria obejmuje informacje konfiguracyjne: cenniki, struktury terminali, sieć połączeń. Przeniesienie zaczynamy od spójnego snapshotu baz KROL-a w oknie serwisowym. Po transformacji - łączeniu tabel, oczyszczaniu pól opcjonalnych, konwersji CP-1250 → UTF-8 (tam gdzie wymagane) - rekordy importujemy do Logistyki 4.0 w trybie append-only. Każdy wiersz opatrujemy sumą kontrolną SHA-256 co kwaratnuje brak wielokrotnego importu tych samych danych. Po zakończeniu porównujemy liczność i hashe źródło-cel przy użyciu zapytania EXCEPT.
+
+W przypadku zmian konfiguracyjnych po migracji zakładamy, że przez pewien czas trzeba będzie je wprowadzać w dwóch systemach.
+
+Typ III - dane natywne Logistyki 4.0, które muszą być częściowo odzwierciedlane w KROL-u.
+
+Obiekty takie jak oferty czy zlecenia powstają w Logistyce 4.0, lecz uproszczone ich wersje są potrzebne KROL-owi do obsługi procesów które nie zostały jeszcze zmigrowane. Schemat działania:
+
+Tworzenie - użytkownik lub zewnętrzne A-P-I zakłada obiekt w Logistyce 4.0.
+
+Publikacja zdarzenia - generowany jest komunikat na przykład export.offers z correlation-ID.
+
+Integracja z KROL-em - podobnie jak dla typu I, w ustalonych odstępach adapter integracyjny działający na serwerze lub stacji roboczej po stronie KROL pobiera paczki zmian od ostatniego punktu kontrolnego i wykonuje idempotentne UPSERT-y w bazie KROL'a. Klucz techniczny sync uuid gwarantuje powtarzalność operacji.
+
+Dwukierunkowa aktualizacja - wybrane atrybuty (na przykład status zlecenia) mogą być edytowane w KROL-u. Trigger AFTER UPDATE na replice lub alternatywna technologia zapisuje zmiany do ChangeLog. Co kilka minut proces integracyjny po stronie Logistyka 4.0 pobiera dane z ChangeLog'a i modyfikuje odpowiednie obiekty używając A-P-I. Taki model zapewnia eventual consistency. Nieudane aktualizacje trafiają do kolejki RetryQueue.
+
+Klasyfikacja obiektów danych - każdy wybrany obiekt przypisywany jest do jednej z trzech kategorii migracyjnych, w zależności od jego docelowego statusu w architekturze systemowej:
+
+Typ I - dane dualne - dane, dla których system Logistyka 4.0 pełni funkcję mastera, natomiast system Kroll utrzymuje ich kopię w ograniczonym zakresie, wyłącznie w celach pomocniczych lub historycznych.
+
+Typ II - dane migrowane jednorazowo - dane przenoszone w całości z systemu Kroll do Logistyki 4.0. Po zakończeniu migracji dane te są utrzymywane wyłącznie w nowym systemie.
+
+Typ III - dane natywne Logistyki 4.0 - dane pierwotnie tworzone lub zarządzane w systemie Logistyka 4.0, które ze względów operacyjnych muszą być częściowo odzwierciedlane w systemie Kroll.
+
+Opracowanie tabelki migracyjnej - dla każdego obiektu tworzy się tabelkę zgodną z ustalonym schematem poniżej, która zawiera kluczowe informacje niezbędne do migracji. Wypełnienie tabelki odbywa się we współpracy ekspertów dziedzinowych obu systemów - Kroll i Logistyka 4.0. W ramach opracowania tabelki, dla danych typu III każdorazowo zostanie wybrany optymalny (najmniej obciążający aktualny system KROL) mechanizm uzupelniania tabeli ChangeLog. Wybrany mechanizm powinien zapewniac funkcjonalność kolejkowania zmian.
+
+Uzgodnienie danych migracyjnych - po przygotowaniu tabelki, dokument jest wspólnie weryfikowany i zatwierdzany przez ekspertów odpowiedzialnych za dane i integrację. Na tym etapie rozstrzygane są ewentualne rozbieżności oraz podejmowane decyzje dotyczące sposobu migracji.
+
+Wykorzystanie tabelki do dalszego procesowania - zatwierdzona tabelka stanowi podstawę do realizacji technicznego procesu migracji - przygotowania ekstraktów danych, transformacji, załadunku do systemu Logistyka 4.0 oraz ewentualnych synchronizacji z systemem Kroll. Dodatkowo dokumentacja ta wspiera testowanie, walidację danych i działania utrzymaniowe po migracji.

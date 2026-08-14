@@ -13,6 +13,7 @@
 namespace fiMod
 {
     constexpr float pitchRangeSemis = 24.0f;   // ModPitch: ±24 półtony przy a = ±1
+    constexpr float bendRangeSemis  = 2.0f;    // MIDI pitch bend: ±2 półtony (standard GM)
     constexpr float tiltModDepth    = 1.5f;    // ModTilt: ±1.5 wykładnika przy a = ±1
 
     inline float cutoffFactor (float a) noexcept { return std::exp2 (a * 4.0f); }         // ±4 oktawy

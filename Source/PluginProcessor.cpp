@@ -823,6 +823,12 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     previousGain = gain;
 
     pushAnalyzerSamples (buffer);
+
+    // W buforze bywają nasze własne eventy (arp, klawiatura ekranowa), a plugin
+    // nie deklaruje wyjścia MIDI — wrapper VST3 i tak je wyrzuca, ale w buildzie
+    // Debug pilnuje tego asercją (jassert "więcej eventów niż weszło"), która
+    // pod hostem zatrzymuje proces, gdy tylko arp doda pierwszą nutę.
+    midiMessages.clear();
 }
 
 void FiSynthAudioProcessor::applyFibGate (juce::AudioBuffer<float>& buffer,
@@ -903,16 +909,20 @@ void FiSynthAudioProcessor::processArp (juce::MidiBuffer& midi, int numSamples,
     arpFiltered.clear();
     for (const auto meta : midi)
     {
-        const auto msg = meta.getMessage();
-        if (msg.isNoteOn())
-            arpHeld[msg.getNoteNumber()] = true;
-        else if (msg.isNoteOff())
-            arpHeld[msg.getNoteNumber()] = false;
+        // Surowe bajty zamiast meta.getMessage() — SysEx (>8 bajtów) robiłby
+        // malloc na wątku audio (ten sam powód co w pętli CC w processBlock).
+        const auto* d      = meta.data;
+        const int   status = meta.numBytes >= 1 ? (d[0] & 0xf0) : 0;
+        const bool  note   = meta.numBytes == 3 && (status == 0x80 || status == 0x90);
+
+        if (note)
+            // Note-on z velocity 0 to note-off (konwencja MIDI).
+            arpHeld[d[1] & 0x7f] = (status == 0x90 && d[2] != 0);
         else
         {
-            if (msg.isAllNotesOff() || msg.isAllSoundOff())
+            if (meta.numBytes == 3 && status == 0xb0 && (d[1] == 120 || d[1] == 123))
                 std::fill (std::begin (arpHeld), std::end (arpHeld), false);
-            arpFiltered.addEvent (msg, meta.samplePosition);
+            arpFiltered.addEvent (d, meta.numBytes, meta.samplePosition);
         }
     }
     midi.swapWith (arpFiltered);

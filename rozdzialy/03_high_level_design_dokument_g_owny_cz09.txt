@@ -1,0 +1,685 @@
+High level design — dokument główny, część 9.
+
+D U-C 26: Wprowadzanie statusu podstawienia Aktor główny: Kierowca Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Kierowca jest zarejestrowany w systemie i ma dostęp do Aplikacji Kierowców.
+
+Zlecenie transportowe zostało przypisane do kierowcy, a podstawienie jest w toku. Główny przepływ wydarzeń:
+
+Kierowca wybiera zlecenie w Aplikacji Kierowców, dla którego chce wprowadzić status podstawienia.
+
+Kierowca wprowadza odpowiednie statusy związane z podstawieniem, takie jak:
+
+Dojazd i odjazd na każdy z rodzajów usług dodatkowych realizowanych w ramach podstawienia,.
+
+Oczekiwanie na rozładunek po 15 minutach, 2 godzinach i 4 godzinach,.
+
+Rozpoczęcie przeładunku na podstawieniu, Odmowa obsługi na podstawieniu, Odjazd z podstawienia, Wjazd na bramę terminala, Podjazd we wskazaną strefę terminala,.
+
+Zdarzenia nadzwyczajne skutkujące potencjalnym opóźnieniem, z opcją dodania komentarza tekstowego.
+
+Aktualny status podstawienia zostaje zapisany w systemie. Specjalne wymagania:
+
+Aplikacja musi umożliwić wprowadzenie statusu w momencie braku dostępu do Internetu.
+
+Wprowadzanie statusu podstawienia przez kierowcę jest typowym procesem, który zachodzi za każdym razem, gdy kierowca wykonuje podstawienie. Częstotliwość występowania zależy od ilości podstawień przeprowadzanych w danym okresie oraz od zmiennych czynników, takich jak harmonogramy transportowe, ilość zleceń obsługiwanych przez terminal i tym podobne.
+
+D U-C 27: Automatyczne informowanie klienta o przedłużającym się oczekiwaniu na podstawieniu Aktor główny: Automat Aktorzy wspierający: Klient, Kierowca Warunki wstępne:
+
+Klient jest zarejestrowany w systemie i ma wybrane preferowane sposoby kontaktu.
+
+Zlecenie transportowe zostało przyjęte do realizacji, a podstawienie rozpoczęło się.
+
+System monitoruje czas oczekiwania kierowcy na podstawienie. Główny przepływ wydarzeń:
+
+System automatycznie wysyła powiadomienie do Klienta w formie e-maila i lub lub SMS- po upływie określonego czasu oczekiwania:
+
+Kierowca czeka 15min na obsługę - Automat wysyła powiadomienie, że Kierowca oczekuje na odbiór ładunku.
+
+Kierowca czeka 2h na obsługę - Automat wysyła powiadomienie, że Kierowca oczekuje na odbiór ładunku od 2h i w razie nieodebrania ładunku w przeciągu następnych 2h (łącznie 4h od przyjazdu kierowcy) zostanie nałożona kara pieniężną zgodna z warunkami zawartymi w umowie.
+
+Kierowca czeka 4h na obsługę - Automat wysyła powiadomienie, że Kierowca w dalszym ciągu oczekuje na odbiór ładunku i że dalsze oczekiwanie skutkuje naliczeniem kary za przestój.
+
+Powiadomienie zawiera informacje o aktualnym statusie oczekiwania na podstawienie oraz ewentualnych konsekwencjach dalszego opóźnienia, takich jak nałożenie kary finansowej. Warunki końcowe:
+
+Klient otrzymuje powiadomienie o treści zależnej od czasu oczekiwania lub wyboru rezygnacji z podstawienia. Alternatywne przepływy:
+
+Automat wysyła powiadomienie do Klienta w postaci maila i lub lub sms, że w związku z rezygnacją z realizacji przeładunku na podstawieniu zostanie on obciążony za pusty podjazd, i że nowa data podstawienia może zostać ustalona na drodze komunikacji z D-O-K. Komunikat ten trafia także do Pracownika D-O-K - wymagana jest modyfikacja zlecenia. Częstotliwość występowania:
+
+Powiadomienia o przedłużającym się oczekiwaniu na podstawienie są generowane automatycznie przez system w zależności od aktualnego statusu oczekiwania kierowcy na podstawienie. Częstotliwość występowania zależy od dynamicznych warunków operacyjnych, takich jak obciążenie terminala, czas oczekiwania kierowcy oraz złożoność realizowanego podstawienia.
+
+D U-C 28: Weryfikacja numerów pojazdu Aktor główny: Automat P-C-C-I Aktorzy wspierający: Kierowca Warunki wstępne:
+
+Terminal jest wyposażony w bramę lub system pre-gate, który potrafi rozpoznać numery rejestracyjne ciągnika (i naczepy - do rozważenia).
+
+Kierowca podjeżdża do bramy terminala. Główny przepływ wydarzeń: Kierowca podjeżdża do bramy lub systemu pre-gate na terminalu. Brama lub system pre-gate automatycznie rozpoznaje numer rejestracyjny ciągnika.
+
+Automat P-C-C-I porównuje zarejestrowane dane z danymi ze zlecenia w systemie. (są to albo dane z zaplanowanego podstawienia albo dane z awizacji zewnętrznego kierowcy przez klienta).
+
+Weryfikacja numeru rejestracyjnego jest pozytywna - kierowca realizuje proces obsługi bramowej. Alternatywne przepływy:
+
+A4a.: Weryfikacja numeru rejestracyjnego jest negatywna: Kierowca nie może przejechać przez bramę,.
+
+Kierowca otrzymuje na aplikację informację o odmowie obsługi i przyczynie odmowy. Przykłady:
+
+Kierowca jest o złej godzinie (system VBS dopuszcza ramy czasowe obsługi według zadanych reguł),.
+
+System nie ma zlecenia dla danego samochodu (brak awizacji),.
+
+Kierowca został wpuszczony na terminal do obsługi zgodnie ze zleceniem lub zostało wysłane powiadomienie o odmowie obsługi. Specjalne wymagania:
+
+System pre-gate musi być w stanie szybko i dokładnie odczytywać numery rejestracyjne pojazdów.
+
+Konieczne jest zgodność danych rejestracyjnych z danymi w systemie, aby umożliwić kierowcy przejazd przez bramę. Częstotliwość występowania:
+
+Weryfikacja numerów pojazdu przez bramę lub system pre-gate jest typowym procesem, który zachodzi za każdym razem, gdy kierowca podjeżdża do terminala. Częstotliwość występowania zależy od częstotliwości przyjazdów kierowców na terminal oraz od wykorzystania systemu rezerwacji slotów obsługi na terminalu.
+
+D U-C 29: Weryfikacja numeru kontenera Aktor główny: Automat P-C-C-I Aktorzy wspierający: Kierowca Warunki wstępne:
+
+Terminal jest wyposażony w bramę lub system pre-gate, który potrafi rozpoznać numery kontenera.
+
+Kierowca podjeżdża do bramy terminala. Główny przepływ wydarzeń: Kierowca podjeżdża do bramy lub systemu pre-gate na terminalu. Brama lub system pre-gate automatycznie rozpoznaje numer kontenera.
+
+System porównuje zarejestrowane dane z danymi ze zlecenia w systemie(są to albo dane z zaplanowanego podstawienia albo dane z awizacji zewnętrznego kierowcy przez klienta).
+
+Weryfikacja numeru rejestracyjnego jest pozytywna - kierowca realizuje proces obsługi bramowej UC30. Alternatywne przepływy:
+
+A4a.: Weryfikacja numeru kontenera jest negatywna: Kierowca nie może przejechać przez bramę,.
+
+Kierowca otrzymuje na aplikację informację o odmowie obsługi i przyczynie odmowy. Przykłady:
+
+Numer kontenera nie jest zgodny ze zleceniem. Warunki końcowe:
+
+Kierowca został wpuszczony na terminal do obsługi zgodnie ze zleceniem lub zostało wysłane powiadomienie o odmowie obsługi. Specjalne wymagania:
+
+System pre-gate musi być w stanie szybko i dokładnie odczytywać numery kontenerów.
+
+Konieczne jest zgodność numeru kontenera z danymi w systemie, aby umożliwić kierowcy przejazd przez bramę. Częstotliwość występowania:
+
+Weryfikacja numeru kontenera przez bramę lub system pre-gate jest typowym procesem, który zachodzi za każdym razem, gdy kierowca podjeżdża do terminala. Częstotliwość występowania zależy od częstotliwości przyjazdów kierowców na terminal oraz od wykorzystania systemu rezerwacji slotów obsługi na terminalu.
+
+D U-C 30: Weryfikacja kierowcy na bramie terminalu Aktor główny: Kierowca Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Kierowca posiada konto w Aplikacji Kierowców lub w Aplikacji dla przewoźników zewnętrznych (do rezerwacji slotów terminalowych) Główny przepływ wydarzeń:
+
+Kierowca zbliża się do bramy terminala w celu podstawienia.
+
+Kierowca w momencie podjazdu na pregate oznacza status podjazdu w Aplikacji Kierowców.
+
+Jeśli status został zaktualizowany, brama terminala otwiera się, umożliwiając kierowcy wjazd na teren terminala. Alternatywne przepływy:
+
+Kierowca nie może przejechać przez bramę, wymagane jest potwierdzenie obecności na terminalu w aplikacji. Warunki końcowe:
+
+Kierowca pomyślnie oznaczył status podjazdu i został wpuszczony na teren terminala. Specjalne wymagania:
+
+System musi zapewnić szybką i niezawodną identyfikację kierowców na bramie.
+
+Interfejs Aplikacji Kierowców musi być intuicyjny i łatwy w obsłudze.
+
+Do rozważenia jest funkcja lokalizacyjna Aplikacji Kierowców, która umożliwi automatyczne lokalizowanie kierowcy zalogowanego do urządzenia.
+
+Do rozważenia jest skaner dowodu tożsamości na pregate zamiast potwierdzania lokalizacji lub wykorzystanie statusu w aplikacji. Częstotliwość występowania:
+
+Weryfikacja kierowcy na bramie terminalu występuje przy każdym podjeździe kierowcy na teren terminala przed rozpoczęciem operacji załadunkowych lub rozładunkowych.
+
+D U-C 31: Zdawanie dokumentów przez kierowcę Aktor główny: Kierowca Aktorzy wspierający: Personel terminala Warunki wstępne:
+
+Kierowcy posiadają Aplikację dla Kierowców umożliwiającą przesyłanie dokumentów. Główny przepływ wydarzeń:
+
+Kierowca dopina zdjęcia dokumentów do realizowanego zlecenia w Aplikacji Kierowców.
+
+Oryginały dokumentów kierowca wrzuca do wrzutni na pregacie terminala. Alternatywne przepływy:
+
+Kierowca może kontynuować proces załadunku lub rozładunku zgodnie z zleceniem. Specjalne wymagania:
+
+System musi zapewnić bezpieczne przechowywanie przesłanych dokumentów zgodnie z przepisami prawnymi dotyczącymi ochrony danych.
+
+Interfejs Aplikacji Kierowców powinien być intuicyjny i umożliwiać łatwe przesyłanie dokumentów. Częstotliwość występowania:
+
+Proces zdawania dokumentów przez kierowcę występuje przy każdym podjeździe kierowcy na teren terminalu przed rozpoczęciem operacji załadunkowych lub rozładunkowych.
+
+D U-C 32: Weryfikacja zewnętrznego stanu kontenera Aktor główny: Brama OCR Aktorzy wspierający: Kierowca, Pracownik Terminala Warunki wstępne:
+
+Terminal jest wyposażony w system bramy OCR umożliwiający automatyczną weryfikację kontenerów. Główny przepływ wydarzeń:
+
+System bramy OCR rozpoczyna proces weryfikacji stanu technicznego kontenera na podstawie zewnętrznej obserwacji.
+
+Kontener nie posiada uszkodzeń i brama OCR wykonuje automatycznie zdjęcia kontenera dla dokumentacji.
+
+Kierowca otrzymuje zezwolenie na wjazd na terminal. Alternatywne przepływy:
+
+A3a.: Kontener posiada uszkodzenie i brama OCR wykonuje automatycznie zdjęcia uszkodzeń w celu dokumentacji w systemie.
+
+Kierowca nie może wjechać na terminal. Kierowca kierowany jest na pole oględzin kontenerów.
+
+System generuje zadanie dla Pracownika Terminala oględziny uszkodzonego kontenera na bramie.
+
+A4a.: Wymagane są dodatkowo oględziny wewnątrz kontenera (tylko dla pustych).
+
+Kierowca nie może wjechać na terminal. Kierowca kierowany jest na pole oględzin kontenerów.
+
+System generuje zadanie dla Pracownika Terminala oględziny pustego kontenera na bramie. Warunki końcowe:
+
+Kontener został pomyślnie zweryfikowany, a jego stan techniczny jest udokumentowany. Specjalne wymagania:
+
+System bramy OCR musi być dokładnie skalibrowany i zaprogramowany, aby skutecznie rozpoznawać uszkodzenia kontenerów.
+
+Konieczne jest regularne utrzymanie i kalibracja systemu, aby zapewnić jego niezawodność i skuteczność. Częstotliwość występowania:
+
+Proces weryfikacji zewnętrznego stanu kontenera występuje przy każdym przyjeździe kontenera na bramę OCR terminalu przed jego dalszą obsługą na terminalu.
+
+D U-C 33: Ocena stanu kontenera na bramie Aktor główny: Pracownik terminala Aktorzy wspierający: Kierowca Warunki wstępne:
+
+Terminal jest wyposażony w urządzenie tabletowe lub inne odpowiednie narzędzie do dokumentowania stanu kontenera. Główny przepływ wydarzeń:
+
+Pracownik terminala zostaje poinformowany przez system o konieczności przeprowadzenia oceny stanu kontenera (każdego pustego, każdego uszkodzonego z zewnątrz).
+
+Pracownik terminala używa urządzenia tabletowego do zdjęciowej dokumentacji oględzin stanu kontenera.
+
+Pracownik stwierdza brak uszkodzeń i odpowiednio oznacza stan kontenera w aplikacji.,.
+
+Kierowca może wjechać na terminal w celu obsługi zgodnej ze zleceniem.
+
+Pracownik opisuje uszkodzenia w systemie i odpowiednio oznacza w aplikacji.
+
+Jeżeli umowa z klientem pozwala na przyjęcie kontenera i późniejsze ustalenie ścieżki postępowania kierowca wpuszczany jest na terminal.
+
+Jeżeli takich ustaleń nie ma kierowca musi poczekać na decyzję o wpuszczeniu go na terminal - pozyskanie decyzji wymaga kontaktu Pracownik TerminalaPracownik D-O-K-Klient Warunki końcowe:
+
+Kierowca może kontynuować proces obsługi kontenera na terminalu lub podjąć dalsze działania w zależności od decyzji pracownika terminala. Specjalne wymagania:
+
+Pracownik terminala musi być odpowiednio przeszkolony w zakresie oceny stanu kontenera i korzystania z urządzenia do dokumentowania. Częstotliwość występowania:
+
+Proces oceny stanu kontenera na bramie występuje przy każdym przyjeździe kontenera na bramę terminala po pozytywnej weryfikacji zewnętrznego stanu kontenera. D U-C 34: Zarządzanie ruchem kierowcy truckowego na placu terminala Aktor główny: Automat P-C-C-I Aktorzy wspierający: Kierowca Warunki wstępne:
+
+Plac terminala musi być wyposażony w system wspomagający zarządzanie ruchem. Główny przepływ wydarzeń:
+
+Kierowca otrzymuje na aplikację informację, gdzie ma podjechać na terminalu oraz aplikacja udostępnia ścieżkę dojazdu we wskazane miejsce.
+
+Na bramie wyświetlacz pokaże informację wpuszczanemu Kierowcy w jakie miejsce ma się kierować.
+
+Po realizacji załadunku lub obsługi Kierowca otrzymuje w aplikacji automatyczny komunikat pozwalający na przemieszczenie się lub wyjazd z terminala. Warunki końcowe:
+
+Kierowcy są poprawnie skierowani do miejsc docelowych na placu terminala.
+
+Kierowcy otrzymują niezbędne instrukcje dotyczące ruchu na placu terminala. Specjalne wymagania:
+
+System musi być zoptymalizowany pod kątem szybkiego i skutecznego przekazywania informacji oraz udzielania instrukcji kierowcom truckowym. Częstotliwość występowania:
+
+Proces zarządzania ruchem kierowcy truckowego na placu terminala występuje przy każdym przyjeździe kierowcy na terminal oraz po zrealizowaniu przez niego czynności terminalowych.
+
+D U-C 35: Oznaczanie statusu w ruchu na terminalu Aktor główny: Kierowca Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Kierowcy są świadomi konieczności oznaczania swoich statusów na terminalu. Główny przepływ wydarzeń:
+
+Kierowca nawiguje w Aplikacji Kierowców w trakcie pobytu na terminalu do zakładki pozwalającej na wprowadzanie statusów w zakresie obsługi terminalowej.
+
+Kierowca wprowadza statusy: Dojazd w wyznaczone pole. Odjazd po zrealizowanych czynnościach terminalowych.
+
+Inne do ustalenia w toku prac wdrożeniowych. Warunki końcowe:
+
+System rejestruje aktualny status każdego kierowcy na terminalu. Specjalne wymagania:
+
+Interfejs systemu dla kierowców powinien być intuicyjny i łatwy w obsłudze, aby kierowcy mogli szybko i sprawnie aktualizować swoje statusy. Częstotliwość występowania:
+
+Proces oznaczania statusu w ruchu na terminalu występuje regularnie w czasie pracy kierowców na terminalu, zwykle przy każdym etapie ich działań, takich jak przyjazd na terminal, odjazd z terminalu, i tym podobne.
+
+D U-C 36: Identyfikacja daty i godziny wjazdu lub wyjazdu z terminala Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Brama wyjazdowa musi być wyposażony w system identyfikacji pojazdów. Główny przepływ wydarzeń:
+
+System automatycznie rejestruje moment, w którym Kierowca wjeżdża oraz w którym opuszcza terminal przez bramę wjazdową.
+
+System przekazuje informacje do systemu z zapisaną datę i godziną wjazdu lub wyjazdu z terminala. Warunki końcowe:
+
+System rejestruje datę i godzinę wjazdu lub wyjazdu każdego kierowcy z terminala.
+
+Dane te są dostępne w systemie do dalszej analizy i monitorowania czasu przebywania kierowców na terminalu. Specjalne wymagania:
+
+System identyfikacji pojazdów wyjeżdżających musi być precyzyjny i niezawodny, aby zapewnić dokładność danych dotyczących wyjazdów z terminala. Częstotliwość występowania:
+
+Proces identyfikacji daty i godziny wjazdu lub wyjazdu z terminala występuje za każdym razem, gdy kierowca wjeżdża lub opuszcza terminal po zakończeniu swoich działań.
+
+D U-C 37: Automatyczne wysłanie specyfikacji do faktury do Przewoźnika Aktor główny: Automat P-C-C-I Aktorzy wspierający: Przewoźnik Warunki wstępne:
+
+Dane dotyczące zakończonych zleceń są dostępne w systemie. Główny przepływ wydarzeń:
+
+System automatycznie generuje specyfikację do faktury dla Przewoźnika: Po zakończeniu zlecenia transportowego. Cyklicznie za dany okres współpracy, na przykład miesięcznie.
+
+Specyfikacja do faktury wysyłana jest automatycznie mailowo na adres mailowy danego Przewoźnika.
+
+System przechowuje specyfikacje w aplikacji, które są również dostępne dla Przewoźnika. Warunki końcowe:
+
+Specyfikacja do faktury została wygenerowana i wysłana do Przewoźnika. Specjalne wymagania:
+
+System musi być zoptymalizowany pod kątem szybkiego generowania specyfikacji do faktury i ich wysyłki.
+
+Dane zawarte w specyfikacji muszą być zgodne z obowiązującymi standardami księgowymi i umowami zawartymi z przewoźnikami.
+
+Proces generowania specyfikacji do faktury dla przewoźnika występuje automatycznie po zakończeniu każdego zlecenia transportowego.
+
+D U-C 38: Wprowadzanie limitów odwozów Aktor główny: Planista Delivery Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+System planowania transportu musi być skonfigurowany do obsługi odwozów portowych.
+
+System jest być zintegrowany z systemami podwykonawców realizujących odwozy portowe. Główny przepływ wydarzeń:
+
+Planista wprowadza do systemu informacje o limitach dobowych dla odwozów portowych w danej lokalizacji (terminal zewnętrzny).
+
+Limity dobowe dla odwozów portowych zostały pomyślnie wprowadzone do systemu.
+
+Informacja ta jest niezbędna do automatycznego planowania odwozów portowych.
+
+System musi umożliwiać wprowadzanie różnych limitów odwozów dla różnych lokalizacji portowych.
+
+Dane wprowadzane przez Planistę Delivery muszą być zweryfikowane i zgodne z obowiązującymi przepisami dotyczącymi odwozów portowych. Częstotliwość występowania:
+
+Wprowadzanie limitów odwozów portowych może być wykonywane z różną częstotliwością, w zależności od zmian w harmonogramie odwozów lub wymogów klienta. Zazwyczaj jest to proces wykonywany regularnie, na przykład codziennie lub tygodniowo, w zależności od potrzeb logistycznych i operacyjnych.
+
+D U-C 39: Automatyczne wyznaczanie dat odwozów na terminale morskie Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Dostępne dane o zleceniach wymagających odwozów na terminale morskie.
+
+Wprowadzone do systemu limity dobowe dla odwozów portowych. Główny przepływ wydarzeń:
+
+System automatycznie analizuje dostępne zlecenia wymagające realizacji odwozów na terminale morskie.
+
+Na podstawie dostępnych danych w zleceniach oraz limitów dobowych podwykonawców, system planuje odwozy na terminale morskie.
+
+Daty odwozów są ustalane w oparciu o zaszyte reguły, które mogą uwzględniać między innymi:
+
+Minimalizowanie czasu składowania kontenerów na terminalu morskim. Minimalizowanie czasu składowania na terminalu kolejowym. Alternatywne przepływy: A2a. Zmiana harmonogramu podwykonawcy.
+
+w przypadku zmian harmonogramu podwykonawcy następuje automatyczne przeplanowanie zleceń analogicznie D U-C 41. Warunki końcowe:
+
+System wyznacza optymalne daty odwozów dla wszystkich zleceń wymagających transportu na terminale morskie. Specjalne wymagania:
+
+System musi być w stanie uwzględniać różne preferencje klientów oraz dynamiczne zmiany w harmonogramie transportu.
+
+Dane wyznaczonych dat odwozów muszą być łatwo dostępne dla personelu operacyjnego w celu dalszej realizacji zleceń. Częstotliwość występowania:
+
+Automatyczne wyznaczanie dat odwozów portowych może być wykonywane regularnie, w zależności od zmian w harmonogramie transportu oraz dostępności limitów dobowych podwykonawców. Zazwyczaj jest to proces wykonywany codziennie lub kilka razy w tygodniu, w zależności od potrzeb logistycznych i operacyjnych.
+
+D U-C 40: Przekazanie zleceń do Podwykonawcy realizującego odwozy portowe Aktor główny: Automat P-C-C-I Aktorzy wspierający: Podwykonawcy Warunki wstępne:
+
+Podwykonawcy muszą być zarejestrowani w systemie i mieć skonfigurowane integracje EDI. Główny przepływ wydarzeń:
+
+Na podstawie ustalonych kryteriów (na przykład lokalizacja, dostępność, preferencje minimalizowania czasu oczekiwania w terminalu morskim) system przypisuje zlecenia do odpowiednich Podwykonawców na odpowiednie dni.
+
+System automatycznie przekazuje zlecenia do wybranych Podwykonawców za pomocą EDI. Alternatywne przepływy: Brak. Warunki końcowe:
+
+Zlecenia odwozów portowych są przekazane do odpowiednich Podwykonawców w celu realizacji. Specjalne wymagania:
+
+System musi zapewnić bezpieczne i niezawodne przekazywanie zleceń do Podwykonawców za pomocą EDI.
+
+Integracje EDI muszą być skonfigurowane zgodnie z wymaganiami każdego Podwykonawcy. Częstotliwość występowania:
+
+Przekazywanie zleceń do Podwykonawców może być wykonywane regularnie, w zależności od dostępności nowych zleceń odwozów portowych oraz harmonogramu realizacji. Zazwyczaj jest to proces wykonywany codziennie lub kilka razy w tygodniu, w zależności od zapotrzebowania na transport.
+
+D U-C 41: Automatyczna korekta danych zleceń Aktor główny: Automat P-C-C-I Aktorzy wspierający: Planista Delivery Warunki wstępne:
+
+System musi mieć dostęp do aktualnych danych o parametrach zleceń oraz informacji.
+
+Automat P-C-C-I automatycznie monitoruje zmiany w danych zleceń odwozów portowych.
+
+W przypadku wykrycia zmian parametrów, system przeprowadza analizę możliwości zrealizowania zlecenia zgodnie z nowymi parametrami.
+
+Integracja z systemami zewnętrznymi Obejmuje komunikację i wymianę danych między systemem operacyjnym a innymi systemami branżowymi, systemem Huzar, systemem Urzędu Celnego oraz systemami zewnętrznych przewoźników kolejowych. Odpowiada za automatyczne przesyłanie i odbieranie danych, w tym między innymi dotyczących zleceń klientów, komunikatów celnych oraz danych transportowych.
+
+DaneZlecenia: Reprezentuje informacje o zleceniu otrzymane z systemów branżowych.
+
+DaneTransportowe: Zawiera dane o pociągach i przewozach z systemu zewnętrznego przewoźnika.
+
+SerwisIntegracji: Odpowiada za komunikację między systemem operacyjnym a innymi wewnętrznymi i zewnętrznymi systemami. Pobiera dane zlecenia z systemów branżowych, odbiera komunikaty celne i dane transportowe. Implementuje metody do automatycznej synchronizacji danych oraz zarządzania połączeniami.
+
+Automatyczne pobieranie danych zlecenia i aktualizacja systemu Huzar. Odbiór i przetwarzanie komunikatów z Urzędu Celnego. Synchronizacja danych transportowych z zewnętrznymi systemami przewoźników.
+
+Przetwarzanie procedur celnych Skupia się na zarządzaniu i weryfikacji dokumentów celnych, blokowaniu i odblokowywaniu kontenerów w trakcie procedur celnych, oraz na komunikacji z Urzędem Celnym. Obejmuje automatyzację przepływów pracy związanych z procedurami celnymi.
+
+StatusKontenera: Przechowuje informacje o aktualnym statusie kontenera, w tym.
+
+SerwisCelny: Zarządza procesem weryfikacji dokumentów celnych oraz z SerwisemIntegracji w celu wymiany danych z Urzędem Celnym.
+
+Automat przekazuje dane niezbędne do zrealizowania usługi celnej z systemu KROL do systemu Huzar.
+
+Dane dostępne są do wglądu w systemie Huzar. Alternatywne przepływy:
+
+W przypadku wystąpienia błędu systemowego Pracownik Sekcji Celnej zgłasza się po pomoc do Działu IT. Dział IT udziela wsparcia w wymaganym zakresie.
+
+Jeżeli zlecenie nie zawiera danych niezbędnych do zrealizowania czynności celnych procedura celna nie jest realizowana. Procedura jest realizowana w momencie uzupełnieni danych w systemie KROL przez Klienta lub dział D-O-K.
+
+System na bieżąco aktualizuje dane w systemie Huzar na podstawie danych z systemu KROL. Warunki końcowe:
+
+Dane niezbędne do realizacji czynności celnych przekazane do systemu Huzar. Wymagania specjalne:
+
+Aktualizacja i transfer danych z systemu KROL do systemu Huzar powinna przebiegać cyklicznie, wielokrotnie w ciągu każdego dnia. Na etapie wdrożenia do ustalenia jest częstotliwość cykli aktualizacji danych.
+
+P U-C 02: Weryfikacja dokumentów celnych Aktor główny: Pracownik Sekcji Celnej Aktorzy wspierający: Brak Warunki wstępne:
+
+P-C-C-I przyjęło do realizacji zlecenie Klienta, w ramach którego Klient przekazał dokumentację celną wymagającą weryfikacji.
+
+Dokumenty celne zostały załączone przez Klienta do zlecenia poprzez Strefę Klienta.
+
+System KROL zintegrowany jest z systemem Huzar Główny przepływ wydarzeń:
+
+System automatycznie przekazuje załączone do zlecenia dokumenty celne do systemu Huzar.
+
+Pracownik Sekcji Celnej nawiguje do systemu Huzar, do zakładki z załączonymi do zlecenia dokumentami celnymi.
+
+Pracownik Sekcji Celnej weryfikuje zgodność dokumentów z informacją z systemu celnego.
+
+Pozytywna weryfikacja pozwala na przesłanie danych do Urzędu Celnego. Alternatywne przepływy:
+
+Pracownik Sekcji Celnej zgłasza niezgodność lub brak kompletności dokumentacji celnej do Pracownika D-O-K, który pozyskuje brakujące lub poprawne informacje dokumenty od Klienta.
+
+Po stwierdzeniu niezgodności Pracownik Sekcji Celnej wstrzymuje obsługę danego kontenera do czasu uzupełnienia wymaganej dokumentacji (P U-C 03). Warunki końcowe:
+
+Możliwe jest przekazanie danych o zleceniu do Urzędu Celnego. Wymagania specjalne:
+
+Analiza dokumentacji przebiegać może wielokrotnie każdego dnia, w zależności od strumienia zleceń wymagających weryfikacji tego typu dokumentacji.
+
+P U-C 03: Wysyłka danych na potrzeby procedur celnych Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik Sekcji Celnej Warunki wstępne:
+
+Pracownik Sekcji Celnej zweryfikował dokumenty celne załączone do zlecenia i rozpoczął procedurę celną.
+
+System Huzar zintegrowany z systemami Urzędu Celnego. Główny przepływ wydarzeń:
+
+Pracownik Sekcji Celnej zweryfikował dokumentację celną i uruchomił proces realizacji określonej procedury celnej.
+
+System automatycznie wysyła niezbędne dane do systemu Urzędu Celnego. Alternatywne przepływy:
+
+Procedura celna uruchomiona poprzez wysłanie odpowiednich danych. Wymagania specjalne:
+
+Wysyłka danych na potrzeby procedur celnych jest czynnością realizowaną wielokrotnie w ciągu dnia.
+
+P U-C 04: Blokowanie i odblokowywanie kontenera w trakcie procedur celnych Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik Sekcji Celnej Warunki wstępne:
+
+Pracownik Sekcji Celnej zweryfikował dokumenty celne załączone do zlecenia i rozpoczął procedurę celną.
+
+System KROL jest zintegrowany z systemem Huzar. Główny przepływ wydarzeń:
+
+W systemie Huzar uruchomiona zostaje procedura celna, system KROL identyfikuje to zdarzenie na danym kontenerze.
+
+Automat w systemie KROL nakłada blokadę STOP, na kontener, który podlega procesom celnym. W tym czasie kontener nie może być przedmiotem operacji transportowych.
+
+Po zakończeniu procedur celnych system KROL automatycznie zaczytuje informację o tym fakcie z systemu Huzar.
+
+Automat systemu KROL zdejmuje blokadę STOP z danego kontenera. Kontener może być poddany dalszym operacjom transportowym. Alternatywne przepływy:
+
+W razie przedłużającej się procedury celnej, niezależnie od przyczyn, kontener pozostaje zablokowany do obsługi.
+
+Procesy celne realizowane przez Urząd Celny wspiera po stronie P-C-C-I w razie potrzeby Pracownik Sekcji Celnej. Warunki końcowe:
+
+Kontener po zrealizowaniu procedur celnych może być transportowany w ramach usług P-C-C-I. Wymagania specjalne:
+
+Sygnatura STOP na kontenerze musi być respektowana przez wszystkie procesy logistyczno-transportowe w systemie KROL. Częstotliwość występowania:
+
+Blokowanie i zwalnianie kontenerów są czynnościami realizowanymi wielokrotnie w ciągu dnia.
+
+P U-C 05: Wymiana danych z systemem zewnętrznego przewoźnika kolejowego Aktor główny: Automat P-C-C-I Aktorzy wspierający: Brak. Warunki wstępne:
+
+W systemie KROL określone są bodźce wywołujące transfer danych do lub z systemu kolejowego przewoźnika zewnętrznego, bodźce te mogą być zaszyte w systemie przewoźnika i wywołać wysyłkę danych do KROL. Główny przepływ wydarzeń:
+
+Wystąpienie bodźca wywołującego transfer danych do lub z systemu kolejowego przewoźnika zewnętrznego z lub do systemu KROL na potrzebę realizacji procesów operacyjnych.
+
+Automatyczny transfer danych w ustalonym kanale komunikacji. Transfer danych zakończony pomyślnie. Alternatywne przepływy: A3a. Błąd w transferze danych:
+
+W zależności od natury błędu jego wsparciem może zajmować się Zespół IT P-C-C-I lub IT przewoźnika kolejowego. Podział ról do ustalenia na etapie projektowania rozwiązania docelowego. Warunki końcowe:
+
+Metoda integracji systemu KROL z systemem kolejowego przewoźnika zewnętrznego do ustalenia na etapie tworzenia rozwiązania docelowego.
+
+Bodźce wywołujące transfer danych do lub z systemu kolejowego przewoźnika zewnętrznego z lub do KROL zostaną określone na etapie projektowanie rozwiązania docelowego. Częstotliwość występowania:
+
+Wymiana danych pomiędzy systemem KROL i systemem przewoźnika zewnętrznego może mieć miejsce wielokrotnie w ciągu dnia i jest zależna od intensywności ruchu taborów danego przewoźnika na terminalach P-C-C-I.
+
+P U-C 06: Generowanie okresowego raportu dla UKT lub GUS Aktor główny: Automat P-C-C-I Aktorzy wspierający: Dedykowany pracownik P-C-C-I Warunki wstępne:
+
+W systemie dostępne są kompletne dane niezbędne do sporządzenia poszczególnych raportów.
+
+W systemie określone są cykle generowania poszczególnych raportów. Główny przepływ wydarzeń:
+
+W momencie wystąpienia potrzeby wygenerowania raportu okresowego (określony koniec lub początek cyklu raportowego - kalendarz) system sporządza określony raport automatycznie.
+
+Gotowy raport zapisywany jest w systemie, raport oczekuje na zatwierdzenie do wysyłki.
+
+System przekazuje informację o wygenerowaniu raportu okresowego do dedykowanego pracownika odpowiedzialnego do weryfikację raportów okresowych. Alternatywne przepływy:
+
+Jeżeli system w trakcie sporządzania raportu okresowego natrafi na braki danych, przerywa generowanie raportu i zgłasza sytuację do pracownika dedykowanego pracownika.
+
+Pracownik po uzupełnieniu danych (osobiście lub z pomocą innych pracowników P-C-C-I) generuje raport okresowy według procedury generowania raportów ad-hoc (P U-C 07). Warunki końcowe:
+
+Raport wygenerowany automatycznie czeka na weryfikację i akceptację do wysyłki. Wymagania specjalne:
+
+Raporty okresowe mogą być generowane w dowolnych cyklach czasowych. Za standardowe należy uznać raportowanie dobowe, tygodniowe lub miesięczne.
+
+P U-C 07: Weryfikacja okresowego raportu dla UKT lub GUS Aktor główny: Dedykowany pracownik P-C-C-I Aktorzy wspierający: Brak Warunki wstępne:
+
+System wysłał do dedykowane pracownika prośbę o weryfikację raportu okresowego. Główny przepływ wydarzeń:
+
+Pracownik identyfikuje powiadomienie o wygenerowaniu raportu okresowego do weryfikacji.
+
+Pracownik odnajduje raport wymagający weryfikacji i zatwierdzenia do wysyłki.
+
+Pracownik weryfikuje raport. Pracownik zatwierdza raport do wysyłki. Alternatywne przepływy: A5a. Brak domyślnych odbiorców raportu.
+
+System przy zatwierdzaniu raportu okresowego weryfikuje, czy zostali zdefiniowani odbiorcy docelowi, jeżeli nie zgłasza odpowiednie powiadomienie.
+
+Pracownik uzupełnia brakujących odbiorców domyślnych dla raportu okresowego i wywołuje wysyłkę raportu ręcznie. Warunki końcowe:
+
+Raporty okresowe mogą być zatwierdzane w dowolnych cyklach czasowych. Za standardowe należy uznać raportowanie dobowe, tygodniowe lub miesięczne.
+
+P U-C 08: Wysyłka okresowego raportu dla UKT lub GUS Aktor główny: Automat P-C-C-I Aktorzy wspierający: Dedykowany pracownik P-C-C-I Warunki wstępne:
+
+W systemie określeni są odbiorcy raportu okresowego. Główny przepływ wydarzeń:
+
+System automatycznie wysyła zatwierdzony raport okresowy do wskazanego adresata (lub adresatów).
+
+System zgłasza sytuacją do dedykowanego pracownika, który weryfikuje i rozwiązuje powstały problem.
+
+Pracownik ręcznie wywołuje ponową wysyłkę raportu okresowego. Warunki końcowe:
+
+Raport okresowy wysłany do zdefiniowanych odbiorców. Wymagania specjalne: Brak. Częstotliwość występowania:
+
+Raporty okresowe wysyłane mogą być w dowolnych cyklach czasowych. Za standardowe należy uznać raportowanie dobowe, tygodniowe lub miesięczne.
+
+P U-C 09: Generowanie raportu ad-hoc dla UKT lub GUS Aktor główny: Dedykowany pracownik P-C-C-I Aktorzy wspierający: Automat P-C-C-I Warunki wstępne:
+
+W systemie dostępne są kompletne dane niezbędne do sporządzenia poszczególnych raportów.
+
+Zaistniała potrzeba wygenerowania raportu w trybie ad-hoc, na przykład w sytuacji konieczności uzupełnienia danych do raportowania okresowego. Główny przepływ wydarzeń:
+
+Dedykowany pracownik nawiguje w systemie KROL do modułu raportowego.
+
+Pracownik wybiera z listy rozwijanej rodzaj raportu jaki potrzebuje przygotować.
+
+Pracownik uruchamia proces sporządzania raportu (automat). Pracownik ma możliwość podglądu wygenerowanego raportu. Pracownik akceptuje wygenerowany raport. Alternatywne przepływy: A3a. Brak danych raportowych.
+
+Jeżeli system w trakcie sporządzania raportu natrafi na braki danych, przerywa generowanie raportu i zgłasza odpowiedni komunikat. Pracownik odpowiada za uzupełnieni brakujących informacji, w skrajnym przypadku zgłasza problem do działu IT.
+
+Pracownik po uzupełnieniu danych (osobiście lub z pomocą innych pracowników P-C-C-I) generuje raport ponownie.
+
+System przy zatwierdzaniu raportu okresowego weryfikuje, czy zostali zdefiniowani odbiorcy docelowi, jeżeli nie zgłasza odpowiednie powiadomienie.
+
+Pracownik uzupełnia brakujących odbiorców domyślnych dla raportu okresowego i wywołuje wysyłkę raportu ręcznie.
+
+Pracownik dla raportu ad-hoc może nie wskazywać odbiorcy. W takiej sytuacji Pracownik może jedynie pobrać raport w postaci pliku o określonym formacie.
+
+Zakończona procedura generowania raportu ad-hoc. Wymagania specjalne: Brak. Częstotliwość występowania:
+
+Raporty ad-hoc mogą być generowane wielokrotnie w ciągu dnia.
+
+P U-C 10: Monitoring wymagań EU Aktor główny: Automat P-C-C-I Aktorzy wspierający: Brak. Warunki wstępne:
+
+W systemie zdefiniowane są formatki do monitoringu określonych wskaźników.
+
+W systemie są określone źródła danych dla monitorowanych wskaźników.
+
+W systemie określone są poziomy poszczególnych wskaźników dopuszczalnych przez ustawodawcę i lub lub regulatorów.
+
+W systemie określone są cykle monitorowania lub weryfikacji poszczególnych wskaźników - możliwe jest bieżące śledzenie wybranych wskaźników. Główny przepływ wydarzeń:
+
+Monitoring wybranych wskaźników realizowany jest zgodnie z harmonogramem. Raporty z monitoringu przekazywane są do wskazanych osób.
+
+W systemie zaszyty jest mechanizm powiadamiania o przekroczeniach wybranych wskaźników.
+
+Dedykowani pracownicy mają możliwość edycji parametrów zaszytych w systemie będących odniesieniem dla monitorowanych wskaźników - możliwość określenia KPI, wartości krytycznych, etc. Alternatywne przepływy:
+
+Monitoring prowadzony w trybie okresowym lub bieżącym. Wymagania specjalne:
+
+Precyzyjne oczekiwanie w zakresie monitoringu oraz rzeczywista potrzeba dostarczenia powyższego rozwiązania do weryfikacji i określenia w toku prac wdrożeniowych. Częstotliwość występowania:
+
+Cold lub hot data (zimne lub gorące dane). Cold data to dane rzadko używane lub nieaktualne. Hot data to dane często używane i aktualne.
+
+Commitowane (zatwierdzane) odnosi się do procesu zatwierdzania zmian dokonanych w repozytorium kodu.
+
+CMS, Content Management System (System Zarządzania Treścią) to oprogramowanie, które umożliwia tworzenie, edycję, publikację oraz zarządzanie treściami online.
+
+CQRS, Command Query Responsibility Segregation to wzorzec projektowy stosowany w projektowaniu aplikacji, który polega na rozdzieleniu operacji odczytu (query) od operacji zapisu (command) na osobne części aplikacji.
+
+D-D-D, Domain-driven design to podejście projektowania oprogramowania, które kładzie nacisk na zrozumienie i modelowanie dziedziny biznesowej (domeny) jako centralnego elementu procesu projektowania.
+
+DevOps to kultura organizacyjna, która integruje rozwój (development) i operacje (operations) w celu zwiększenia szybkości dostarczania oprogramowania oraz poprawy stabilności i niezawodności infrastruktury IT.
+
+DevSecOps to podejście do zarządzania procesami wytwarzania oprogramowania, które integruje zasady i praktyki bezpieczeństwa (Security) w cały cykl życia projektu DevOps. Oznacza to, że bezpieczeństwo jest uwzględnione na każdym etapie procesu wytwarzania oprogramowania, począwszy od planowania, przez rozwój, testowanie, aż po wdrożenie i monitorowanie.
+
+Domena biznesowa to obszar działalności, który obejmuje wszystkie kluczowe aspekty operacyjne, procesy oraz reguły biznesowe.
+
+DTC, Distributed Transaction Coordinator to komponent systemu Windows, który zarządza transakcjami rozproszonymi między różnymi zasobami, takimi jak bazy danych, systemy plików oraz kolejki komunikatów.
+
+Failover (przełączanie awaryjne) to proces automatycznego przeniesienia obciążenia z jednego systemu na drugi w przypadku awarii lub niedostępności pierwotnego systemu.
+
+EDI, Electronic Data Interchange (Elektroniczna Wymiana Danych) to automatyczny sposób komunikacji między różnymi systemami informatycznymi.
+
+Entity Framework Core to lekki, wieloplatformowy framework ORM dla platformy.NET.
+
+Erasure coding to technika kodowania danych stosowana w systemach pamięci masowej, która umożliwia zabezpieczenie przed utratą danych poprzez rozproszenie redundantnych fragmentów danych na różnych dyskach lub węzłach w klastrze.
+
+Framework to struktura lub platforma programistyczna, która zapewnia gotowe narzędzia, biblioteki i szablony do budowy aplikacji lub systemów informatycznych.
+
+Frontend to część systemu, który jest bezpośrednio widoczny i dostępny dla użytkownika.
+
+Gateway routing to mechanizm routingu w architekturze mikroserwisów, w którym żądania od klientów są kierowane do odpowiednich mikroserwisów przez centralny punkt dostępu, zwany bramą (gateway).
+
+Google Cloud Platform to platforma chmurowa oferowana przez firmę Google.
+
+H-L-D, High level design (projekt wysokopoziomowy) to kompleksowe opracowanie architektury systemowej; to ogólny zarys architektury systemu lub rozwiązania, który zapewnia szerokie zrozumienie jego składników, interakcji i funkcjonalności.
+
+H-T-T-P, Hypertext Transfer Protocol (Protokół Transferu Hipertekstu) jest protokołem komunikacyjnym używanym do przesyłania danych między klientem a serwerem.
+
+IDE, Integrated Development Environment dla platformy.NET to narzędzie programistyczne, które umożliwia programistom tworzenie, debugowanie, testowanie oraz zarządzanie aplikacjami opartymi na platformie.NET.
+
+Indeksy GIN (Generalized Inverted Index) i GiST (Generalized Search Tree) są dwoma różnymi technikami indeksowania stosowanymi w bazach danych do przyspieszenia operacji wyszukiwania. GIN jest optymalizowany dla struktur danych, podczas gdy GiST jest bardziej uniwersalny, mogąc obsługiwać różnorodne typy danych i struktury.
+
+Ingress to zasób, który umożliwia zarządzanie dostępem do aplikacji działających w klastrze zewnętrznymi klientami.
+
+Integration events to zdarzenia wykorzystywane w architekturze mikroserwisów do komunikacji między różnymi serwisami.
+
+IoT, Internet of Things (Internet Rzeczy) to sieć połączonych urządzeń, które mogą komunikować się ze sobą i wymieniać dane, umożliwiając automatyzację, monitorowanie oraz dostarczanie nowych usług i funkcjonalności.
+
+JSX, JavaScript XML to rozszerzenie języka JavaScript, które umożliwia zapisywanie struktur interfejsu użytkownika w sposób podobny do XML lub HTML bezpośrednio w kodzie JavaScript.
+
+Klaster w kontekście platformy Kubernetes to zbiór węzłów, które współpracują ze sobą w celu zarządzania i uruchamiania kontenerów.
+
+Kompilacja just-in-time (JIT) to proces kompilowania kodu źródłowego na maszynowy w trakcie działania programu.
+
+Kompilacja ahead-of-time (AOT) to proces kompilowania kodu źródłowego na maszynowy przed uruchomieniem programu.
+
+Komponenty out of the box to gotowe do użycia elementy oprogramowania, biblioteki lub narzędzia, które są gotowe do natychmiastowego użycia bez konieczności dodatkowej konfiguracji lub modyfikacji.
+
+Konstruktor to specjalna metoda w językach programowania, która jest automatycznie wywoływana podczas tworzenia nowego obiektu danej klasy. Służy do inicjalizacji obiektu poprzez ustawienie jego początkowych stanów lub wykonanie innych czynności niezbędnych do poprawnego działania obiektu.
+
+Kontener to standaryzowana jednostka oprogramowania, która zawiera aplikację oraz jej zależności, takie jak biblioteki i narzędzia, wraz z konfiguracją potrzebną do jej poprawnego działania.
+
+LLD, Low Level Design (projekt niskopoziomowy) to proces tworzenia szczegółowego projektu lub planu dla danego systemu lub rozwiązania, który skupia się na konkretnych komponentach, interakcjach między nimi oraz implementacji technicznych detali.
+
+Load balancing to mechanizmy używane w sieciach komputerowych do równoważenia obciążenia między różnymi serwerami lub urządzeniami.
+
+Longhorn to otwartoźródłowy system do zarządzania pamięcią masową, który działa jako natywny system plików dla Kubernetesa.
+
+Merge request (MR) pull request (PR) to prośba o przegląd i zaakceptowanie zaproponowanych zmian w kodzie źródłowym przed ich scaleniem z główną gałęzią kodu.
+
+Master-slave to architektura systemów, w której jeden z serwerów (master) jest serwerem głównym, który posiada pełną kontrolę nad danymi lub operacjami, podczas gdy slave są serwerami podrzędnymi, które otrzymują zapytania od mastera i wykonują je zgodnie z jego instrukcjami.
+
+Metadane Swagger to informacje dodatkowe opisujące operacje, parametry, odpowiedzi i inne elementy A-P-I.
+
+Metoda dispose jest używana w językach programowania do zwalniania zasobów (takich jak pamięć, połączenia sieciowe, uchwyty plików i tym podobne), które zostały wcześniej zaalokowane przez obiekt i które nie są już potrzebne.
+
+Mikroserwis, mikrousługa to mała, samodzielna aplikacja, która jest częścią większego systemu.
+
+MSMQ, Microsoft Message Queuing to usługa kolejki komunikatów opracowana przez Microsoft, która pozwala na asynchroniczną wymianę komunikatów między aplikacjami.
+
+Natura in-memory odnosi się do charakterystyki systemów informatycznych, w których dane są przechowywane i przetwarzane w pamięci operacyjnej (RAM), a nie na dysku twardym.
+
+Natywny - termin odnosi się do aplikacji lub oprogramowania, które jest zaprojektowane i dostosowane do danego systemu operacyjnego, platformy sprzętowej lub środowiska, co oznacza, że działa ono bezpośrednio i efektywnie na tym konkretnym środowisku.
+
+NET Core to wieloplatformowy framework programistyczny stworzony przez Microsoft, który umożliwia tworzenie i uruchamianie aplikacji na różnych systemach operacyjnych.
+
+NET MAUI, Multi-platform App U-I to nowoczesny framework do tworzenia natywnych aplikacji mobilnych, desktopowych i internetowych z jednego wspólnego kodu źródłowego.
+
+Opstrace to specjalny moduł oprogramowania, który umożliwia monitorowanie i analizę danych z platformy GitLab.
+
+ORDBMS, Object-Relational Database Management System, czyli system zarządzania bazą danych obiektowo-relacyjną.
+
+ORM, Object-Relational Mapping to technika programistyczna, która umożliwia mapowanie obiektów języka programowania na struktury danych w bazie danych.
+
+OSS, Open Source Software (Otwarte Oprogramowanie Źródłowe) to oprogramowanie, którego kod źródłowy jest udostępniany publicznie i otwarcie, co oznacza, że każdy może go przeglądać, modyfikować i dystrybuować zgodnie z określonymi licencjami.
+
+OSS framework WebAssembly to otwarty i wieloplatformowy framework umożliwiający tworzenie aplikacji internetowych o wysokiej wydajności.
+
+Persistent storage to rodzaj pamięci masowej w systemach informatycznych, który zachowuje dane nawet po zakończeniu zasilania.
+
+Pody w kontekście platformy Kubernetes to grupa kontenerów, które są uruchamiane i zarządzane razem.
+
+Polityka commitów odnosi się do ustalonych reguł lub praktyk dotyczących tego, jak często i w jaki sposób dokonywane są commity w repozytorium kodu.
+
+Provisioning to proces przygotowywania i konfigurowania zasobów informatycznych lub infrastruktury potrzebnej do uruchomienia aplikacji lub usługi.
+
+PWA, Progressive Web Apps to zaawansowane aplikacje internetowe, które łączą funkcjonalności stron internetowych i aplikacji mobilnych, umożliwiając instalację na urządzeniach użytkowników oraz pracę w trybie ofÒine.
+
+QoS, Quality of Service to zbiór technik i mechanizmów zapewniających określony poziom jakości usług w sieciach komputerowych i telekomunikacyjnych.
+
+Re-schedule kontenerów odnosi się do procesu przeniesienia lub ponownego uruchomienia kontenerów na innej maszynie lub w innym środowisku w chmurze obliczeniowej.
+
+Reverse proxy to rodzaj serwera pośredniczącego w komunikacji między klientami, a serwerami docelowymi.
+
+Routing wiadomości odnosi się do sposobu, w jaki wiadomości są kierowane (routowane) do różnych miejsc docelowych w zależności od określonych kryteriów.
+
+Service bus (magistrala usług) to mechanizm komunikacji, który umożliwia aplikacjom na przesyłanie wiadomości między sobą w sposób asynchroniczny.
+
+Serwery bare-metal to fizyczne maszyny lub serwery, które działają bezpośrednio na sprzęcie fizycznym, bez użycia warstw wirtualizacji.
+
+Setup i teardown testów to procesy przygotowania środowiska testowego przed wykonaniem testów (setup) oraz czyszczenia i przywrócenia stanu początkowego po ich zakończeniu (teardown).
+
+Sharding to technika podziału danych na różne serwery lub węzły w celu poprawy wydajności i skalowalności systemu poprzez równomierne rozłożenie obciążenia.
+
+Snapshoty (RDB) w kontekście relacyjnych baz danych odnoszą się do punktów w czasie, w których baza danych jest zapisywana w pełnym stanie.
+
+SOA, Service-Oriented Architecture to architektura systemów informatycznych, w którym system jest rozbijany na niezależne usługi, które mogą być ponownie wykorzystywane w różnych kontekstach.
+
+SPA, Single Page Application to rodzaj aplikacji internetowej, która działa w przeglądarce i wczytuje tylko jedną stronę HTML podczas pierwszego załadowania. Zawartość strony, w tym treść, interakcje i zmiany widoczne dla użytkownika, są dynamicznie generowane i aktualizowane za pomocą technik JavaScript, bez konieczności przeładowywania całej strony.
+
+Sprint to okres czasu, zazwyczaj trwający od 1 do 4 tygodni, podczas którego zespół deweloperski pracuje nad konkretnym zestawem zadań lub celów.
+
+Sticky sessions, znane również jako sesje trwałe lub sesje klejące, są mechanizmem zarządzania sesjami w aplikacjach internetowych. Polega to na przypisaniu klienta do konkretnego serwera backendowego w celu utrzymania spójności stanu sesji przez cały czas trwania sesji.
+
+Storage (przechowywanie) odnosi się do możliwości zarządzania przestrzenią dyskową.
+
+TDE, Transparent Data Encryption to technika szyfrowania danych przechowywanych w bazach danych na poziomie dysku, co zapewnia ochronę przed nieautoryzowanym dostępem nawet w przypadku fizycznego dostępu do nośnika danych.
+
+Time-series, czyli seria czasowa, to sekwencja danych uporządkowanych w czasie, zazwyczaj zarejestrowanych w równych odstępach czasu. Wysoko wydajny format timeStrona 284 z 286 series zapewnia możliwość efektywnego zapisu, odczytu i przetwarzania dużych ilości danych pomiarowych w czasie rzeczywistym.
+
+TLS lub SSL, Transport Layer Security lub Secure Sockets Layer to protokoły kryptograficzne używane do zapewnienia bezpiecznej komunikacji w sieciach komputerowych.
+
+U-I, User Interface to interfejs użytkownika, sposób, w jaki użytkownicy komunikują się z systemem lub aplikacją.
+
+U-X, User Experience to doświadczenie użytkownika, czyli ogólny sposób, w jaki użytkownik odbiera interakcję z danym produktem, systemem lub usługą.
+
+maszyna wirtualna, Virtual Machine (Maszyna Wirtualna) to wirtualne środowisko komputerowe, które pozwala na uruchomienie i działanie oprogramowania na komputerze wirtualnym, niezależnie od fizycznej platformy sprzętowej.
+
+WAL, Write-Ahead Logging to technika zapewnienia spójności danych w systemach baz danych, w której wszystkie zmiany danych są najpierw zapisywane do dziennika transakcji (logu) przed ich zastosowaniem do bazy danych. Jest to zapewnienie, że wszystkie transakcje zostaną zapisane przed potwierdzeniem ich wykonania, co minimalizuje ryzyko utraty danych w przypadku awarii.
+
+Węzeł w kontekście informatycznym odnosi się do pojedynczego urządzenia lub komponentu w systemie komputerowym lub sieciowym.
+
+XSS lub CSRF, Cross-Site Scripting lub Cross-Site Request Forgery to dwie różne podatności bezpieczeństwa, które występują w aplikacjach internetowych. XSS to atak polegający na wstrzyknięciu złośliwego skryptu do strony internetowej. CSRF to atak polegający na wykorzystaniu zaufania przeglądarki użytkownika do wykonania niechcianych działań na stronie, na której użytkownik jest zalogowany.
+
+Zasady Material Design to zestaw wytycznych, wzorców projektowych i wyglądu interfejsu użytkownika opracowany przez Google.

@@ -1,0 +1,7 @@
+Przypadki testowe — wyszukiwanie trasy.
+
+bo koniec kontenera jest w brzegu Dolnym a nie we Frakfurcie wiec podstawienie przez Frankfurt odpada. Potwierdzone z biznesem - co innego jest podstawienie przez Frankfurt (“Frankfurt- 3M- Frankfurt - to jest krawedz ktora jest teraz w grafie) a co innego multistop “Frankfurt- 3M- Brzeg Dolny- Frankfurt.
+
+Blad - powinno byc jak wczesniej handling 13(pusty kontener).
+
+Tak samo jak wyzej - poniewaz start kontenera jest w Brzegu Dolny to podstawienie “Frankfurt- 3M- Frankfurt nie jest w stanie dostarczyc kontenera do 3M ktory jest w Brzegu donlym. Jak bedzie case gdzie bedzie multistop “Franfkurt- 3m-brzeg dolny pcc- Frankfurt to wtedy taka trasa bedzie dostepna.

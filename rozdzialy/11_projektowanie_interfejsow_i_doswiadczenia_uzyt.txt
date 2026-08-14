@@ -1,0 +1,11 @@
+Projektowanie interfejsów i doświadczenia użytkownika.
+
+Logistyka 4.0 Projektowanie interfejsów i doświadczenia użytkownika Wersja 1.0.
+
+Dostępność - Produkt dostępny i zrozumiały dla użytkowników z różnymi potrzebami (wzrok, słuch, motoryka). W aplikacji dostępny będzie na przykład tryb ciemny, na który będą mogli przełączyć się użytkownicy pracujący w późnych godzinach, aby ograniczyć zmęczenie oczu.
+
+Spójność - komponenty, style, szkielet, nawigacja oraz wzorce interakcji w poszczególnych modułach są wspólne dla całego systemu.
+
+Przykłady interfejsu dla widoku sprzedawcy - aplikacja webowa (pełna dokumentacja znajduje się w aplikacji Figma).
+
+Widok listy klientów. Widok tworzenia klienta. Widok z danymi klienta.

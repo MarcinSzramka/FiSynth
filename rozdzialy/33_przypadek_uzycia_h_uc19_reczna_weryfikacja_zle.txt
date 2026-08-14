@@ -1,0 +1,33 @@
+Przypadek użycia h_uc19 — ręczna weryfikacja zlecenia.
+
+Aktor główny: Pracownik P-C-C-I D-O-K (Specjalista) Aktorzy wspierający: Klient Warunki wstępne:
+
+Zlecenie zostało przesłane przez Klienta drogą mailową, ale dwukrotnie nie mogło być prawidłowo przetworzone przez system mailowy do obsługi maili lub system mailowy otrzymał nieczytelne zlecenie.
+
+Pracownik P-C-C-I D-O-K (Specjalista) ma dostęp do systemów niezbędnych do weryfikacji i przetwarzania zlecenia. Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Specjalista) otrzymuje powiadomienie lub zadanie dotyczące zlecenia, które wymaga ręcznej weryfikacji.
+
+Pracownik P-C-C-I D-O-K (Specjalista) przegląda zlecenie, analizując dostarczone przez Klienta informacje i dokumenty.
+
+Pracownik P-C-C-I D-O-K (Specjalista) sprawdza kompletność danych zlecenia i weryfikuje zgodność z kontraktem (oraz opcjonalnie sprawdza zwolnienie kontenera).
+
+Po uzupełnieniu wszystkich niezbędnych danych, Pracownik P-C-C-I D-O-K (Specjalista) wprowadza zlecenie do systemu zarządzania zleceniami.
+
+Weryfikacja pozytywna - Pracownik P-C-C-I D-O-K (Specjalista) wprowadza zlecenie do systemu, staje się ono widoczne w Strefie Klienta, zlecenie przekazane jest do kolejnego kroku zgodnie z H U-C 14.
+
+System wyznacza Pracownika P-C-C-I D-O-K (Specjalista) jako opiekuna zlecenia. Alternatywne przepływy:
+
+W przypadku otrzymania niekompletnych lub błędnych danych, Pracownik P-C-C-I D-O-K (Specjalista) może potrzebować kilku rund komunikacji z Klientem, aby skorygować i uzupełnić informacje.
+
+Pracownik P-C-C-I D-O-K (Specjalista) kontaktuje się z Klientem celem weryfikacji faktycznej chęci założenia nowego kontraktu, po potwierdzeniu wiadomość Klienta przekazywane jest do Handlowca Warunki końcowe:
+
+Zlecenie jest kompletnie zweryfikowane i wprowadzone do systemu zarządzania zleceniami.
+
+Klient jest na bieżąco informowany o statusie i postępie swojego zlecenia. Wymagania specjalne:
+
+Pracownik P-C-C-I D-O-K (Specjalista) musi wykazywać dokładność, uwagę na detale oraz umiejętności komunikacyjne w interakcjach z Klientem.
+
+System musi być elastyczny, aby umożliwić ręczne wprowadzanie i modyfikacje zleceń. Częstotliwość występowania:
+
+Ręczna weryfikacja zlecenia mailowego może być stosunkowo rzadka, zależna od skuteczności systemu mailowego do obsługi maili i jakości przesłanych danych przez Klientów.

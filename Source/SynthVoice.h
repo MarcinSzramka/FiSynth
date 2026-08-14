@@ -311,9 +311,10 @@ public:
     }
 
     void startNote (int midiNoteNumber, float velocity,
-                    juce::SynthesiserSound*, int /*currentPitchWheelPosition*/) override
+                    juce::SynthesiserSound*, int currentPitchWheelPosition) override
     {
         level = velocity * 0.15f;
+        pitchWheelMoved (currentPitchWheelPosition);
         frequency = juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber);
 
         for (int o = 0; o < 3; ++o)
@@ -388,7 +389,12 @@ public:
         }
     }
 
-    void pitchWheelMoved (int) override     {}
+    // Kółko: 0..16383, środek 8192 → ±bendRangeSemis. Wywoływane z wątku audio
+    // (Synthesiser tnie blok na granicach eventów MIDI), więc zwykły float.
+    void pitchWheelMoved (int newValue) override
+    {
+        bendSemis = (float) (newValue - 8192) / 8192.0f * fiMod::bendRangeSemis;
+    }
     void controllerMoved (int, int) override {}
 
     void renderNextBlock (juce::AudioBuffer<float>& outputBuffer,
@@ -477,6 +483,10 @@ public:
                 constexpr float goldSemis = fiGoldenIntervalCents / 100.0f;
                 pitchSemis = std::round (pitchSemis / goldSemis) * goldSemis;
             }
+
+            // Pitch bend z kontrolera PO kwantyzacji — kółko ma być płynne,
+            // siatka złotych interwałów dotyczy tylko modulacji z obwiedni.
+            pitchSemis += bendSemis;
 
             // Tempo kontrolne: stretch, tilt + współczynniki filtra (mod cutoff/rezonans + LFO).
             if ((sample % controlInterval) == 0)
@@ -801,6 +811,7 @@ private:
     double frequency { 0.0 };
     float level { 0.0f };
     float stereoSpread { 0.0f };
+    float bendSemis { 0.0f };   // pitch bend z kółka, w półtonach (±bendRangeSemis)
 
     // === Złoty silnik (per głos) ===
     float fmAmount  { 0.0f };   // indeks Golden FM (modulator f·φ)

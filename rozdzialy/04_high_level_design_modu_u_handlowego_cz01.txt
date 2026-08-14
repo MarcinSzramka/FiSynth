@@ -1,0 +1,633 @@
+High level design modułu handlowego, część 1.
+
+Rejestracja i weryfikacja klienta H U-C 1: Rejestracja klienta w systemie Pierwotna wersja Aktor główny: Potencjalny Klient Aktorzy wspierający: Handlowiec Warunki wstępne:
+
+System rejestracyjny jest online i funkcjonalny. Główny przepływ wydarzeń:
+
+Klient odwiedza stronę internetową P-C-C-I i nawiguje do sekcji rejestracji.
+
+Klient wybiera opcję Utwórz nowe konto w Strefie Klienta.
+
+Klient wypełnia formularz rejestracyjny, podając wymagane informacje, takie jak nazwa firmy, typ podmiotu, kontakt, przewidywana ilość przewożonych kontenerów miesięcznie i tym podobne.
+
+System sprawdza kompletność i poprawność wprowadzonych danych. Klient wysyła formularz rejestracyjny, klikając Zarejestruj się. System przesyła zgłoszenie rejestracyjne do Działu Sprzedaży.
+
+Pracownik Sprzedaży odbiera zgłoszenie i przeprowadza wstępną weryfikację zgodnie z procedurami wewnętrznymi.
+
+Jeśli wszystko jest w porządku, Pracownik Sprzedaży aktywuje konto Klienta w systemie.
+
+System generuje dane logowania (identyfikator użytkownika) i wysyła je na adres e-mail Klienta wraz z linkiem do strony ustawiania hasła.
+
+Klient jest teraz w stanie zalogować się do Strefy Klienta i korzystać z dostępnych funkcji. Alternatywne przepływy:
+
+A4a. Niekompletne lub błędne dane: System informuje Klienta o błędach lub brakujących danych. Klient poprawia dane i ponownie wysyła formularz. A7a. Weryfikacja danych klienta wymaga dodatkowych informacji:
+
+Pracownik Sprzedaży kontaktuje się z Klientem w celu uzyskania dodatkowych informacji lub dokumentów.
+
+Klient dostarcza wymagane informacje i kontynuuje proces rejestracji. Warunki końcowe:
+
+Klient ma możliwość logowania i korzystania ze Strefy Klienta. Wymagania specjalne:
+
+System musi zabezpieczać dane osobowe i biznesowe Klienta zgodnie z obowiązującymi przepisami o ochronie danych.
+
+System powinien logować wszelkie działania użytkowników dla celów audytu i monitoringu bezpieczeństwa. Częstotliwość występowania:
+
+W zależności od aktywności rynkowej i kampanii marketingowych, może występować wielokrotnie w ciągu dnia.
+
+Uszczegółowienia Opis: W systemie powinna być hierarchia: - podmiot gospodarczy;.
+
+jednostki biznesowe (dla standardowego podmiotu jedna jednostka biznesowa;.
+
+użytkownicy. Użytkownicy to loginy imienne które mają dostęp do funkcji systemu w zależność od typu podmiotu. Dla spedytorów i armatora mają pełny dostęp. Dla firm transportowych są różne poziomy dostępu. System musi pozwalać na zakładanie wielu loginów do tej samej firmy. Pierwszy login jest typu master, czyli może wszystko i może zakładać kolejne loginy. Typ podmioty gospodarczego wyznacza co jest prezentowane w U-I. Typy to:
+
+Firmy usługowe (terminal, kolej) Jednostka biznesowa służy do wyznaczania parametrów powiadomień, sposobu przypisywania zadań (emaile do faktur, specyfikacji faktur, opiekun handlowy, opiekun dok), stosowanych filtrów dla maili przychodzących.
+
+USZ.1.Z.4 Zmiana w samym procesie tworzenia konta niewidoczna dla użytkownika polega na oznaczeniu pierwszego stworzonego konta jako master i utworzeniu jednostki biznesowej pod kontem podmiotu. Pytania.
+
+Czy może występować wiele podmiotów gospodarczych w ramach jednego konta klienta?
+
+Wersja końcowa Aktor główny: Potencjalny Klient Aktorzy wspierający: Handlowiec Warunki wstępne:
+
+System rejestracyjny jest online i funkcjonalny. Główny przepływ wydarzeń:
+
+Klient odwiedza stronę internetową P-C-C-I i nawiguje do sekcji rejestracji.
+
+Klient wybiera opcję Utwórz nowe konto w Strefie Klienta.
+
+Klient wypełnia formularz rejestracyjny, podając wymagane informacje dotyczące podmiotu gospodarczego, takie jak nazwa firmy, typ podmiotu, dane jednostki biznesowej w ramach podmiotu gospodarczego, kontakt, przewidywana ilość przewożonych kontenerów miesięcznie i tym podobne oraz dane dotyczące pierwszego użytkownika (master).
+
+System sprawdza kompletność i poprawność wprowadzonych danych. Klient wysyła formularz rejestracyjny, klikając Zarejestruj się. System przesyła zgłoszenie rejestracyjne do Handlowca.
+
+Handlowiec odbiera zgłoszenie i przeprowadza wstępną weryfikację zgodnie z procedurami wewnętrznymi. 8. Jeśli wszystko jest w porządku, Handlowiec Pracownik Działu Księgowego aktywuje konto Klienta w systemie. 8. 9. System generuje dane logowania użytkownika master (identyfikator użytkownika) i wysyła je na adres e-mail Klienta wraz z linkiem do strony ustawiania hasła. 9. 10. Klient ustawia swoje hasło, kończąc proces rejestracji. 10. 11. Klient jest teraz w stanie zalogować się do Strefy Klienta i korzystać z dostępnych funkcji. Alternatywne przepływy:
+
+A4a. Niekompletne lub błędne dane: System informuje Klienta o błędach lub brakujących danych. Klient poprawia dane i ponownie wysyła formularz. A7a. Weryfikacja danych klienta wymaga dodatkowych informacji:
+
+Handlowiec kontaktuje się z Klientem w celu uzyskania dodatkowych informacji lub dokumentów.
+
+Klient dostarcza wymagane informacje i kontynuuje proces rejestracji. Warunki końcowe:
+
+Klient ma możliwość logowania i korzystania ze Strefy Klienta. Wymagania specjalne:
+
+System musi zabezpieczać dane osobowe i biznesowe Klienta zgodnie z obowiązującymi przepisami o ochronie danych.
+
+System powinien logować wszelkie działania użytkowników dla celów audytu i monitoringu bezpieczeństwa. Częstotliwość występowania:
+
+W zależności od aktywności rynkowej i kampanii marketingowych, może występować wielokrotnie w ciągu dnia. H U-C 2: Wprowadzenie danych klienta przez pracownika sprzedaży Pierwotna wersja Aktor główny: Pracownik Sprzedaży (Handlowiec) Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Formularz rejestracyjny został prawidłowo wypełniony i przesłany przez potencjalnego Klienta. Główny przepływ wydarzeń:
+
+Pracownik Sprzedaży otrzymuje powiadomienie o nowym formularzu rejestracyjnym od Klienta.
+
+Pracownik Sprzedaży loguje się do systemu sprzedażowego. Pracownik przegląda i weryfikuje przesłane informacje rejestracyjne Klienta.
+
+Pracownik wprowadza dane Klienta do systemu sprzedażowego, włączając w to wszelkie wymagane dane korporacyjne i operacyjne.
+
+Pracownik Sprzedaży przekazuje dane do wstępnej weryfikacji zgodnie z polityką firmy, w tym sprawdzenie aktywności podmiotu w odpowiednich rejestrach publicznych i weryfikację tożsamości.
+
+Pracownik Sprzedaży tworzy w systemie sprzedażowym profil Klienta, przypisuje unikalne ID i zapisuje wszelkie notatki dotyczące komunikacji handlowej oraz preferencji. 7. Po wprowadzeniu i zweryfikowaniu danych, Pracownik Sprzedaży Pracownik Działu Księgowego zleca systemowi wygenerowanie danych logowania. 7. 8. System generuje i wysyła na adres e-mail Klienta dane logowania oraz instrukcje dotyczące aktywacji konta. 8. 9. Pracownik Sprzedaży monitoruje proces aktywacji konta, gotów do wsparcia w przypadku pytań lub problemów Klienta. 10. Po pomyślnej aktywacji, Pracownik Sprzedaży Pracownik Działu Księgowego aktualizuje status Klienta w systemie na aktywny.
+
+Po aktywacji klienta, istnieje możliwość edytowania określonych parametrów przez: a) pracownika działu prawnego (edycja waluty kredytu kupieckiego oraz wysokości kredytu, termin płatności);.
+
+pracownika księgowości (edycja danych podstawowych to jest Nazwa pełna, Nazwa skrócona, Ulica, Kod pocztowy, Miasto, Kraj, Numer Konta); c) sprzedawcę oraz pracownika D-O-K (kierownika) (typ kontrahenta, C lub O na fakturze (Care Of), Opiekun handlowy, Opiekun D-O-K, Wysyłka faktur @ na adres lub y, Mail do windykacji, Język windykacji, Uwagi Alternatywne przepływy:
+
+Jeśli dane są niekompletne lub błędne, Pracownik Sprzedaży kontaktuje się z Klientem w celu ich uzupełnienia lub korekty.
+
+Jeśli weryfikacja wykazuje problemy, Pracownik Sprzedaży kontaktuje się z Działem Prawnym lub Księgowym w celu ich rozwiązania.
+
+Jeżeli Klient nie aktywuje konta w określonym czasie, Pracownik Sprzedaży nawiązuje kontakt w celu wsparcia. Warunki końcowe:
+
+Klient ma aktywne konto i może korzystać z funkcji Strefy Klienta. Wymagania specjalne:
+
+Proces musi być zgodny z wewnętrznymi procedurami bezpieczeństwa danych.
+
+Dane powinny być chronione zgodnie z GDPR i innymi lokalnymi przepisami o ochronie danych. Częstotliwość występowania:
+
+Może mieć miejsce kilkakrotnie w ciągu dnia, w zależności od liczby nowych zgłoszeń rejestracyjnych.
+
+USZ.1.Z.5 Zmiana w samym procesie tworzenia podmiotu gospodarczego. Pracownik P-C-C-I przy wprowadzaniu nowego klienta może pominąć krok tworzenia nowego loginu dla pierwszego pracownika klienta.
+
+Wersja końcowa Aktor główny: Handlowiec Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Formularz rejestracyjny został prawidłowo wypełniony i przesłany przez potencjalnego Klienta. Główny przepływ wydarzeń:
+
+Handlowiec otrzymuje powiadomienie o nowym formularzu rejestracyjnym od Klienta.
+
+Handlowiec loguje się do systemu sprzedażowego. Handlowiec przegląda i weryfikuje przesłane informacje rejestracyjne Klienta.
+
+Handlowiec wprowadza dane Klienta do systemu sprzedażowego, włączając w to wszelkie wymagane dane korporacyjne i operacyjne.
+
+Handlowiec przekazuje dane do wstępnej weryfikacji zgodnie z polityką firmy, w tym sprawdzenie aktywności podmiotu w odpowiednich rejestrach publicznych i weryfikację tożsamości.
+
+Handlowiec tworzy w systemie sprzedażowym profil Klienta, przypisuje unikalne ID i zapisuje wszelkie notatki dotyczące komunikacji handlowej oraz preferencji.
+
+Po wprowadzeniu i zweryfikowaniu danych, Handlowiec zleca systemowi wygenerowanie danych logowania pierwszego użytkownika master.
+
+System generuje i wysyła na adres e-mail Klienta dane logowania oraz instrukcje dotyczące aktywacji konta.
+
+Handlowiec monitoruje proces aktywacji konta, gotów do wsparcia w przypadku pytań lub problemów Klienta.
+
+Po pomyślnej aktywacji, Handlowiec aktualizuje status Klienta w systemie na aktywny. Alternatywne przepływy:
+
+Jeśli dane są niekompletne lub błędne, Handlowiec kontaktuje się z Klientem w celu ich uzupełnienia lub korekty.
+
+Jeśli weryfikacja wykazuje problemy, Handlowiec kontaktuje się z Działem Prawnym lub Księgowym w celu ich rozwiązania.
+
+Jeśli klient nie wymaga tworzenia użytkownika można pominąć ten etap, uniemożliwia to klientowi zalogowanie się do systemu. Użytkownik może zostać dodany w każdej chwili do danego podmiotu gospodarczego przez Pracownik P-C-C-I D-O-K (Kierownik) zgodnie z H U-C 41.
+
+Jeżeli Klient nie aktywuje konta w określonym czasie, Handlowiec nawiązuje kontakt w celu wsparcia. Warunki końcowe:
+
+Klient ma aktywne konto i może korzystać z funkcji Strefy Klienta, jeżeli do klienta przypisany jest użytkownik i posiada dane do logowania. Wymagania specjalne:
+
+Proces musi być zgodny z wewnętrznymi procedurami bezpieczeństwa danych.
+
+Dane powinny być chronione zgodnie z GDPR i innymi lokalnymi przepisami o ochronie danych. Częstotliwość występowania:
+
+Może mieć miejsce kilkakrotnie w ciągu dnia, w zależności od liczby nowych zgłoszeń rejestracyjnych. H U-C 3: Weryfikacja nowo zarejestrowanego klienta Pierwotna wersja Aktor główny: Automat, Pracownik Działu Księgowego Aktorzy wspierający: Handlowiec Warunki wstępne:
+
+Klient zakończył proces rejestracji i jego dane są już wprowadzone do systemu przez Handlowca.
+
+System weryfikacyjny jest zintegrowany z zewnętrznymi bazami danych i działa poprawnie. Główny przepływ wydarzeń:
+
+System inicjuje proces weryfikacji, korzystając z zewnętrznych baz danych:
+
+Sprawdzenie aktywności prawnej Klienta w Krajowym Rejestrze Sądowym (KRS).
+
+Weryfikacja informacji o Kliencie w Głównym Urzędzie Statystycznym (GUS).
+
+Sprawdzenie numeru konta bankowego Klienta na białej liście bankowej.
+
+System analizuje otrzymane odpowiedzi z zewnętrznych baz danych i określa status weryfikacji dla każdego z punktów.
+
+W przypadku pozytywnej weryfikacji we wszystkich punktach, system aktualizuje profil Klienta jako zweryfikowany. Alternatywne przepływy:
+
+System identyfikując Klienta zagranicznego automatycznie przekazuje informację do Pracownika Działu Księgowego o konieczności ręcznego zweryfikowania klienta.
+
+Pracownik Działu Księgowego dokonuje ręcznej weryfikacji podmiotu przy wykorzystaniu odpowiednich, zagranicznych baz danych.
+
+Po pozytywnej weryfikacji Pracownik Działu Księgowego ręcznie potwierdza status dokonania weryfikacji nowego klienta.
+
+Jeśli system wykryje niezgodność danych, automatycznie informuje o tym Pracownika Działu Księgowego.
+
+Pracownik Działu Księgowego inicjuje procedurę wyjaśnienia niezgodności, która może wymagać kontaktu z Klientem (pośredniczyć w kontakcie może Handlowiec) Warunki końcowe:
+
+Klient jest zweryfikowany i możliwa jest dalsza współpraca. Wymagania specjalne:
+
+System musi zapewniać zgodność z przepisami o ochronie danych osobowych i poufności danych (na przykład GDPR).
+
+Weryfikacja powinna być zautomatyzowana w jak największym stopniu, aby zminimalizować czas potrzebny na aktywację Klienta. Częstotliwość występowania:
+
+Weryfikacja nowych Klientów może występować codziennie, z częstotliwością zależną od ilości nowych rejestracji. Uszczegółowienia.
+
+Wersja końcowa Aktor główny: System, Pracownik Działu Księgowego Aktorzy wspierający: Handlowiec Warunki wstępne:
+
+Klient zakończył proces rejestracji i jego dane są już wprowadzone do systemu przez Handlowca.
+
+System weryfikacyjny jest zintegrowany z zewnętrznymi bazami danych i działa poprawnie. Główny przepływ wydarzeń:
+
+System inicjuje proces weryfikacji, korzystając z zewnętrznych baz danych:
+
+Sprawdzenie aktywności prawnej Klienta w Krajowym Rejestrze Sądowym (KRS).
+
+Weryfikacja informacji o Kliencie w Głównym Urzędzie Statystycznym (GUS).
+
+Sprawdzenie numeru konta bankowego Klienta na białej liście bankowej.
+
+System analizuje otrzymane odpowiedzi z zewnętrznych baz danych i określa status weryfikacji dla każdego z punktów.
+
+W przypadku pozytywnej weryfikacji we wszystkich punktach, system aktualizuje profil Klienta jako zweryfikowany. Alternatywne przepływy:
+
+A1a. Klient zagraniczny o System identyfikując Klienta zagranicznego automatycznie przekazuje informację do Pracownika Działu Księgowego o konieczności ręcznego zweryfikowania klienta.
+
+Pracownik Działu Księgowego dokonuje ręcznej weryfikacji podmiotu przy wykorzystaniu odpowiednich, zagranicznych baz danych.
+
+Po pozytywnej weryfikacji Pracownik Działu Księgowego ręcznie potwierdza status dokonania weryfikacji nowego klienta.
+
+Jeśli system wykryje niezgodność danych, automatycznie informuje o tym Pracownika Działu Księgowego.
+
+Pracownik Działu Księgowego inicjuje procedurę wyjaśnienia niezgodności, która może wymagać kontaktu z Klientem (pośredniczyć w kontakcie może Handlowiec) Warunki końcowe:
+
+Klient jest zweryfikowany i możliwa jest dalsza współpraca. Wymagania specjalne:
+
+System musi zapewniać zgodność z przepisami o ochronie danych osobowych i poufności danych (na przykład GDPR).
+
+Weryfikacja powinna być zautomatyzowana w jak największym stopniu, aby zminimalizować czas potrzebny na aktywację Klienta. Częstotliwość występowania:
+
+Weryfikacja nowych Klientów może występować codziennie, z częstotliwością zależną od ilości nowych rejestracji. Dodatkowe informacje dla kontekstu Obiekty:
+
+Zarządzanie zasobami klienta H U-C 39: Zarzadzanie innymi kontami niż master przez użytkownika (klienta) z uprawnieniami master Pierwotna wersja Aktor główny: Pracownik zarejestrowanego klienta z uprawnieniami master.
+
+Użytkownika master ma stworzone i aktywne konto i jest przypisany do wybranego podmiotu gospodarczego Główny przepływ wydarzeń: Użytkownika z uprawnieniami master loguje się do systemu i wchodzi do obszaru zarzadzania uprawnieniami użytkowników danego podmiotu gospodarczego. Widzi aktualnych użytkowników i dla nich może zablokować lub zmienić dostęp. Dodatkowo jest opcja dodania nowe pracownika i ustawienia jego poziomu dostępu. W szczególności użytkownik master może stworzyć kolejnego użytkownika master. Alternatywne przepływy:
+
+A1a. Użytkownik master ustawia blokadę logow ania dla ostatniego konta master dla danego podmiotu. System powinien zablokować taką operację ze stosownym komunikatem Warunki końcowe:
+
+Konta które zostały zablokowane przez użytkownika master nie pozwalają na logowanie do systemu.
+
+Konta które zostały stworzone przez użytkownika master pozwalają zalogować się do systemu Wymagania specjalne:
+
+Po zakończeniu modyfikacji uprawnień przez użytkownika master musi być aktywne chociaż jedno konto master Uszczegółowienia.
+
+USZ.13.Z.2 W H U-C 39 należy dodać nowy typ użytkownika 'gość'. Pozwoli to samodzielnie klientowi na stworzenie dostępu dla kogo zdecyduje w trybie tylko do odczytu. Przy tworzeniu użytkownika gość można wybrać ze słownika listę widoków i filtrów dla tych widoków do jakich ma dostęp dany 'gość'.
+
+Wersja końcowa Aktor główny: Pracownik zarejestrowanego klienta z uprawnieniami master Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Użytkownika master ma stworzone i aktywne konto i jest przypisany do wybranego podmiotu gospodarczego Główny przepływ wydarzeń:
+
+Użytkownika z uprawnieniami master loguje się do systemu i wchodzi do obszaru zarzadzania uprawnieniami użytkowników danego podmiotu gospodarczego.
+
+Widzi aktualnych użytkowników i dla nich może zablokować lub zmienić dostęp.
+
+Dodatkowo jest opcja dodania nowego pracownika i ustawienia jego poziomu dostępu. W szczególności użytkownik master może stworzyć kolejnego użytkownika master.
+
+Istnieje możliwość dodatnia typu dostępu 'gość' pozwalający tylko na odczyt i dostęp do wybranych widoków. Alternatywne przepływy:
+
+A1a. Użytkownik master ustawia blokadę logowania dla ostatniego konta master dla danego podmiotu. System powinien zablokować taką operację ze stosownym komunikatem Warunki końcowe:
+
+Konta, które zostały zablokowane przez użytkownika master nie pozwalają na logowanie do systemu.
+
+Konta, które zostały stworzone przez użytkownika master pozwalają zalogować się do systemu. Wymagania specjalne:
+
+Po zakończeniu modyfikacji uprawnień przez użytkownika master musi być aktywne chociaż jedno konto master H U-C 40: Zarzadzanie jednostkami biznesowymi w ramach podmiotu gospodarczego Pierwotna wersja Aktor główny: Pracownik D-O-K P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Stworzony podmiot gospodarczy w systemie i użytkownik D-O-K P-C-C-I z uprawnieniami do edycji podmiotów gospodarczych Główny przepływ wydarzeń: Użytkownika D-O-K P-C-C-I loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie podmiotami biznesowymi. Po wyszukaniu podmiotu po (nazwie lub NIP) może wejść w edycje struktury biznesowej gdzie może:
+
+dodać nową jednostkę biznesową. usuną jednostkę biznesową. zmienić parametry jednostki biznesowej.
+
+ustawić jedna jednostkę biznesową jako tą z której są pobierane parametry dla przypadku, gdy brak jest konkretnego wskazania (default) Po wykonaniu zmian w strukturze organizacyjnej lub parametrach wybranej jednostki użytkownik zapisuje zmiany. Alternatywne przepływy: A1. Użytkownik próbuje usunąć ostatnią jednostkę biznesową. System powinien zablokować taką operację ze stosownym komunikatem A2. Użytkownik próbuje zapisać dane firmy bez wskazania default jednostki biznesowej. System powinien zablokować taką operację ze stosownym komunikatem A3. Użytkownik próbuje usunąć jednostkę biznesową dla której są przypisane już obiekty (zlecenia, oferty etc). System powinien zablokować taką operację ze stosownym komunikatem Warunki końcowe: W systemie jest dostępna zmodyfikowana struktura jednostek biznesowych i ich parametrów. Wymagania specjalne: Podmioty gospodarcze zawsze muszą mieć chociaż jedną jednostkę biznesową oznaczoną jako default Uszczegółowienia.
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Kierownik) Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Stworzony podmiot gospodarczy w systemie i Pracownik P-C-C-I D-O-K (Kierownik) z uprawnieniami do edycji podmiotów gospodarczych Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Kierownik) loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie podmiotami biznesowymi.
+
+Po wyszukaniu podmiotu po (nazwie lub NIP) może wejść w edycje struktury biznesowej, gdzie może:
+
+dodać nową jednostkę biznesową. usuną jednostkę biznesową. zmienić parametry jednostki biznesowej.
+
+ustawić jedna jednostkę biznesową jako tą z której są pobierane parametry dla przypadku, gdy brak jest konkretnego wskazania (default).
+
+Po wykonaniu zmian w strukturze organizacyjnej lub parametrach wybranej jednostki Pracownik P-C-C-I D-O-K (Kierownik) zapisuje zmiany. Alternatywne przepływy:
+
+A1. Pracownik P-C-C-I D-O-K (Kierownik) próbuje usunąć ostatnią jednostkę biznesową. System powinien zablokować taką operację ze stosownym komunikatem.
+
+A2. Pracownik P-C-C-I D-O-K (Kierownik) próbuje zapisać dane firmy bez wskazania default jednostki biznesowej. System powinien zablokować taką operację ze stosownym komunikatem.
+
+A3. Pracownik P-C-C-I D-O-K (Kierownik) próbuje usunąć jednostkę biznesową dla której są przypisane już obiekty (zlecenia, oferty etc). System powinien zablokować taką operację ze stosownym komunikatem Warunki końcowe:
+
+W systemie jest dostępna zmodyfikowana struktura jednostek biznesowych i ich parametrów. Wymagania specjalne:
+
+Podmioty gospodarcze zawsze muszą mieć chociaż jedną jednostkę biznesową oznaczoną jako default. H U-C 41: Dodawanie konta master do istniejącego podmiotu gospodarczego Pierwotna wersja Aktor główny: Pracownik D-O-K P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne: Stworzony podmiot gospodarczy w systemie i użytkownik D-O-K P-C-C-I z uprawnieniami do edycji podmiotów gospodarczych.
+
+Główny przepływ wydarzeń: Użytkownika D-O-K P-C-C-I loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie podmiotami biznesowymi. Po wyszukaniu podmiotu po (nazwie lub NIP) może wejść w edycje użytkowników danego podmiotu gospodarczego, gdzie może zobaczyć aktualnych użytkowników i dla nich zablokować lub zmienić dostęp. Dodatkowo jest opcja dodania nowe pracownika i ustawienia jego poziomu dostępu Alternatywne przepływy: Brak Warunki końcowe: Konta które zostały zablokowane przez pracownika D-O-K nie pozwalają na logowanie do systemu. Konta które zostały stworzone przez pracownika D-O-K pozwalają zalogować się do systemu Wymagania specjalne: Brak Uszczegółowienia.
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Kierownik) Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Stworzony podmiot gospodarczy w systemie i Pracownik P-C-C-I D-O-K (Kierownik) z uprawnieniami do edycji podmiotów gospodarczych Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Kierownik) loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie podmiotami biznesowymi.
+
+Po wyszukaniu podmiotu po (nazwie lub NIP) może wejść w edycje użytkowników danego podmiotu gospodarczego, gdzie może zobaczyć aktualnych użytkowników i dla nich zablokować lub zmienić dostęp.
+
+Dodatkowo jest opcja dodania nowego użytkownika i ustawienia jego poziomu dostępu. Alternatywne przepływy:
+
+Konta, które zostały zablokowane przez Pracownika D-O-K (Kierownik) nie pozwalają na logowanie do systemu.
+
+Konta które zostały stworzone przez Pracownika D-O-K (Kierownik) pozwalają zalogować się do systemu Wymagania specjalne:
+
+H U-C 50 - nowy U-C dla widoku 'read-only' dla gościa Pierwotna wersja Uszczegółowienia Pytania Wersja końcowa Dodatkowe informacje dla kontekstu Obiekty:
+
+Obsługa ofert H U-C 4: Prośba o przygotowanie oferty Pierwotna wersja Aktor główny: Klient Aktorzy wspierający: Handlowiec, System CRM, Dział Ofertowania, System Zarządzania Zleceniami, Dział IT Warunki wstępne:
+
+Klient posiada wystarczającą wiedzę o produktach i usługach firmy do złożenia prośby o ofertę.
+
+System CRM i system operacyjny do zarządzania zleceniami są online i w pełni funkcjonalne. Główny przepływ wydarzeń:
+
+Klient loguje się do Strefy Klienta. Klient nawiguje do formularza zgłoszeniowego oferty.
+
+Klient wypełnia formularz, podając szczegóły takie jak typ usługi, wymagany termin realizacji, miejsce dostawy i odbioru, typ ładunku, i tym podobne.
+
+System automatycznie przekazuje prośbę o ofertę do Działu Handlowego. Alternatywne przepływy:
+
+Klient przesyła zapytanie o ofertę mailowo do Handlowca (dedykowana skrzynka pocztowa).
+
+Na etapie wypełniania formularza Klient ma możliwość wysłania prośby o kontakt w celu wsparcia procesu wypełniania formularza przez Handlowca, po kontakcie z Handlowcem Klient składa standardowe zapytanie poprzez Strefę Klienta Warunki końcowe:
+
+Zapytanie o ofertę przekazane do Działu Handlowego Wymagania specjalne: Nie dotyczy Częstotliwość występowania:
+
+Proces może mieć miejsce wielokrotnie w ciągu dnia, w zależności od aktywności klientów. Uszczegółowienia Opis: Obiekt oferty powinien zawierać możliwość załączania plików. Przy załączaniu pliku klient może wybrać co to jest za załącznik (określona lista). Na ta chwile przewidywany jest generyczny załącznik, załącznik dotyczący niebezpiecznych materiałów, zapytanie ofertowe.
+
+USZ.1.Z.6 Zakres zmian: W przypadku klienta, który ma zdefiniowane więcej jednostek organizacyjnych niż 1 w trakcie składania zapytania ofertowego użytkownik może wybrać w ramach której jednostki organizacyjnej składa zapytanie. Ten wybór spowoduje przypisanie odpowiedniego handlowca do zapytania.
+
+USZ.2.Z.1 Zakres zmian: Użytkownik przy tworzeniu oferty ma możliwość wybrania typu załącznika i załączenia go do zapytania. Można dołączyć dowolną ilość plików do oferty, ale suma rozmiaru plików nie może przekroczyć 30MB per zapytanie ofertowe. Przy dodawaniu załącznika użytkownik musi wybrać typ załącznika z listy ogólny, materiały niebezpieczne.
+
+USZ.3.Z.1 Zakres zmian: W ramach zmiany zostaną stworzone dwa tryby wprowadzania oferty. W trybie end-2-end użytkownik zgodnie z H-L-D wybiera sobie punkt początkowy, punkt końcowy, parametry kontenera, usługi dodatkowe i z tego tworzy zapytanie o ofertę poprzez dodanie 1 lub więcej takich pozycji. W trybie rozszerzonym użytkownik wybiera sobie składowe oferty:
+
+transport samochodowy z wybranego terminala do wskazanych kodów pocztowych (z możliwością wskazania konkretnego adresu na danym kodzie pocztowym).
+
+usługi dodatkowe Każda składowa ma swoje parametry związane z ładunkiem. Elementy dodawane w trybie end-2-end jak i w trybie rozszerzonym są pobierane z katalogu produktów. W przypadku transportu kolejowego lub drogowego użytkownik może zaimportować wiele destynacji z pliku csv. Przy eksporcie z pliku csv handlowiec może wybrać która kolumna w pliku csv zawiera destynacje. Po wykonaniu importu system wyświetli info które destynacje udało się znaleźć w katalogu produktów. Zapytanie ofertowe może być wprowadzane albo w trybie end-2-end albo w trybie rozszerzonym - trybów nie można mieszać w jednym zapytaniu.
+
+Wersja końcowa Aktor główny: Klient Aktorzy wspierający: Handlowiec, System CRM, Dział Ofertowania, System Zarządzania Zleceniami, Dział IT Warunki wstępne:
+
+Klient posiada wystarczającą wiedzę o produktach i usługach firmy do złożenia prośby o ofertę.
+
+System CRM i system operacyjny do zarządzania zleceniami są online i w pełni funkcjonalne. Główny przepływ wydarzeń:
+
+Klient loguje się do Strefy Klienta. Klient nawiguje do formularza zgłoszeniowego oferty.
+
+Klient wypełnia formularz, podając szczegóły takie jak typ usługi, wymagany termin realizacji, miejsce dostawy i odbioru, typ ładunku, i tym podobne.
+
+Klient ma możliwość załączenia plików do zapytania ofertowego, wybierając typ załącznika z listy (ogólny, materiały niebezpieczne).
+
+Klient wybiera jednostkę organizacyjną, w ramach której składa zapytanie, jeśli posiada więcej niż jedną jednostkę organizacyjną.
+
+Tryb end-2-end: Użytkownik wybiera punkt początkowy, punkt końcowy, parametry kontenera, usługi dodatkowe i tworzy zapytanie o ofertę poprzez dodanie jednej lub więcej takich pozycji.
+
+Tryb rozszerzony: Użytkownik wybiera składowe oferty (transport kolejowy, transport samochodowy, usługi dodatkowe) i definiuje parametry związane z ładunkiem. Klient może zaimportować wiele destynacji z pliku CSV, a system wyświetli informacje o znalezionych destynacjach w katalogu produktów.
+
+System automatycznie przekazuje prośbę o ofertę do Handlowca. Alternatywne przepływy:
+
+Klient przesyła zapytanie o ofertę mailowo do Handlowca (dedykowana skrzynka pocztowa).
+
+Na etapie wypełniania formularza Klient ma możliwość wysłania prośby o kontakt w celu wsparcia procesu wypełniania formularza przez Handlowca, po kontakcie z Handlowcem Klient składa standardowe zapytanie poprzez Strefę Klienta Warunki końcowe:
+
+Zapytanie o ofertę przekazane do Handlowca Wymagania specjalne: Nie dotyczy Częstotliwość występowania:
+
+Proces może mieć miejsce wielokrotnie w ciągu dnia, w zależności od aktywności klientów. H U-C 5: Przygotowanie oferty przez handlowca Pierwotna wersja Aktor główny: Handlowiec Aktorzy wspierający: Klient Warunki wstępne:
+
+Wszystkie niezbędne informacje od Klienta dotyczące prośby o ofertę zostały otrzymane i są kompletnie. Główny przepływ wydarzeń:
+
+Handlowiec otrzymuje prośbę o ofertę od Klienta za pośrednictwem Strefy Klienta lub mailowo.
+
+W razie potrzeby, Handlowiec kontaktuje się z Klientem w celu doprecyzowania informacji lub negocjacji warunków.
+
+Handlowiec analizuje możliwości logistyczne i operacyjne firmy, konsultując się z odpowiednimi działami.
+
+Handlowiec wykorzystuje system ofertowy do stworzenia wstępnej kalkulacji kosztów usług, uwzględniając między innymi marżę, koszty transportu, koszty dodatkowe usług.
+
+System ofertowy prezentuje Handlowcowi minimalny koszt relacji transportowej oraz cennik usług dodatkowych.
+
+Handlowiec dostosowuje ofertę do potrzeb Klienta, może zaoferować opcjonalne usługi dodatkowe lub rabaty.
+
+Handlowiec wysyła ofertę do Klienta za pośrednictwem Strefy Klienta (zawsze), mailowo lub przez inny uzgodniony kanał komunikacji (opcjonalnie).
+
+Handlowiec pozostaje dostępny dla Klienta do odpowiadania na pytania i dalszych negocjacji. Alternatywne przepływy:
+
+Jeżeli informacje od Klienta są niekompletne, Handlowiec wysyła zapytanie o dodatkowe dane niezbędne do przygotowania oferty.
+
+W przypadku specyficznych wymagań Klienta, Handlowiec konsultuje możliwości ich realizacji z Działem Operacyjnym. Warunki końcowe:
+
+Klient otrzymał wszystkie informacje niezbędne do podjęcia decyzji. Wymagania specjalne:
+
+Dane Klienta i szczegóły oferty muszą być traktowane jako poufne i chronione zgodnie z polityką bezpieczeństwa firmy.
+
+System ofertowy powinien być aktualny i zawierać najnowsze dane dotyczące kosztów i cenników. Częstotliwość występowania:
+
+Przygotowanie oferty może być codziennym zadaniem, zależnie od liczby i częstotliwości otrzymywanych zapytań od klientów. Uszczegółowienia Opis: 30% ofert będzie zakładana zgodnie z H U-C 5 natomiast pozostałe 70% to oferty, gdzie jest bardzo dużo destynacji i musi być możliwość wprowadzenia takiej oferty do systemu. Użytkownik będzie ją inicjował wysyłając maila albo handlowiec sam będzie rozpoczynał pracę. Ważne jest, żeby U-I pozwalało szybko wprowadzić wiele destynacji. Są dwa typy takich ofert.
+
+handlowiec sam przygotowuje dużo pozycji (na przykład transport w obrębie województwa X).
+
+Do rozważenia przycisk w ofercie pobierz destynacje czy coś podobnego co będzie mogło wczytać z xls, csv, pliku txt wiele pozycji i wrzucić je do systemu - w U-I będzie można wskazać czy to jest kolej, pełna relacja, podstawienia trakowe etc.
+
+USZ.3.Z.3 Zakres zmian: Handlowiec przeglądając ofertę widzi wszystkie wybrane przez klienta elementy do oferty a obok każdego elementu wyświetla się cena pobrana z cennika. Handlowiec może zmienić cenę zaproponowaną dla elementu. Jeżeli przekroczy cenę pojawia się informacja ze cena za która handlowiec chce zaoferować dany element jest poza dozwolonym zakresem.
+
+Wersja końcowa Aktor główny: Handlowiec Aktorzy wspierający: Klient Warunki wstępne:
+
+Wszystkie niezbędne informacje od Klienta dotyczące prośby o ofertę zostały otrzymane i są kompletnie. Główny przepływ wydarzeń:
+
+Handlowiec otrzymuje prośbę o ofertę od Klienta za pośrednictwem Strefy Klienta lub mailowo.
+
+W razie potrzeby, Handlowiec kontaktuje się z Klientem w celu doprecyzowania informacji lub negocjacji warunków.
+
+Handlowiec analizuje możliwości logistyczne i operacyjne firmy, konsultując się z odpowiednimi działami.
+
+Handlowiec wykorzystuje system ofertowy do stworzenia wstępnej kalkulacji kosztów usług, uwzględniając między innymi marżę, koszty transportu, koszty dodatkowe usług.
+
+System ofertowy prezentuje Handlowcowi minimalny koszt relacji transportowej oraz cennik usług dodatkowych.
+
+Handlowiec przegląda wszystkie wybrane przez Klienta elementy do oferty, a obok każdego elementu wyświetla się cena pobrana z cennika. Handlowiec może zmienić cenę zaproponowaną dla elementu. Jeżeli przekroczy cenę, pojawia się informacja, że cena, za którą Handlowiec chce zaoferować dany element jest poza dozwolonym zakresem.
+
+Handlowiec dostosowuje ofertę do potrzeb Klienta, może zaoferować opcjonalne usługi dodatkowe lub rabaty.
+
+Handlowiec wysyła ofertę do Klienta za pośrednictwem Strefy Klienta (zawsze), mailowo lub przez inny uzgodniony kanał komunikacji (opcjonalnie).
+
+Handlowiec pozostaje dostępny dla Klienta do odpowiadania na pytania i dalszych negocjacji. Alternatywne przepływy:
+
+Jeżeli informacje od Klienta są niekompletne, Handlowiec wysyła zapytanie o dodatkowe dane niezbędne do przygotowania oferty.
+
+W przypadku specyficznych wymagań Klienta, Handlowiec konsultuje możliwości ich realizacji z Działem Operacyjnym. Warunki końcowe:
+
+Klient otrzymał wszystkie informacje niezbędne do podjęcia decyzji. Wymagania specjalne:
+
+Dane Klienta i szczegóły oferty muszą być traktowane jako poufne i chronione zgodnie z polityką bezpieczeństwa firmy.
+
+System ofertowy powinien być aktualny i zawierać najnowsze dane dotyczące kosztów i cenników. Częstotliwość występowania:
+
+Przygotowanie oferty może być codziennym zadaniem, zależnie od liczby i częstotliwości otrzymywanych zapytań od klientów. H U-C 6: Przekazanie oferty klientowi Pierwotna wersja Aktor główny: Handlowiec Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Oferta została przygotowana i zatwierdzona przez wszystkie niezbędne działy w firmie.
+
+Klient jest zarejestrowany i ma aktywne konto w Strefie Klienta. Główny przepływ wydarzeń:
+
+Handlowiec kończy przygotowanie oferty zgodnie z procedurami firmy i oczekiwaniami Klienta.
+
+Handlowiec wprowadza ofertę do systemu i weryfikuje poprawność danych.
+
+System automatycznie publikuje ofertę w Strefie Klienta. Alternatywne przepływy:
+
+Jeżeli Klient o ofertę zapytał droga mailową, oferta przekazywana do niego jest zarówno poprzez Strefę Klienta jak i kanałem mailowym jako wiadomość zwrotna. Warunki końcowe:
+
+Proces akceptacji oferty musi być prosty i intuicyjny dla Klienta, aby maksymalnie skrócić czas do akceptacji. Częstotliwość występowania:
+
+Może wystąpić wielokrotnie w ciągu dnia, w zależności od aktywności handlowej i liczby zapytań ofertowych od klientów. Uszczegółowienia.
+
+Wersja końcowa Aktor główny: Handlowiec Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Oferta została przygotowana i zatwierdzona przez wszystkie niezbędne działy w firmie.
+
+Klient jest zarejestrowany i ma aktywne konto w Strefie Klienta. Główny przepływ wydarzeń:
+
+Handlowiec kończy przygotowanie oferty zgodnie z procedurami firmy i oczekiwaniami Klienta.
+
+Handlowiec wprowadza ofertę do systemu i weryfikuje poprawność danych.
+
+System automatycznie publikuje ofertę w Strefie Klienta. Alternatywne przepływy:
+
+Jeżeli Klient o ofertę zapytał droga mailową, oferta przekazywana do niego jest zarówno poprzez Strefę Klienta jak i kanałem mailowym jako wiadomość zwrotna. Warunki końcowe:
+
+Proces akceptacji oferty musi być prosty i intuicyjny dla Klienta, aby maksymalnie skrócić czas do akceptacji. Częstotliwość występowania:
+
+Może wystąpić wielokrotnie w ciągu dnia, w zależności od aktywności handlowej i liczby zapytań ofertowych od klientów. H U-C 7: Akceptacja oferty Pierwotna wersja Aktor główny: Klient Aktorzy wspierający: Handlowiec Warunki wstępne:
+
+Klient jest zarejestrowany i ma aktywne konto w Strefie Klienta. Główny przepływ wydarzeń:
+
+Klient otrzymuje powiadomienie o dostępności nowej oferty poprzez Strefę Klienta oraz opcjonalnie poprzez e-mail.
+
+Klient loguje się do Strefy Klienta, aby przejrzeć szczegóły oferty.
+
+Klient może zaakceptować ofertę wyłącznie bezpośrednio w Strefie Klienta, klikając Akceptuję ofertę.
+
+Handlowiec otrzymuje powiadomienie o akceptacji oferty przez Klienta. Alternatywne przepływy:
+
+Jeśli Klient ma pytania, może wysłać zapytanie do Handlowca za pośrednictwem Strefy Klienta lub drogą mailową.
+
+Klient może poprosić o negocjacje warunków. Handlowiec wówczas podejmuje rozmowy w celu dostosowania oferty do potrzeb Klienta.
+
+W przypadku odrzucenia, Handlowiec kontaktuje się z Klientem, aby zrozumieć powody odrzucenia i proponuje zmiany lub alternatywne rozwiązania. Warunki końcowe:
+
+Oferta jest zaakceptowana przez Klienta i może być wykorzystana do złożenia zlecenia.
+
+Jeśli oferta nie jest zaakceptowana, rozpoczyna się proces negocjacji lub wyjaśniania wątpliwości. Wymagania specjalne:
+
+Proces akceptacji oferty musi być prosty i intuicyjny dla Klienta, aby maksymalnie skrócić czas do akceptacji. Częstotliwość występowania:
+
+Może wystąpić wielokrotnie w ciągu dnia, w zależności od aktywności handlowej i liczby zapytań ofertowych od klientów. Uszczegółowienia.
+
+Wersja końcowa Aktor główny: Klient Aktorzy wspierający: Handlowiec Warunki wstępne:
+
+Klient jest zarejestrowany i ma aktywne konto w Strefie Klienta. Główny przepływ wydarzeń:
+
+Klient otrzymuje powiadomienie o dostępności nowej oferty poprzez Strefę Klienta oraz opcjonalnie poprzez e-mail.
+
+Klient loguje się do Strefy Klienta, aby przejrzeć szczegóły oferty.
+
+Klient może zaakceptować ofertę wyłącznie bezpośrednio w Strefie Klienta, klikając Akceptuję ofertę.
+
+Handlowiec otrzymuje powiadomienie o akceptacji oferty przez Klienta. Alternatywne przepływy:
+
+Jeśli Klient ma pytania, może wysłać zapytanie do Handlowca za pośrednictwem Strefy Klienta lub drogą mailową.
+
+Klient może poprosić o negocjacje warunków. Handlowiec wówczas podejmuje rozmowy w celu dostosowania oferty do potrzeb Klienta.
+
+W przypadku odrzucenia, Handlowiec kontaktuje się z Klientem, aby zrozumieć powody odrzucenia i proponuje zmiany lub alternatywne rozwiązania.
+
+Oferta jest zaakceptowana przez Klienta i może być wykorzystana do złożenia zlecenia.
+
+Jeśli oferta nie jest zaakceptowana, rozpoczyna się proces negocjacji lub wyjaśniania wątpliwości. Wymagania specjalne:
+
+Proces akceptacji oferty musi być prosty i intuicyjny dla Klienta, aby maksymalnie skrócić czas do akceptacji. Częstotliwość występowania:
+
+Może wystąpić wielokrotnie w ciągu dnia, w zależności od aktywności handlowej i liczby zapytań ofertowych od klientów. H U-C 42: Wprowadzanie zapytania ofertowego związanego z przetargiem Pierwotna wersja Warunki wstępne:
+
+Stworzony podmiot gospodarczy w systemie i aktywny użytkownik o profilu handlowiec P-C-C-I. Główny przepływ wydarzeń:
+
+Handlowiec P-C-C-I loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie podmiotami biznesowymi.
+
+Po wyszukaniu podmiotu po (nazwie lub NIP) ma dostępną opcję pozwalającą stworzyć puste zapytanie o ofertę w imieniu klienta.
+
+Po stworzeniu pustego zapytania handlowiec może ją edytować tak aby jego zawartość odpowiadała zapytaniu przetargowemu - w szczególności, aby pozycje na zapytaniu zgadzały się z pozycjami z przetargu.
+
+Gdy zapytanie ofertowe jest już zgodna z przetargiem handlowiec może ja zamknąć i wysłać do obsługi zgodnie z procesem w H U-C 5. W systemie musi być oznaczone ze to konkretne zapytanie o ofertę było zainicjowane jako odpowiedz na przetarg i wprowadzone przez handlowca a nie klienta. Alternatywne przepływy:
+
+W systemie pojawia się nowe zapytanie ofertowe które trafia do Handlowca, który je stworzył i jest procesowane zgodnie z H U-C 5 Wymagania specjalne:
+
+Wersja końcowa Aktor główny: Handlowiec. Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Stworzony podmiot gospodarczy w systemie i aktywny użytkownik o profilu Handlowiec. Główny przepływ wydarzeń:
+
+Handlowiec loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie podmiotami biznesowymi.
+
+Po wyszukaniu podmiotu po (nazwie lub NIP) ma dostępną opcję pozwalającą stworzyć puste zapytanie o ofertę w imieniu klienta.
+
+Po stworzeniu pustego zapytania Handlowiec może ją edytować tak aby jego zawartość odpowiadała zapytaniu przetargowemu - w szczególności, aby pozycje na zapytaniu zgadzały się z pozycjami z przetargu.
+
+Gdy zapytanie ofertowe jest już zgodna z przetargiem Handlowiec może ja zamknąć i wysłać do obsługi zgodnie z procesem w H U-C 5. W systemie musi być oznaczone ze to konkretne zapytanie o ofertę było zainicjowane jako odpowiedz na przetarg i wprowadzone przez handlowca a nie klienta. Alternatywne przepływy:
+
+W systemie pojawia się nowe zapytanie ofertowe które trafia do Handlowca, który je stworzył i jest procesowane zgodnie z H U-C 5 Wymagania specjalne:
+
+Katalog produktów H U-C 43: Udostępnianie katalogu produktów Pierwotna wersja Aktor główny: System Aktorzy wspierający: Nie dotyczy Warunki wstępne: Katalog produktów został zainicjalizowany danymi o usługach P-C-C-I, danymi o grupach kontenerów i ich mapowaniu między numerami ISO a grupami handlowymi Główny przepływ wydarzeń: Dowolny komponent systemu może pobrać dane o wszystkich lub wybranych produktach. Dane o produkcie zawierają identyfikator, nazwę, opis, typ (transport kolejowy, transport samochodowy, obsługa na terminalu, obsługa administracyjna), terminale na których jest dostępny dany produkt (mogą być specyficzne usługi dostępne tylko w paru lokalizacjach.
+
+P-C-C-I), grupę biznesową kontenerów do których dany produkt się odnosi (list numerów ISO kontenerów dla których dana usługa ma sens - w systemie zamiast za każdym razem posługiwać się numerami ISO będę stworzone grupy kontenerów na przykład standardowe 20 ), dla usług transportowych produkt powinien zawierać wskazanie miejsca startu i stop (to może być wskazanie kodem pocztowym obszaru, wskazanie nazwa lokalizacji P-C-C-I lub wskazanie kodem pocztowym i konkretnym adresem) Wyszukiwanie usług może być po typie, części nazwy, grupie kontenerów biznesowych lub numerze ISO typu kontenera lub terminalu. Poza listą produktów moduł powinien zwracać dostępne lokalizację jakie można wybrać przy zleceniach transportowych (kody pocztowe lub lokalizacje P-C-C-I), grupy biznesowe kontenerów i mapowane do nich numery ISO typów kontenerów Dla każdego produktu powinien być dostępny zakres dat, kiedy produkt jest aktywny. Poszczególne moduły powinny wykorzystać tą informacje w odpowiedni sposób, aby wyświetlić lub nie informacje pobrane dla nieaktywnych produktów z katalogu Alternatywne przepływy: Brak Warunki końcowe: Komponent, który potrzebuje danych o produktach P-C-C-I zawsze ma dostęp do pełnych danych Wymagania specjalne: Brak Uszczegółowienia.
+
+Wersja końcowa Aktor główny: System Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Katalog produktów został zainicjalizowany danymi o usługach P-C-C-I, danymi o grupach kontenerów i ich mapowaniu między numerami ISO a grupami handlowymi Główny przepływ wydarzeń:
+
+Dowolny komponent systemu może pobrać dane o wszystkich lub wybranych produktach.
+
+Dane o produkcie zawierają identyfikator, nazwę, opis, typ (transport kolejowy, transport samochodowy, obsługa na terminalu, obsługa administracyjna), terminale na których jest dostępny dany produkt (mogą być specyficzne usługi dostępne tylko w paru lokalizacjach P-C-C-I), grupę biznesową kontenerów do których dany produkt się odnosi (list numerów ISO kontenerów dla których dana usługa ma sens - w systemie zamiast za każdym razem posługiwać się numerami ISO będę stworzone grupy kontenerów na przykład standardowe 20 ), dla usług transportowych produkt powinien zawierać wskazanie miejsca startu i stop (to może być wskazanie kodem pocztowym obszaru, wskazanie nazwa lokalizacji P-C-C-I lub wskazanie kodem pocztowym i konkretnym adresem).
+
+Wyszukiwanie usług może być po typie, części nazwy, grupie kontenerów biznesowych lub numerze ISO typu kontenera lub terminalu.
+
+Poza listą produktów System powinien zwracać dostępne lokalizację jakie można wybrać przy zleceniach transportowych (kody pocztowe lub lokalizacje P-C-C-I), grupy biznesowe kontenerów i mapowane do nich numery ISO typów kontenerów.
+
+Dla każdego produktu powinien być dostępny zakres dat, kiedy produkt jest aktywny.
+
+Poszczególne moduły powinny wykorzystać tą informacje w odpowiedni sposób, aby wyświetlić lub nie informacje pobrane dla nieaktywnych produktów z katalogu. Alternatywne przepływy:
+
+Komponent, który potrzebuje danych o produktach P-C-C-I zawsze ma dostęp do pełnych danych Wymagania specjalne:
+
+Brak H U-C 44: Udostępnianie aktualnego cennika (zakresu cenowego dla produktów z katalogu) Pierwotna wersja Aktor główny: System Aktorzy wspierający: Nie dotyczy Warunki wstępne: Katalog produktów został zainicjalizowany danymi o usługach P-C-C-I, cennik został zainicjalizowany danymi o cenach produktów Główny przepływ wydarzeń: Dowolny komponent systemu może pobrać dane o wszystkich lub wybranych cenach produktów. Podbieranie danych z cennika odbywa się na podstawie listy identyfikatorów produktów. Dla każdego produktu system zwraca dopuszczalny zakres cenowy i zakres dat obowiązywania. Dla komponentów które nie przekażą dodatkowych parametrów zwracana jest zawsze najbardziej aktualna cena dla danych produktów (tak która ma najmłodszą datą utworzenia). Dla produktów, dla których nie ma cenny lub wprowadzona już cena wygasła zwracana jest informacja informująca ze produkt nie posiada ceny. Komponent powinien w odpowiedni sposób wykorzystać informacje o braku ceny Alternatywne przepływy: Brak Warunki końcowe: Komponent, który potrzebuje danych o cenach produktów P-C-C-I zawsze ma dostęp do pełnych danych Wymagania specjalne: Brak Uszczegółowienia.
+
+Wersja końcowa Aktor główny: System. Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Katalog produktów został zainicjalizowany danymi o usługach P-C-C-I, cennik został zainicjalizowany danymi o cenach produktów Główny przepływ wydarzeń:
+
+Dowolny komponent systemu może pobrać dane o wszystkich lub wybranych cenach produktów. Podbieranie danych z cennika odbywa się na podstawie listy identyfikatorów produktów.
+
+Dla każdego produktu system zwraca dopuszczalny zakres cenowy i zakres dat obowiązywania. Dla komponentów które nie przekażą dodatkowych parametrów zwracana jest zawsze najbardziej aktualna cena dla danych produktów (tak która ma najmłodszą datą utworzenia). Dla produktów, dla których nie ma cenny lub wprowadzona już cena wygasła zwracana jest informacja informująca ze produkt nie posiada ceny.
+
+Komponent powinien w odpowiedni sposób wykorzystać informacje o braku ceny. Alternatywne przepływy:
+
+Komponent, który potrzebuje danych o cenach produktów P-C-C-I zawsze ma dostęp do pełnych danych Wymagania specjalne:
+
+Brak H U-C 45: Edycja katalogu produktów Pierwotna wersja Aktor główny: Pracownik P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne: Użytkownik P-C-C-I z uprawnieniami do edycji katalogu produktów Główny przepływ wydarzeń: Użytkownika D-O-K P-C-C-I loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie katalogiem produktów. Użytkownik może dodać nowy produkt lub wyszukać istniejący produkt i go zmienić lub wyłączyć. Wyłączenie produktu powoduje, że produkt nie będzie dostępny przy tworzeniu nowych zapytań o ofertę. Zmiana produktu tworzy nową wersję produktu która od momentu zapisania staje się obowiązującą w systemie. Użytkownik dla nowego lub zmodyfikowanego produktu powinien wprowadzić nową cenę zgodnie z H U-C 46. Alternatywne przepływy:
+
+Produkty które zostały utworzone są widoczne w interfejsie do modyfikacji cen, ale nie są widoczne jeszcze w interfejsie do tworzenia ofert.
+
+Produkty które zostały wyłączone nie wyświetlają się użytkownikowi przy tworzeniu zapytania ofertowego. Nadal mogą się wyświetlać przy tworzeniu zlecenia, dla ofert które jeszcze są aktywne.
+
+Produkty które zostały zmienione są widoczne w interfejscie do modyfikacji cen i nie są widoczne w interfejsie do tworzenia ofert.
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Starszy specjalista) Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Pracownik P-C-C-I D-O-K (Starszy specjalista) posiada konto w systemie.
+
+Pracownik P-C-C-I D-O-K (Starszy specjalista) ma uprawnienia do edycji katalogu produktów Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Starszy specjalista) loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie katalogiem produktów.
+
+Pracownik P-C-C-I D-O-K (Starszy specjalista) może dodać nowy produkt lub wyszukać istniejący produkt i go zmienić lub wyłączyć. Wyłączenie produktu powoduje, że produkt nie będzie dostępny przy tworzeniu nowych zapytań o ofertę. Zmiana produktu tworzy nową wersję produktu która od momentu zapisania staje się obowiązującą w systemie.
+
+Pracownik D-O-K (Starszy specjalista) dla nowego lub zmodyfikowanego produktu powinien wprowadzić nową cenę zgodnie z H U-C 46. Alternatywne przepływy:
+
+Produkty które zostały utworzone są widoczne w interfejsie do modyfikacji cen, ale nie są widoczne jeszcze w interfejsie do tworzenia ofert.
+
+Produkty które zostały wyłączone nie wyświetlają się Klientu przy tworzeniu zapytania ofertowego. Nadal mogą się wyświetlać przy tworzeniu zlecenia, dla ofert które jeszcze są aktywne.
+
+Produkty które zostały zmienione są widoczne w interfejscie do modyfikacji cen i nie są widoczne w interfejsie do tworzenia ofert. Wymagania specjalne:
+
+Brak H U-C 46: Edycja cen dla produktów w katalogu produktów Pierwotna wersja Aktor główny: Pracownik P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne: Użytkownik P-C-C-I z uprawnieniami do edycji katalogu produktów Główny przepływ wydarzeń: Użytkownika D-O-K P-C-C-I loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie cenami dla produktów zdefiniowanych w katalogu produktów. Użytkownik może szybko wyszukać produkty, dla których nie ma cen lub dla których ceny już wygasły i wprowadzić nowe wartości wraz z data do kiedy dana cena ma obowiązywać. Dodatkowo użytkownik może wyszukać produkt po nazwie lub po tym za ile wygaśnie mu cena i zaktualizować cen i daty obowiązywania cen. Istnieje możliwość wybrania wielu produktów i zwiększenia im cen o wskazany %. Alternatywne przepływy: Brak Warunki końcowe: Produkty, dla których zostały ustawione ceny a które nie miały wcześniej ustawionej ceny stają się widoczne w interfejsie do tworzenia ofert Wymagania specjalne: Brak Uszczegółowienia.
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Starszy specjalista) Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Pracownik P-C-C-I D-O-K (Starszy specjalista) posiada konto w systemie.
+
+Pracownik P-C-C-I D-O-K (Starszy specjalista) ma uprawnienia do edycji katalogu produktów Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Starszy specjalista) loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie cenami dla produktów zdefiniowanych w katalogu produktów.
+
+Pracownik P-C-C-I D-O-K (Starszy specjalista) może szybko wyszukać produkty, dla których nie ma cen lub dla których ceny już wygasły i wprowadzić nowe wartości wraz z data do kiedy dana cena ma obowiązywać.
+
+Dodatkowo Pracownik P-C-C-I D-O-K (Starszy specjalista) może wyszukać produkt po nazwie lub po tym za ile wygaśnie mu cena i zaktualizować cen i daty obowiązywania cen. Istnieje możliwość wybrania wielu produktów i zwiększenia im cen o wskazany %. Alternatywne przepływy:
+
+Produkty, dla których zostały ustawione ceny a które nie miały wcześniej ustawionej ceny stają się widoczne w interfejsie do tworzenia ofert Wymagania specjalne:
+
+Złożenie zlecenia H U-C 8: Złożenie zlecenia przez EDI lub A-P-I Pierwotna wersja Aktor główny: Klient Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Platforma EDI lub A-P-I jest skonfigurowana i zintegrowana z wewnętrznymi systemami firmy.
+
+Klient posiada wszystkie niezbędne informacje do złożenia zlecenia. Główny przepływ wydarzeń:
+
+Klient korzysta z interfejsu EDI lub A-P-I do przesłania danych zlecenia do systemu P-C-C-I, w tym informacji o miejscu i dacie podjęcia kontenera, typie kontenera, typie ładunku, miejscu i dacie zdania kontenera oraz ewentualnej dacie podstawienia.
+
+Dane poprzez EDI lub A-P-I trafiają do systemu P-C-C-I. Warunki końcowe:
+
+Klient jest informowany o statusie zlecenia na każdym etapie procesu. Wymagania specjalne:
+
+System musi zapewniać wysoki poziom bezpieczeństwa danych i transakcji.
+
+Wszystkie transmisje danych muszą być szyfrowane i zabezpieczone przed nieautoryzowanym dostępem.
+
+System EDI lub A-P-I powinien być zdolny do obsługi wysokiego obciążenia i liczby transakcji. Częstotliwość występowania:
+
+Złożenie zlecenia przez EDI lub A-P-I może mieć miejsce wielokrotnie w ciągu dnia, w zależności od liczby Klientów korzystających z tych metod i ich aktywności biznesowej. Uszczegółowienia Opis: Ze względu na fakt ze dokumenty i dodatkowe dane niezbędne do realizacji zamówienia spływają w asynchroniczny sposób należy zmienić sposób w jaki jest weryfikowana ich obecność i poprawność a także sposób przypominania klientowi o tym. Dokumenty i dane dodatkowe powinny być przypisane do operacji, która ich wymaga i wszystkie terminy notyfikacji i wymagalności dokumentów powinny być liczone od daty rozpoczęcia danej operacji.

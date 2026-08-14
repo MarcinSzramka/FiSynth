@@ -1,0 +1,14 @@
+Protokół odbioru etapu 1.
+
+do Umowy na opracowanie i wdrożenie systemu informatycznego z dnia 19.08.2024 roku podpisany.
+
+Produkty dostarczane przez E-Y do Zamawiającego i będące przedmiotem odbioru Etapu 1:
+
+Logistyka 4.0. Dokumentacja ich wzajemne powiązania oraz sposób komunikacji aplikacji Keycloak. Wersja 1.0 między nimi. Rewizja lub aktualizacja w dokumentacji powykonawczej. Wersja 1.0 diagramie relacji encji (E-R-D), z wyszczególnieniem encji, ich atrybutów oraz relacji między nimi. Dokument opisuje podejście do procesu zbierania oraz tworzenie szczegółowego diagramu E-R-D, który będzie używany do modelowanie danych i implementacji systemu. 1.0 przesyłane, przetwarzane i przechowywane. Rewizja w dokumentacji wykonawczej. interfejsów i doświadczenia interfejsu dla użytkownika, źródła danych, na których użytkownika. Wersja 1.0 opiera się projektowanie oraz wyniki prac projektowych na obecnym etapie. Projekty interfejsu budowane zgodnie z planem developmentu. zewnętrznymi. Intefejsy A-P-I systemami • Integracje - lista (plik.xlsx) zewnętrznymi Wersja. 1.0 monitorowania postępów prac.
+
+Po przeprowadzeniu odbioru produktów Etapu 1 Końcowego, potwierdzamy, że produkty Etapu 1 Umowy nr. z dnia. zostały odebrane bez uwag lub z następującymi uwagami:
+
+Uwagi Komisji (wypełnić tylko w przypadku nieprawidłowo wykonanej usługi): N lub A.
+
+
+CZĘŚĆ CZWARTA. DEWELOPMENT — PROCESY I DOKUMENTACJA APLIKACYJNA.

@@ -1,0 +1,183 @@
+Aplikacja imv.
+
+Logistyka 4.0 Dokumentacja systemu Aplikacja I-M-V. Historia zmian i zatwierdzenia.
+
+imv sesje pojazdow, imv statusy pojazdow, terminale) i relacji między nimi. Dodano opisy endpointów:
+
+Kamiński Dodano opis tabeli imv usterki sesji pojazdu i imv rodzaje obiektow oraz relacji między nimi.
+
+Dodano schemat bazy. Kamiński Dodano szczegóły dotyczące nowych tabel ( imv przerwy uzytkownikow, terminal miejsce postoju, imv statusy sesji pojazdow) i relacji między nimi. Dodano opisy endpointów:
+
+Kamiński I-M-V. Rozszerzono obsługę statusów sesji i statusów pojazdów.
+
+Ciągnik, na którym pracuje Operator, powinien być aktywowany do obsługi zadań przez TrafÏc Plannera w trybie pracy zestaw.
+
+Operator powinien otrzymać zadanie podjazdu na załadunek kontenera we wskazane pole terminala.
+
+Operator powinien potwierdzić dotarcie do wskazanego miejsca w aplikacji I-M-V.
+
+Operator urządzenia przeładunkowego powinien zrealizować załadunek kontenera na I-M-V, sygnalizując zakończenie czynności sygnałem dźwiękowym.
+
+Po zakończonym załadunku Operator powinien otrzymać informację o zakończonym załadunku i możliwości odjazdu we wskazane pole terminala.
+
+Operator powinien udać się zestawem we wskazane miejsce po załadunku.
+
+Operator powinien potwierdzić dotarcie do wskazanego miejsca w aplikacji I-M-V po przyjeździe.
+
+Operator urządzenia przeładunkowego powinien zrealizować rozładunek kontenera z I-M-V.
+
+Po zakończonym rozładunku Operator powinien otrzymać informację o zakończonym rozładunku i możliwości realizacji kolejnego zadania.
+
+Operator powinien móc zgłosić problem z ciągnikiem lub naczepą do TrafÏc Plannera poprzez funkcję zgłaszania nieprawidłowości.
+
+Operator powinien móc zgłosić problem z kontenerem do TrafÏc Plannera poprzez funkcję zgłaszania nieprawidłowości.
+
+Zalogowany Operator powinien oczekiwać na kolejne zadanie I-M-V po zakończeniu aktualnego zadania.
+
+Wszystkie statusy powinny być rejestrowane w systemie dla celów operacyjnych i kontrolnych.
+
+Realizacja zadań transportowych I-M-V powinna być wykonywana wielokrotnie przez każdego Operatora I-M-V w czasie jego zmiany.
+
+Ciągnik, na którym pracuje Operator, powinien być aktywowany do obsługi zadań przez TrafÏc Plannera w trybie pracy solo.
+
+Operator powinien otrzymać zadanie podjazdu we wskazane pole terminala w celu podjęcia załadowanej naczepy.
+
+Operator powinien potwierdzić dotarcie do wskazanego miejsca w aplikacji I-M-V.
+
+Aplikacja powinna wskazać dopięcie naczepy jako kolejne zadanie. Operator powinien dopiąć oczekującą naczepę. Operator powinien potwierdzić w aplikacji dopięcie naczepy.
+
+Aplikacja powinna wskazać przejazd we wskazane miejsce na terminalu jako kolejne zadanie.
+
+Operator powinien udać się pojazdem z naczepą we wskazane miejsce.
+
+Operator powinien potwierdzić dotarcie do wskazanego miejsca w aplikacji I-M-V.
+
+Aplikacja powinna wskazać odpięcie naczepy jako kolejne zadanie. Operator powinien odpinać naczepę od ciągnika I-M-V. Operator powinien potwierdzić w aplikacji odpięcie naczepy.
+
+Operator powinien móc zgłosić problem z ciągnikiem lub naczepą do TrafÏc Plannera poprzez funkcję zgłaszania nieprawidłowości.
+
+Operator powinien móc zgłosić problem z kontenerem do TrafÏc Plannera poprzez funkcję zgłaszania nieprawidłowości.
+
+Zalogowany Operator powinien oczekiwać na kolejne zadanie I-M-V po zakończeniu aktualnego zadania.
+
+System powinien działać w czasie rzeczywistym i być w pełni zintegrowany z innymi systemami operacyjnymi firmy.
+
+Wszystkie statusy powinny być rejestrowane w systemie dla celów operacyjnych i kontrolnych.
+
+Realizacja zadań transportowych I-M-V powinna być wykonywana wielokrotnie przez każdego Operatora I-M-V w czasie jego zmiany.
+
+Zgłoszenie nieprawidłowości powinno mieć miejsce najczęściej w czasie realizacji aktywnego zadania I-M-V.
+
+Operator powinien przerwać realizowaną czynność i w bezpiecznym miejscu zatrzymać ciągnik I-M-V.
+
+Operator powinien zgłosić nieprawidłowość w aplikacji, wybierając przycisk nieprawidłowości.
+
+Operator powinien wskazać, jakiego typu obiektu dotyczy zgłoszenie: ciągnika, naczepy lub kontenera.
+
+Zgłoszenie nieprawidłowości związanej z ciągnikiem powinno automatycznie wywołać zmianę statusu tego ciągnika na nieaktywny.
+
+Zgłoszenie nieprawidłowości związanej z naczepą powinno automatycznie wywołać zmianę statusu tej naczepy na nieaktywny.
+
+Zgłoszenie nieprawidłowości związanej z kontenerem powinno automatycznie wywołać zmianę statusu naczepy, na której stoi kontener, na nieaktywny.
+
+Po zgłoszeniu nieprawidłowości Operator powinien oczekiwać na kontakt ze strony TrafÏc Plannera.
+
+Operator powinien oczekiwać na instrukcje postępowania od TrafÏc Plannera po zgłoszeniu nieprawidłowości.
+
+Nieprawidłowości powinny być zgłaszane wielokrotnie w czasie zmiany każdego Operatora.
+
+Operator powinien zgłosić chęć udania się na przerwę poprzez aplikację, co generuje automatyczne powiadomienie push do TrafÏc Plannera.
+
+System powinien rozpoznać zgłoszenie i traktować Operatora oraz kierowany przez niego pojazd I-M-V jako nieaktywny od momentu zakończenia trwającego zadania.
+
+Po zakończeniu zadania przeładunkowego w aplikacji powinno pojawić się okno z pytaniem czy udajesz się na przerwę?.
+
+Operator I-M-V powinien udać się do strefy postojowej, która może mieć więcej niż jedno wyznaczone miejsce na terminalu.
+
+Operator powinien wskazać w aplikacji, w jakim miejscu zatrzymał pojazd I-M-V po zatrzymaniu.
+
+Operator powinien udać się na przerwę po wskazaniu miejsca zatrzymania pojazdu.
+
+Po powrocie z przerwy Operator I-M-V powinien zgłosić w aplikacji Zakończenie przerwy i oczekiwać na nowe zadanie.
+
+W przypadku, gdy Operator nie jest w trakcie realizacji zadania, powinien od razu przejść do zjazdu na przerwę bez dokańczania zadania przeładunkowego.
+
+Operator powinien oczekiwać na nowe zadanie po wznowieniu pracy po przerwie.
+
+Operator powinien nie otrzymać kolejnego zadania po zakończeniu aktualnego zadania I-M-V.
+
+Po upływie ustawionego czasu, na przykład 3 min, w aplikacji powinien wyświetlić się komunikat Skontaktuj się z TrafÏc Plannerem.
+
+Operator I-M-V powinien skontaktować się z TrafÏc Plannerem poprzez CB radio lub telefonicznie po wyświetleniu komunikatu.
+
+Dalsze postępowanie powinno być określone przez TrafÏc Plannera, który może zlecić odstawienie naczepy na parking.
+
+Operator I-M-V powinien mieć możliwość udania się na przerwę lub zakończenia pracy na podstawie instrukcji od TrafÏc Plannera.
+
+W przypadku przypisania przez system zadania do Operatora I-M-V po wyświetleniu komunikatu, powinno automatycznie zamknąć okno komunikatu Skontaktuj się z TrafÏc Plannerem.
+
+Operator powinien oczekiwać na instrukcje od TrafÏc Plannera po zgłoszeniu braku kolejnego zadania.
+
+System powinien działać w czasie rzeczywistym i być w pełni zintegrowany z innymi systemami operacyjnymi firmy.
+
+Wszystkie statusy powinny być rejestrowane w systemie dla celów operacyjnych i kontrolnych.
+
+Komunikacja w kwestii braku przydzielonych zadań powinna być generowana wielokrotnie w ciągu dnia pracy Operatora.
+
+Operator I-M-V powinien być zalogowany w aplikacji tabletowej do modułu I-M-V przed zgłoszeniem zakończenia pracy.
+
+Moduł tabletowy I-M-V powinien być zintegrowany z systemem branżowym KROL.
+
+Operator powinien zgłosić chęć zakończenia pracy poprzez aplikację, co generuje automatyczne powiadomienie push do TrafÏc Plannera.
+
+System powinien rozpoznać zgłoszenie i traktować Operatora oraz kierowany przez niego pojazd I-M-V jako nieaktywny od momentu zakończenia trwającego zadania.
+
+Po zakończeniu zadania przeładunkowego w aplikacji powinno pojawić się okno z pytaniem czy kończysz pracę na dziś?.
+
+Operator I-M-V powinien potwierdzić zakończenie pracy. identyfikator pojazdu (int) - ID przypisanego pojazdu. status sesji (string) - na przykład AKTYWNA, CHCE ZAKOŃCZYĆ PRACĘ, TRWA KOŃCZENIE PRACY, ZAKOŃCZONA.
+
+Kontener) pobrana z tabeli słownikowej Operator może zgłosić usterkę imv rodzaje obiektow. dla różnych rodzajów obiektów.
+
+sesja pojazdu ID (INT) - identyfikator. uniemożliwił przypisywanie uszkodzonego obiektu.
+
+Przerwa użytkownika Reprezentuje zaplanowaną lub • ID (int) - unikalny identyfikator przerwy w.
+
+miejsce postojowe ID (int, opcjonalny). identyfikator miejsca postojowego, jeśli zostało potwierdzone przez operatora.
+
+Odpowiedź (lista DTO IMVVehicleResponse): • id - unikalny identyfikator pojazdu (INT).
+
+numer pojazdu - numer lub nazwa pojazdu. aktualna naczepa, aktualny operator, aktualne miejsce - opcjonalne informacje.
+
+status pojazdu - status pojazdu (INT, na przykład 1 dla SPRAWNY).
+
+przekonwertowany na string, w podanym zależności od implementacji). identyfikatorze.
+
+Odpowiedź: Pojedynczy DTO IMVVehicleResponse. Odpowiedź: Zaktualizowany DTO IMVVehicleResponse. Nagłówek: Authorization: Bearer token.
+
+Nagłówek: Authorization: Bearer token. Odpowiedź: DTO SesjaStopResponse, zawierający id sesji potwierdzające zakończenie. opakowuje listę DTO aktualnie zalogowanego SesjaAllDataResponse - zawierających:
+
+id sesji, operator id (string), operatora. pojazd id (INT), czy aktywna (BOOLEAN), data czas rozpoczecia.
+
+id sesji (INT) - identyfikator sesji ramach aktywnej sesji pojazdu (na przykład z pojazdu. imv sesje pojazdow.ID). Scenariusz: rodzaj obiektu id (INT) - Ciągnik, Naczepa, Kontener) z zalogowany i posiada tabeli imv rodzaje obiektow. aktywną sesję (ID).
+
+Podaje w body ID sesji którego dotyczy usterka. W odpowiedzi zwracane jest potwierdzenie zgłoszenia.
+
+odczyt lub Zapis Reprezentuje sesje, czyli okresy aktywności imv sesje pojazdow pojazdu przypisane do operatora.
+
+(usterki) powiązane z sesjami pojazdów. Każdy rekord wskazuje na konkretną sesję (z imv sesje pojazdow) oraz rodzaj obiektu (z imv rodzaje obiektow), który został zgłoszony jako nieprawidłowy.
+
+rodzaje obiektów, dla których mogą być zgłaszane nieprawidłowości, na przykład Ciągnik, Naczepa, Kontener. Wykorzystywana w celu określenia typu obiektu w zgłoszeniu.
+
+Zaplanowana przerwa: Operator zgłosił chęć udania się na przerwę - wciąż może być w trakcie zadania.
+
+Trwa przerwa: Operator rozpoczął przerwę - pojazd nieaktywny.
+
+Oczekuje na zadania: Operator zakończył przerwę - gotowy do przydziału zadań x.
+
+Realizuje zadanie: Operator wykonuje obecnie zadanie przeładunkowe sesję - wylogowany.
+
+operatorów w ramach sesji pojazdów. Każdy rekord zawiera czas rozpoczęcia i zakończenia przerwy oraz powiązanie z miejscem postojowym i sesją.
+
+dostępnych w ramach danego terminala. Miejsca te mogą być przypisywane do przerwy operatora.
+
+AKTYWNA, TRWA PRZERWA, ZAPLANOWANA PRZERWA, OCZEKUJE NA ZADANIA. Używane do kontroli logiki sesji i przerw.

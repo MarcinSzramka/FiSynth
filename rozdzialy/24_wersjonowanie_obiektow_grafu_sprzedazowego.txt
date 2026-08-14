@@ -1,0 +1,73 @@
+Wersjonowanie obiektów grafu sprzedażowego.
+
+Poniższy dokument opisuje model wersjonowania danych, którego celem jest zapewnienie audytowalności i dostępu do historii zmian przy jednoczesnym priorytetowym traktowaniu wydajności operacji zapisu.
+
+Wprowadzenie i Filozofia  Główną zasadą tej architektury jest prostota i minimalizm operacji zapisu (UPDATE lub DELETE). Oznacza to, że każda modyfikacja danych w tabeli nadrzędnej (na przykład wezly hierarchii) jest operacją szybką i izolowaną. Świadomie unikamy skomplikowanych, kaskadowych aktualizacji w tabelach podrzędnych (na przykład wezly sieci).
+
+Cel: Chcemy zminimalizować czas trwania transakcji i unikać blokowania wielu tabel jednocześnie. Dzięki temu system zachowuje wysoką responsywność przy zapisywaniu zmian, co jest kluczowe w środowiskach o dużej liczbie operacji. Ceną za tę prostotę jest przeniesienie części logiki na operacje odczytu danych historycznych, które stają się bardziej złożone.
+
+Kluczowe Pola - Słownik Pojęć  Aby zrozumieć, jak działa ten model, kluczowe jest poznanie roli pięciu fundamentalnych pól, które pojawiają się w każdej wersjonowanej tabeli.
+
+Czym jest: Techniczny, unikalny identyfikator każdego wiersza w tabeli. Jest to klucz główny.
+
+Analogia: Pomyśl o nim jak o unikalnym numerze seryjnym konkretnego, fizycznego dokumentu. Każdy wydrukowany egzemplarz umowy ma swój własny numer, nawet jeśli treść jest identyczna.
+
+Czym jest: Biznesowy, logiczny identyfikator, który jest niezmienny dla danego obiektu przez cały cykl jego życia. Łączy on wszystkie wersje tego samego obiektu.
+
+Analogia: To jak numer PESEL osoby lub NIP firmy. Osoba może zmieniać nazwisko czy adres zamieszkania (tworząc nowe wersje swoich danych), ale jej PESEL pozostaje ten sam.
+
+Czym jest: Licznik, który rośnie z każdą kolejną modyfikacją obiektu o tym samym ref id.
+
+Analogia: To numer wersji na dokumencie (v1, v2, v3), który pozwala łatwo zorientować się w chronologii zmian.
+
+Czym jest: Data i czas, od kiedy dany wiersz (wersja) stał się obowiązujący.
+
+Analogia: To data wejścia w życie aneksu do umowy.
+
+Czym jest: Data i czas, do kiedy dany wiersz (wersja) był obowiązujący. Wartość NULL oznacza, że jest to wersja aktualnie obowiązująca.
+
+Analogia: To data wygaśnięcia umowy lub data, w której aneks został zastąpiony nowszym.
+
+Cykl Życia Danych - Przykłady Operacji  Prześledźmy, jak ten model działa w praktyce na przykładzie rekordu CTT Rejon w tabeli wezly hierarchii.
+
+Odczytanie aktualnie obowiązujących danych jest proste i bardzo wydajne.
+
+Logika: Wykonujemy standardowy JOIN, dodając warunek, że szukamy tylko tych rekordów w wezly hierarchii, które są aktualne (ich wazny do jest NULL).
+
+SELECT s.nazwa, h.nazwa FROM wezly sieci s JOIN wezly hierarchii h ON s.hierarchia id h.id WHERE s.wazny do IS NULL and h.wazny do IS NULL;.
+
+Aktualizacja to proces dwuetapowy, który zachowuje historię bez modyfikowania tabel podrzędnych.
+
+Akcja: Zmieniamy nazwę CTT Rejon (id 1008) na CTT Rejon PO ZMIANIE.
+
+Archiwizacja starego stanu: Tworzymy nowy wiersz (id 1010), który jest dokładną kopią rekordu 1008 przed zmianą. W tym nowym wierszu ustawiamy wazny do teraz.
+
+Modyfikacja oryginału: W oryginalnym rekordzie (id 1008) aktualizujemy dane: nazwa na nową, wersja zwiększamy o 1, a wazny od ustawiamy na teraz.
+
+Rezultat: wezly sieci nadal wskazują na id 1008, ale zawartość tego rekordu jest już aktualna.
+
+Usuwanie jest operacją miękką (soft-delete). Akcja: Usuwamy CTT Rejon PO ZMIANIE (id 1008).
+
+Proces: Wykonujemy prostą operację UPDATE na rekordzie 1008, ustawiając jego wazny do teraz. Rekord fizycznie pozostaje w bazie, ale przestaje być widoczny w zapytaniach o stan bieżący.
+
+To jest operacja, która wymaga najbardziej złożonej logiki, ale daje pełen wgląd w przeszłość.
+
+Cel: Dowiedzieć się, jak nazywał się region dla CTT Hub w dniu 1 sierpnia 2025.
+
+Znajdź aktualny wskaźnik: Zaczynamy od tabeli wezly sieci. Znajdujemy CTT Hub i widzimy, że jego hierarchia id to 1008.
+
+Odnajdź stały identyfikator: Używając id 1008, odnajdujemy w wezly hierarchii jego aktualny rekord, aby pobrać niezmienny identyfikator biznesowy, czyli ref id (w tym przypadku 'CTT REJON').
+
+Wyszukaj w historii: Teraz, mając ref id, przeszukujemy tabelę wezly hierarchii raz jeszcze. Szukamy wszystkich wierszy z ref id 'CTT REJON' i wybieramy ten jeden, dla którego data 1 sierpnia 2025 mieści się w przedziale wazny od, wazny do).
+
+Rezultat: Zapytanie poprawnie odnajdzie zarchiwizowaną kopię (id 1010) i zwróci historycznie prawdziwą nazwę: CTT Rejon.
+
+Podsumowanie i Konsekwencje  Przyjęcie tej architektury to świadoma decyzja biznesowa i techniczna.
+
+Prosty i wydajny zapis: Operacje UPDATE i DELETE są szybkie, ponieważ modyfikują minimalną liczbę rekordów.
+
+Brak kaskadowych zmian: Unikamy skomplikowanych i długotrwałych transakcji, które mogłyby blokować wiele powiązanych tabel.
+
+Złożoność zapytań historycznych: Odczyt danych historycznych jest wolniejszy i wymaga bardziej skomplikowanej logiki zapytań.
+
+Przeniesienie odpowiedzialności: Integralność i spójność danych historycznych zależy od poprawnej implementacji logiki w aplikacji lub zapytaniach, a nie jest w pełni gwarantowana przez strukturę relacyjną bazy danych.

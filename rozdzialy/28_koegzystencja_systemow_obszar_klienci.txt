@@ -1,0 +1,15 @@
+Koegzystencja systemów — obszar klienci.
+
+Logistyka 4.0 Dokumentacja systemu Koegzystencja systemów Logistyka 4.0 i KROL Klienci.
+
+Spis treści bezpośrednio w systemie KROL nie będą widoczne w Logistyka 4.0, co więcej, przy każdej synchronizacji zostaną one nadpisane przez mechanizm (trigger) z systemu Logistyka 4.0, aby zachować jednolitość danych. Pola opisujące kontrahenta z perspektywy innej niż ta zdefiniowana w Logistyka 4.0 są zarządzane wyłącznie przez system KROL i nie podlegają modyfikacji przez Logistyka 4.0. Przykładem takich pól są informacje dotyczące domyślnej waluty fakturowania. Dane te będą rozwijane w miarę rozbudowy funkcjonalności fakturowania w systemie Logistyka 4.0. Opis aktualnych pól kontrahenta można znaleźć w sekcji “Tabela Migracyjna Link do folderu z diagramami: Klient.
+
+Rejestracja kontrahenta w systemie Logistyka 4.0 - koegzystencja - Preprod.
+
+Edycja kontrahenta w systemie Logistyka 4.0 - koegzystencja - Preprod.
+
+Wysyłka faktur na adresy. Lista adresów e-mail do przecinkami).
+
+Główny adres e-mail do Mail do rozliczeń Tekst kontaktu w sprawie rozliczeń.
+
+Język rozliczeń Słownik wartości rozliczeniach. jednostki biznesowe.jezyk r Do uzupełniania Tak ozliczen.jezyki.nazwa.

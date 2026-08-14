@@ -1,0 +1,30 @@
+Dokumentacja api dla ofert.
+
+Logistyka 4.0 Dokumentacja A-P-I dla ofert. Historia zmian i zatwierdzenia.
+
+{realm} - nazwa realmu w Keycloak (na przykład 'logistyka4'). {client id} - identyfikator klienta w Keycloak. {username} - nazwa użytkownika. {password} - hasło użytkownika. Odpowiedź z tokenem.
+
+Po poprawnej autoryzacji, serwer Keycloak zwróci odpowiedź zawierającą token dostępu:
+
+autor (opcjonalny) - filtrowanie ofert po nazwie autora. autor uuid (opcjonalny) - filtrowanie ofert po UUID autora.
+
+waznosc start (opcjonalny) - filtrowanie ofert ważnych od daty (format: YYYY-MM-DD).
+
+waznosc end (opcjonalny) - filtrowanie ofert ważnych do daty (format: YYYY-MM-DD).
+
+start ladunku (opcjonalny) - filtrowanie ofert po lokalizacji początkowej ładunku.
+
+start kontenera (opcjonalny) - filtrowanie ofert po lokalizacji początkowej kontenera.
+
+koniec ladunku (opcjonalny) - filtrowanie ofert po lokalizacji końcowej ładunku.
+
+koniec kontenera (opcjonalny) - filtrowanie ofert po lokalizacji końcowej kontenera.
+
+rodzaj zlecenia (opcjonalny) - filtrowanie ofert po rodzaju zlecenia. page (domyślnie: 1) - numer strony.
+
+per page (domyślnie: 10, max: 100) - liczba wyników na stronę.
+
+Materiały i wyniki testów funkcjonalnych poprzedzających U-A-T: podejście do realizacji obu fal testów, instrukcja narzędzia, scenariusze, diagramy wypełnione przez testerów.
+
+
+CZĘŚĆ SZÓSTA. TESTY POPRZEDZAJĄCE UAT — MODUŁ HANDLOWY.

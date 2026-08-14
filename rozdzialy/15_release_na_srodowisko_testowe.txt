@@ -1,0 +1,45 @@
+Release na środowisko testowe.
+
+MR zawiera zmiany frontendowe i lub lub backendowe niezbędne do zamknięcia zadania lub Buga,.
+
+Tytuł MR musi zawierać numer taska lub buga lub US, które zamyka, konkretnie:
+
+US numer US, Task numer Task: FE lub BE krotki opis polski. Dla buga - cala implementacja w jednym MR: Bug numer Bug: krotki opis polski.
+
+By default wprowadzamy feature flagę - w konsultacji z Analityk czy częściowe wprowadzenie feature ma sens, wtedy flaga nie musi być zaimplementowana,.
+
+System feature flag zostanie opisany osobno, ale należy założyć, ze by default na środowisku DEV będą włączone, a na środowisku TEST będą wyłączone.
+
+Jeżeli MR został zatwierdzony przez code reviewera (co najmniej jeden nie autor), deweloper robiący zmiany w MR klika Merge, następuje merge commit do brancha dev, zmiany powinny zawierać ustawienie flag na true dla środowiska DEV (falgs.dev - nazwa pliku do potwierdzenia z Pawlem B.) oraz ustawienie flagi na false dla środowiska TEST (flags.prod - nazwa pliku do potwierdzenia z Pawłem B.).
+
+CI tworzy nowa wersje kontenera z kodem, która wchodzi na środowisko DEV,.
+
+Deweloper testuje Feature lub US na środowisku DEV - test powinien sprawdzać poprawność implementacji całego US.
+
+Deweloper sprawdza, czy jego zadanie bylo ostatnim zadaniem pod US - wtedy informuje właściciela User Story (US Owner) o zakończeniu developmentu US. Po pozytywnym przetestowaniu, US.
+
+Owner oznacza cale US jako In Testing, co jest równoznaczne z informacja, ze kod jest gotowy do pokazania Analitykowi.
+
+Jeżeli kod nie działa, wraca do punktu pierwszego i domergowuje poprawki, cofa zadanie i US do statusu In Development.
+
+Procedura wprowadzania zmian na środowisko TEST Te procedura wykonywana jest automatycznie co wtorek (I czwartek?) o 22:00. On demand mogą wykonać tylko uprawnione osoby - Pawel B., Serhii Y., Monika G., Urszula T. (dalej zwany Core Dev Team).
+
+ze zmiana feature flag na branchu dev w pliku na środowisko TEST (falgs.prod - nazwa pliku do potwierdzenia z Pawłem B.), tylko tych US, które są w stanie In Testing i zatwierdzonych przez Analityka, ustalenie pojedynczych flag na spotkaniu Internal Demo.
+
+jeżeli możliwe, to w tym samym MR robimy release notes.
+
+Po włączeniu flag, deweloper testuje czy aplikacje działają na commicie z powyższego MR, testy lokalne wystarcza.
+
+Jeżeli testy przeszły, to Core Dev Team merguje powyższy MR do brancha dev, a następnie wykonuje synchronizacje brancha dev z branchem stable.
+
+Mergeujemy tylko do commita zmieniającego flagi, chyba ze byly potrzebne bug fixy to wtedy do commita z niezbędnymi fixami.
+
+W release notes powinny się znaleźć opisy tylko tych US, dla których feature flagi zostały włączone oraz poprawione bugi. Prace nad tym gdzie to będzie opisywane jeszcze trwają - Pawel B.
+
+Wykonanie manualnej procedury deploymentu na środowisko TEST, zgodnie z instrukcja Pawła B., jeżeli wykonujemy Release on demand,.
+
+CI tworzy nowa wersje kontenera z kodem, która będzie widoczna na środowisku TEST:
+
+Wersja build wygenerowana dla środowiska TEST, która zawiera zmiany zostaje zapisana we wszystkich zadaniach danego US w polu Integrated in Build, i przestawia US w stan Ready for PO Review.
+
+Release na srodowisko TEST nie powinien odbywać się częściej niż raz dziennie, by nie przerywać ciągłości pracy testerów z PCC.

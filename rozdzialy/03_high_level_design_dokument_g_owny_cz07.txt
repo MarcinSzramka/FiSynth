@@ -1,0 +1,869 @@
+High level design — dokument główny, część 7.
+
+K US48: Nadanie statusu naprawy wagonu Pracownik Sekcji Technicznej odznacza w aplikacji na tablecie odpowiedni status realizowanej naprawy: rozpoczęcie naprawy, ukończenie naprawy, inne (do ustalenia w przyszłości). W aplikacji wprowadzane będą także dotyczące przebiegu procesu naprawy, w tym wykorzystania materiałów i części. Sprzątanie kontenerów będzie traktowane tożsamo do napraw, w takim wypadku proces będzie realizowany w ten sam sposób, z uwzględnieniem zaszytych w systemie reguł. Może być też tak, że do realizacji procesu sprzątania przypisana zostanie inna grupa pracowników, wtedy proces będzie tożsamy z tym, że realizować go będzie ta inna grupa na przykład Pracownicy Terminala.
+
+K US49: Przegląd wagonu przed dopuszczeniem do ruchu Pracownik Sekcji Technicznej może mieć przydzielone zadanie przeglądu wagonu na potrzebę włączenia do obiegu. Po stwierdzeniu, że wagon może zostać dopuszczony do ruchu wprowadza odpowiedni status w aplikacji.
+
+K US50: Włączanie wagonu w systemie Pracownik Sekcji Technicznej po zatwierdzeniu, że wagon został naprawiony w prawidłowy sposób, zatwierdza w aplikacji status wagon włączony do ruchu.
+
+efektywne wykorzystanie dostępnych zasobów. Obejmuje założenia z K US6, K US7, K US8, K US9, K US12, K US13, K US14, K US15.
+
+Lokomotywa: Zawiera informacje o lokomotywach, takie jak typ, moc i dostępność.
+
+Wagon: Opisuje wagony, zawiera dane takie jak typ wagonu, ładowność i stan techniczny.
+
+Maszynista: Przechowuje informacje o maszynistach, ich uprawnieniach, godzinach pracy i dostępności.
+
+SerwisZasobów: Zarządza zasobami kolejowymi, takimi jak lokomotywy, wagony i maszyniści. Odpowiada za wprowadzanie nowych zasobów do systemu, aktualizację danych o zasobach oraz monitorowanie ich stanu technicznego i dostępności. Umożliwia planowanie przeglądów technicznych.
+
+Rejestracja nowych zasobów (lokomotyw, wagonów, maszynistów) w systemie. Aktualizacja danych o zasobach (stan techniczny, dostępność, lokalizacja). Planowanie i monitorowanie przeglądów technicznych. Zarządzanie dostępnością maszynistów (urlopy, godziny pracy).
+
+Zarządzanie Zlecaniem i Przewozami Ten kontekst koncentruje się na efektywnym przypisywaniu przewoźników do tras oraz zarządzaniu składem pociągu, w tym na reagowaniu na awarie i zmiany w planowaniu przewozów. Obejmuje funkcjonalności związane z planowaniem kontenerów oraz zarządzaniem zmianami w siatce połączeń w oparciu o bieżące zlecenia. Obejmuje założenia z K US10, K US11, K US16, K US17, K US19, K US20, K US21.
+
+Zlecenie: Opisuje zlecenie przewozowe, zawiera informacje o ładunku, trasie i terminie realizacji.
+
+SkładPociągu: Reprezentuje konkretny skład pociągu, składający się z lokomotywy i wagonów, przypisany do realizacji określonego zlecenia.
+
+SerwisPrzewozów: Zarządza procesem przewozów, w tym planowaniem tras, przypisywaniem składów pociągów do zleceń oraz reagowaniem na zmiany i awarie. Umożliwia optymalizację składu pociągu w kontekście dostępnych zasobów i zleceń.
+
+Planowanie tras i przypisywanie składów pociągów do zleceń. Reagowanie na zmiany i awarie w realizacji zleceń. Optymalizacja składu pociągu i przepięcia wagonów. Manualna i automatyczna zmiana przewoźnika na trasie.
+
+Obsługa Zdarzeń i Komunikacja Moduł ten jest odpowiedzialny za automatyczne informowanie planistów kolejowych.
+
+zdarzeniach w obszarze kolejowym oraz zarządzanie komunikacją w procesie załadunku, w tym wzywaniem rewidentów i przekazywaniem informacji maszynistom. Ułatwia szybką reakcję na nieprzewidziane zdarzenia i usprawnia proces komunikacji. Obejmuje założenia z K US18, K US22, K US23, K US24, K US25, K US26, K US27, K US28, K US29, K US30, K US31.
+
+Zdarzenie: Reprezentuje zdarzenie w systemie kolejowym, takie jak opóźnienie, awaria czy zmiana w rozkładzie jazdy.
+
+Komunikat: Przechowuje informacje o komunikatach wysyłanych do użytkowników systemu, na przykład planistów, maszynistów.
+
+SerwisKomunikacji: Odpowiada za zarządzanie komunikacją w systemie, w tym wysyłanie powiadomień o zdarzeniach, zarządzanie alertami oraz komunikację z zewnętrznymi systemami kolejowymi. Umożliwia automatyczne informowanie.
+
+Wysyłanie powiadomień i alertów o zdarzeniach i awariach do użytkowników systemu.
+
+Zarządzanie komunikatami z zewnętrznymi systemami kolejowymi. Automatyczne informowanie o zmianach w rozkładzie jazdy. Zarządzanie wezwaniami i akceptacją zgłoszeń przez rewidentów.
+
+Zarządzanie Przeglądami i Naprawami Obejmuje zarządzanie i realizację zadań związanych z przeglądami oraz naprawami wagonów, w tym generowanie zleceń, nadawanie statusów i ponowne włączanie wagonów do ruchu po naprawach. Zapewnia utrzymanie taboru w dobrym stanie technicznym, co jest kluczowe dla bezpieczeństwa i niezawodności przewozów. Obejmuje założenia z K US41, K US42, K US43, K US44, K US45, K US46, K US47, K US49, K US50.
+
+Przegląd: Zawiera szczegóły dotyczące przeglądów technicznych lokomotyw i wagonów.
+
+Naprawa: Opisuje proces naprawy, w tym zakres prac, potrzebne części zamienne i status naprawy.
+
+SerwisTechniczny: Zarządza przeglądami i naprawami taboru. Planuje przeglądy techniczne, rejestruje potrzeby naprawcze i monitoruje postęp prac naprawczych. Zapewnia utrzymanie sprzętu w odpowiednim stanie technicznym.
+
+Planowanie przeglądów technicznych taboru. Rejestracja i monitorowanie napraw oraz zgłaszanie potrzeb naprawczych. Nadzór nad postępem prac naprawczych i przeglądowych. Włączanie wagonów do ruchu po przeglądach i naprawach.
+
+Monitoring i Zarządzanie Manewrami Zajmuje się monitorowaniem pozycji pociągów oraz zarządzaniem manewrami na terminalach i stacjach. Funkcjonalności te pozwalają na optymalizację procesów załadunku i rozładunku oraz zapewniają płynność ruchu kolejowego poprzez efektywne planowanie manewrów taboru. Obejmuje założenia z K US32, K US33, K US34, K US35, K US36, K US37, K US38, K US39, K US40.
+
+Manewr: Opisuje działania manewrowe na terenie stacji, takie jak przemieszczanie wagonów czy formowanie składów pociągów.
+
+Monitoring: Przechowuje dane dotyczące monitoringu pociągów, w tym ich aktualne położenie i status.
+
+SerwisManewrów: Odpowiada za planowanie i koordynację manewrów na stacjach i terminalach. Zarządza przydziałem zadań dla maszynistów manewrowych i monitoruje wykonanie manewrów.
+
+Planowanie manewrów na stacjach i terminalach. Przydział zadań manewrowych dla maszynistów. Monitorowanie wykonania manewrów i aktualizacja statusów.
+
+Koordynacja działań manewrowych z planami przewozów i rozkładem jazdy.
+
+SerwisMonitoringu: Realizuje ciągłe śledzenie pozycji pociągów oraz zarządzanie informacjami dotyczącymi ich ruchu. Umożliwia prognozowanie czasów przyjazdów i dostosowywanie planów operacyjnych.
+
+Śledzenie aktualnej pozycji pociągów w czasie rzeczywistym. Zarządzanie informacjami o ruchu pociągów i ich statusie.
+
+Prognozowanie czasów przyjazdu pociągów na podstawie danych z monitoringu.
+
+W systemie są już wprowadzone rozkłady jazdy. Główny przepływ wydarzeń:
+
+Planista Kolejowy wybiera opcję modyfikacji istniejącego harmonogramu siatki połączeń w okresie, na który zostały przyjęte już zlecenia.
+
+System automatycznie weryfikuje możliwość przypisania zleceń do odpowiednich połączeń.
+
+System automatycznie przypisuje zlecenia do nowego rozkładu jazdy. Alternatywne przepływy:
+
+A3.a: Nie można przypisać zleceń (kontenerów) do nowego rozkładu:
+
+System informuje planistę, które zlecenia wymagają ręcznego przypisania do tras lub ich modyfikację - to może wymagać interwencji Działu Obsługi Klienta oraz, w skrajnym przypadku, konsultacji z Klientem. Warunki końcowe:
+
+Wszystkie zlecenia są automatycznie poprawnie przypisane do połączeń lub zlecenia skierowane są do manualnego przypisania. Specjalne wymagania:
+
+System powinien zapewniać aktualne informacje na temat zleceń i dostępności połączeń.
+
+Interfejs użytkownika powinien umożliwiać łatwe identyfikowanie i rozwiązywanie konfliktów zleceń. Częstotliwość występowania:
+
+W razie potrzeby, zależnie od sytuacji na rynku i zmian w rozkładzie jazdy.
+
+K U-C 3: Manualne wywołanie przetrasowania Aktor główny: Planista Kolejowy Aktorzy wspierający: Automat P-C-C-I Warunki wstępne:
+
+Istnieje potrzeba ręcznego przetrasowania zleceń na określony okres. Główny przepływ wydarzeń:
+
+Planista Kolejowy wybiera zakładkę odpowiedzialną za planowanie i przetrasowanie zleceń.
+
+Planista Kolejowy wybiera opcję ręcznego wywołania automatycznego przetrasowania zleceń.
+
+Planista Kolejowy określa okres, dla którego mają zostać przetrasowane zlecenia.
+
+Automat P-C-C-I przetwarza żądanie i ponownie rozkłada zlecenia na dostępne połączenia.
+
+Planista Kolejowy analizuje wyniki i dokonuje ewentualnych korekt lub zatwierdza nowe trasowanie.
+
+System zapisuje wszystkie zmiany i aktualizuje planowane składy dla konkretnych połączeń.
+
+Zlecenia zostały ponownie rozplanowane i zaktualizowane w systemie. Specjalne wymagania:
+
+System powinien mieć możliwość szybkiego przetwarzania i przedstawiania wyników przetrasowania.
+
+Interfejs użytkownika powinien być przejrzysty i umożliwiać łatwe wykonywanie przetrasowania. Częstotliwość występowania:
+
+W miarę potrzeby, w zależności od zmian w rozkładzie jazdy i specyficznych wymagań operacyjnych.
+
+K U-C 4: Optymalizacja siatki połączeń Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Dane historyczne oraz aktualne strumienie zleceń są dostępne w systemie. Główny przepływ wydarzeń:
+
+Automat P-C-C-I inicjuje proces analizy siatki połączeń w regularnych odstępach czasu lub na żądanie.
+
+System analizuje aktualne zlecenia oraz dane historyczne dotyczące ruchu pociągów.
+
+Na podstawie zebranych danych, system identyfikuje potencjalne możliwości optymalizacji siatki połączeń.
+
+Automat P-C-C-I generuje propozycje zmian w harmonogramie kolejowym zmieniające siatkę połączeń. Implementacja zmian jest automatyczna lub wymaga akceptacji użytkownika. Warunki końcowe:
+
+Wygenerowana propozycja zmian w harmonogramie kolejowym. Siatka połączeń jest zoptymalizowana na podstawie analizy systemowej.
+
+Zmiany w harmonogramie są zapisane i aktywne w systemie.
+
+Algorytmy optymalizacji muszą być aktualizowane o nowe dane w czasie rzeczywistym.
+
+System musi być w stanie przeprowadzać kompleksowe analizy i generować zalecenia w sposób niezakłócający bieżących operacji. Częstotliwość występowania:
+
+Cyklicznie, zgodnie z zaprogramowanym harmonogramem analizy systemowej lub na żądanie.
+
+K U-C 5: Zgłaszanie zmiany w harmonogramie Aktorzy główni: Automat P-C-C-I Aktorzy wspierający: System Konstrukcji Rozkładu Jazdy (SKRJ), Planista Kolejowy Warunki wstępne:
+
+Na podstawie automatycznej analizy zidentyfikowano potrzebę zmiany w harmonogramie kolejowym zmieniające siatkę połączeń (K U-C 4).
+
+W systemie została włączona funkcja automatycznego dokonywania zgłoszenia zmian w harmonogramie w systemie SKRJ.
+
+Automat P-C-C-I dokonuje zgłoszenia zmiany w harmonogramie do systemu SKRJ. Alternatywne przepływy:
+
+A1a.: w systemie została wyłączona funkcja automatycznego dokonywania zgłoszeń:
+
+Zmiana siatki połączeń wprowadzana jest ręcznie przez Planistę Kolejowego.
+
+A2a.: Błąd komunikacji z PKP PLK: zgłoszenie zmiany nie może być przesłane; wymagana jest interwencja Planisty Kolejowego lub wsparcia technicznego.
+
+A3b.: Odrzucenie zmian przez PKP PLK: Planista Kolejowy musi ręcznie zająć się problemem lub ponownie przemyśleć zgłaszane zmiany. Warunki końcowe:
+
+Planista Kolejowy ma możliwość przejrzenia i potwierdzenia wprowadzonych zmian. Specjalne wymagania:
+
+System musi zapewniać bezpieczną i stabilną komunikację z zewnętrznymi systemami PKP PLK.
+
+Automatyczne zgłaszanie zmian musi być rejestrowane i monitorowane dla celów audytu i śledzenia zmian. Częstotliwość występowania:
+
+W zależności od częstotliwości proponowanych zmian przez Automat P-C-C-I oraz potrzeb operacyjnych.
+
+K U-C 6: Wprowadzanie zasobów przewoźników obcych Aktor główny: Dyspozytor Działu Realizacji Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Dyspozytor ma dostęp do modułu zarządzania zasobami obcych przewoźników.
+
+Dyspozytor posiada aktualne informacje na temat zasobów przewoźników obcych. Główny przepływ wydarzeń:
+
+Dyspozytor nawiguje do modułu odpowiedzialnego za wprowadzanie i zarządzanie zasobami obcych przewoźników.
+
+Dyspozytor wprowadza zasoby obcych przewoźników wykorzystywane do planowania i obsługi przewozów kolejowych - dotyczy to przewoźników zewnętrznych, czyli innych niż DPK.
+
+Dyspozytor wprowadza szczegółowe dane zasobów przewoźników zewnętrznych. Zakres danych dla poszczególnych obiektów do ustalenia na etapie rozwoju odpowiedniego modułu w systemie. Warunki końcowe:
+
+Zasoby przewoźników zewnętrznych zostały wprowadzone do systemu i są dostępne do planowania przewozów. Specjalne wymagania:
+
+Interfejs użytkownika powinien być intuicyjny i umożliwiać łatwe wprowadzanie oraz aktualizację danych zasobów.
+
+System musi zapewniać wysoki poziom bezpieczeństwa danych, zwłaszcza w kontekście informacji o przewoźnikach zewnętrznych. Częstotliwość występowania:
+
+W miarę potrzeby, gdy pojawiają się nowi przewoźnicy zewnętrzni lub zmieniają się dane dotyczące istniejących zasobów.
+
+K U-C 7: Wprowadzanie zasobów przewoźników własnych Aktor główny: Pracownik Sekcji Technicznej Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Pracownik Sekcji Technicznej ma dostęp do modułu zarządzania zasobami przewoźników własnych.
+
+Pracownik posiada aktualne informacje na temat zasobów własnych przewoźników. Główny przepływ wydarzeń:
+
+Pracownik nawiguje do modułu odpowiedzialnego za wprowadzanie i zarządzanie zasobami własnych przewoźników.
+
+Dyspozytor wprowadza zasoby własnych przewoźników wykorzystywane do planowania i obsługi przewozów kolejowych - dotyczy to zasobów DPK.
+
+Pracownik wprowadza szczegółowe dane zasobów przewoźników zewnętrznych. Zakres danych dla poszczególnych obiektów do ustalenia na etapie rozwoju odpowiedniego modułu w systemie. Warunki końcowe:
+
+Zasoby własnych przewoźników zostały wprowadzone i zaktualizowane w systemie zarządzania zasobami. Specjalne wymagania:
+
+System musi umożliwiać łatwe wprowadzanie i aktualizację danych zasobów.
+
+Interfejs użytkownika musi być intuicyjny i dostosowany do potrzeb pracowników technicznych.
+
+Wysoki poziom bezpieczeństwa danych, szczególnie dla zasobów o znaczeniu operacyjnym. Częstotliwość występowania:
+
+Zależnie od nabywania nowych zasobów lub konieczności aktualizacji danych istniejących zasobów.
+
+K U-C 8: Planowanie przeglądów lokomotyw i wagonów Aktor główny: Pracownik Sekcji Technicznej Aktorzy wspierający: Warunki wstępne:
+
+Pracownik Sekcji Technicznej ma dostęp do modułu planowania przeglądów.
+
+Pracownik posiada aktualne informacje na temat planowanych przeglądów lokomotyw i wagonów. Główny przepływ wydarzeń:
+
+Pracownik Sekcji Technicznej loguje się do systemu zarządzania zasobami.
+
+Pracownik Sekcji Technicznej wprowadza dane o planowanych przeglądach dla poszczególnych obiektów (wagonów lub lub i lokomotyw). Warunki końcowe:
+
+Plan przeglądów lokomotyw i wagonów jest zaktualizowany i dostępny w systemie dla innych działów oraz do celów operacyjnych i planistycznych. Specjalne wymagania:
+
+System powinien automatycznie przypominać o nadchodzących przeglądach, zapewniając dostateczne wyprzedzenie dla odpowiedniej organizacji pracy.
+
+Interfejs użytkownika musi być przejrzysty i dostosowany do potrzeb technicznych pracowników odpowiedzialnych za utrzymanie sprzętu. Częstotliwość występowania:
+
+Regularnie, zgodnie z zaplanowanym harmonogramem przeglądów technicznych i wymogami bezpieczeństwa.
+
+K U-C 9: Zarządzanie czasem pracy Maszynistów Inicjator: Pracownik Sekcji Technicznej Uczestnicy: Nie dotyczy Warunki wstępne:
+
+Pracownik Sekcji Technicznej ma dostęp do systemu. Główny przepływ wydarzeń:
+
+Pracownik DPK wprowadza do systemu informacje o Maszynistach dotyczące:
+
+Wymiaru czasu pracy danego Maszynisty, c. Inne dodatkowe informacje wpływające na dostępność Maszynisty (na przykład zwolnienia lekarskie). Warunki końcowe:
+
+Informacje dotyczące czasu pracy maszynistów są aktualne i odzwierciedlają wszelkie zmiany. Specjalne wymagania:
+
+System powinien zapewniać elastyczność w zarządzaniu zmianami, umożliwiając szybką reakcję na nieprzewidziane okoliczności.
+
+Możliwość łatwego dostępu i aktualizacji danych przez upoważnionych pracowników. Częstotliwość występowania:
+
+Regularnie, zgodnie z potrzebami planowania pracy i zarządzania zasobami ludzkimi.
+
+K U-C 10: Planowanie przewoźnika Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+W systemie zarządzania ruchem kolejowym zdefiniowane są trasy pociągów.
+
+W systemie są aktualne informacje o przewoźnikach oraz ich zasobach. Główny przepływ wydarzeń:
+
+Automat P-C-C-I uruchamia proces planowania przewoźnika dla określonych tras.
+
+Na podstawie zdefiniowanych reguł, system przypisuje przewoźników do poszczególnych tras.
+
+W przypadku tras międzynarodowych lub specjalnych, system może przypisać dwóch lub więcej przewoźników do różnych odcinków jednej trasy. Warunki końcowe:
+
+Do rozważenia na etapie projektowania docelowego narzędzia czy konieczne są elementy:
+
+Brak dostępnych przewoźników dla określonej trasy: system informuje Planistę o problemie, wymagając znalezienia alternatywnego rozwiązania.
+
+Odmowa przez przewoźnika: w przypadku odmowy realizacji trasy przez przewoźnika, system prosi o ponowne przypisanie przewoźnika przez Planistę. Specjalne wymagania:
+
+System musi być w stanie dynamicznie reagować na zmiany w dostępności przewoźników i aktualizować plany w czasie rzeczywistym.
+
+Interfejs użytkownika powinien umożliwiać łatwe przeglądanie i modyfikację planów przewoźników. Częstotliwość występowania:
+
+K U-C 11: Manualna zmiana przewoźnika Aktor główny: Planista Kolejowy Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+System zawiera aktualne informacje o trasach, przewoźnikach i dostępnych zasobach. Główny przepływ wydarzeń:
+
+Planista Kolejowy identyfikuje potrzebę zmiany przewoźnika dla danego przewozu kolejowego.
+
+Planista wybiera trasę lub przewóz, dla którego chce zmienić przewoźnika.
+
+Planista wybiera nowego przewoźnika z dostępnych opcji. System aktualizuje plan przewozów, zapisując zmianę przewoźnika.
+
+System informuje nowego przewoźnika o przydziale do trasy oraz, jeśli to konieczne, informuje poprzedniego przewoźnika o anulowaniu przydziału. Warunki końcowe:
+
+Plan przewozów jest aktualizowany zgodnie z nowym przydziałem. Specjalne wymagania:
+
+System musi zapewniać aktualne informacje o dostępności i możliwościach przewoźników.
+
+Proces zmiany przewoźnika musi być szybki i efektywny, aby minimalizować wpływ na planowanie i realizację przewozów. Częstotliwość występowania:
+
+W miarę potrzeby, w zależności od zmian w planowaniu lub dostępności przewoźników.
+
+K U-C 12: Planowanie lokomotyw Aktor główny: Automat P-C-C-I Aktorzy wspierający: Planista Kolejowy Warunki wstępne:
+
+Zdefiniowane są trasy i zapotrzebowania na lokomotywy dla poszczególnych pociągów. Główny przepływ wydarzeń:
+
+Automat P-C-C-I rozpoczyna proces planowania lokomotyw do danej trasy.
+
+Na podstawie dostępności lokomotyw i zadanych reguł, system przypisuje odpowiednie lokomotywy do pociągów. Warunki końcowe:
+
+Lokomotywy są przypisane do danej trasy zgodnie z optymalizowanym planem.
+
+Plan ruchu pociągów jest aktualizowany i dostępny dla wszystkich zainteresowanych stron. Alternatywne przepływy:
+
+A2a. Brak dostępnych lokomotyw: Jeśli system nie jest w stanie przypisać lokomotywy do pociągu z powodu braku dostępności, informuje o tym Planistę Kolejowego, który musi podjąć decyzję o alternatywnych rozwiązaniach.
+
+System musi być w stanie dynamicznie reagować na zmiany w dostępności lokomotyw oraz na bieżąco aktualizować plany.
+
+Algorytmy planowania muszą uwzględniać wiele czynników decyzyjnych, aby zapewnić optymalne wykorzystanie zasobów. Częstotliwość występowania:
+
+Cyklicznie, w ramach regularnego planowania operacji kolejowych oraz ad hoc, w przypadku zmian w planach operacyjnych lub dostępności zasobów.
+
+K U-C 13: Planowanie maszynistów Aktor główny: Automat P-C-C-I Aktorzy wspierający: Planista Kolejowy Warunki wstępne:
+
+System zawiera aktualne dane maszynistów, w tym ich kwalifikacje, dostępność i historyczne trasy.
+
+W systemie zdefiniowane są trasy i zapotrzebowania na maszynistów. Główny przepływ wydarzeń:
+
+Automat P-C-C-I inicjuje proces planowania maszynistów do danej trasy i do danej lokomotywy.
+
+Automat P-C-C-I weryfikuje zapotrzebowanie na maszynistów, biorąc pod uwagę:
+
+Znajomość szlaków - system uwzględnia konieczność regularnego odbywania przez maszynistów przejazdów na konkretnych trasach dla zapewnienia aktualnej znajomości szlaku,.
+
+System przypisuje odpowiednich maszynistów do danej trasy i lokomotywy. Warunki końcowe:
+
+A2a. Brak dostępnych maszynistów: System informuje planistę o braku zasobów ludzkich, co może wymagać manualnej ingerencji zmiany planu. Częstotliwość występowania:
+
+Planowanie maszynistów jest procesem ciągłym i dynamicznym, który musi być regularnie aktualizowany w zależności od zmian w harmonogramie ruchu pociągów, dostępności maszynistów oraz ich kwalifikacji. Częstotliwość aktualizacji planu może wahać się od codziennych do tygodniowych przeglądów, w zależności od specyfiki operacji kolejowych i ewentualnych zmian w planach przewozowych.
+
+K U-C 14: Planowanie przepięć wagonów Aktor główny: Planista Kolejowy Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+System zawiera aktualne informacje o składach pociągów i dostępności wagonów.
+
+Mechanizm działający głównie w sytuacji nieplanowanej. Główny przepływ wydarzeń:
+
+Planista Kolejowy identyfikuje potrzebę manualnego przepięcia wagonów w celu na przykład zmiany długości składu pociągu.
+
+Planista wybiera konkretny pociąg i dokonuje przepięć wagonów, dodając lub usuwając wagony z pociągu.
+
+System uwzględnia wprowadzone w składzie pociągu zmiany i automatycznie dokonuje korekty na relacjach powiązanych z tym korygowanym połączeniem. Warunki końcowe:
+
+Skład pociągu został zmodyfikowany zgodnie z potrzebami operacyjnymi. Częstotliwość występowania:
+
+Planowanie przepięć wagonów jest mniej regularne niż planowanie maszynistów i często jest inicjowane ad hoc, w odpowiedzi na specyficzne wymagania operacyjne lub zmiany w zapotrzebowaniu na transport. Może to być związane z sezonowymi wahnięciami w przewozach, niespodziewanymi zmianami w zleceniach od klientów lub potrzebą dostosowania składów do zmieniających się warunków operacyjnych. Częstotliwość może się więc różnić, od kilku razy w miesiącu do raz na kilka miesięcy, w zależności od dynamiki operacji kolejowych.
+
+K U-C 15: Planowanie wagonów Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+System zawiera aktualne informacje o dostępności wagonów oraz trasach pociągów.
+
+System zawiera informacje o datach ważności przeglądów wagonów. Główny przepływ wydarzeń:
+
+Automat P-C-C-I inicjuje proces planowania przypisania wagonów do poszczególnych tras.
+
+Automat P-C-C-I uwzględnia w procesie planowaniu przypisania wagonów informacje o:
+
+datach ważności ich przeglądów (konieczności zaplanowania konkretnej daty przeglądu i wyjęcia tych wagonów z obiegu),.
+
+zaplanowanych zmianach długości składów na podstawie siatki połączeń, na przykład planowane skrócenie składu.
+
+System przypisuje odpowiednie wagony do poszczególnych tras. Warunki końcowe:
+
+Wagony są przypisane do poszczególnych tras zgodnie z zadanymi regułami. Wyjątki:
+
+A2.a Brak dostępnych wagonów spełniających wymagania: System informuje planistę, który musi znaleźć alternatywne rozwiązania. Częstotliwość występowania:
+
+Regularnie, w ramach cyklicznego planowania operacji kolejowych oraz ad hoc, w przypadku zmian w zapotrzebowaniu na transport.
+
+K U-C 16: Akceptacja składu pociągu po awaryjnym wybiciu wagonu Aktor główny: Planista Kolejowy Aktorzy wspierający: Automat P-C-C-I Warunki wstępne:
+
+W systemie zarejestrowano awaryjne wybicie wagonu z pociągu. Główny przepływ wydarzeń:
+
+Planista kolejowy otrzymuje powiadomienie w aplikacji o awaryjnym wybiciu wagonu.
+
+zlecenie włączenia nowego wagonu do składu z rezerwy w danej lokalizacji (postępowanie standardowe).
+
+Nowy skład pociągu zaktualizowany w systemie, zaktualizowane składy dla połączeń powiązanych z korygowanym połączeniem. Warunki końcowe:
+
+Skład pociągu został zaktualizowany i dostosowany do sytuacji po awaryjnym wybiciu wagonu. Częstotliwość występowania:
+
+Ad hoc, w odpowiedzi na nieoczekiwane zdarzenia operacyjne wymagające awaryjnego wybicia wagonu.
+
+K U-C 17: Automatyczna weryfikacja planu załadunkowego po zmianie składu pociągu Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Zmiana w składzie pociągu została dokonana (na przykład po wybiciu wagonu) (UC16) Główny przepływ wydarzeń:
+
+Automat P-C-C-I inicjuje proces weryfikacji planu załadunkowego w odpowiedzi na zmianę składu pociągu.
+
+System identyfikuje wszelkie niezgodności wynikające ze zmiany składu i automatycznie proponuje korekty w planie załadunkowym. Warunki końcowe:
+
+Plan załadunkowy jest zweryfikowany i skorygowany. Częstotliwość występowania: Ad hoc, w reakcji na awaryjne wybicie wagonu.
+
+K U-C 18: Automatyczne informowanie Planisty Kolejowego o zdarzeniach w obszarze kolejowym Aktor główny: Automat P-C-C-I Aktorzy wspierający: Planista Kolejowy Warunki wstępne:
+
+System jest skonfigurowany do monitorowania zdarzeń w obszarze kolejowym. Główny przepływ wydarzeń:
+
+Automat P-C-C-I ciągle monitoruje operacje kolejowe i wykrywa zdarzenia, takie jak:
+
+i inne (pełna lista zdarzeń generujących komunikaty do ustalenia na etapie projektowania docelowego rozwiązania).
+
+Gdy system wykryje zdarzenie, automatycznie generuje powiadomienie dla Planisty Kolejowego z informacją o rodzaju zdarzenia.
+
+Planista otrzymuje powiadomienie o rodzaju zdarzenia w formie wiadomości push. Warunki końcowe:
+
+Planista Kolejowy jest na bieżąco informowany o zdarzeniach w obszarze kolejowym i może szybko reagować. Częstotliwość występowania:
+
+Ciągłe monitorowanie zapewnia, że powiadomienia są generowane ad hoc, w momencie wykrycia zdarzeń.
+
+K U-C 19: Automatyczne planowanie kontenerów (obudowanie składu pociągu) Aktor główny: Automat P-C-C-I Aktorzy wspierający: Planista Kolejowy Warunki wstępne:
+
+System posiada informacje o aktualnych zleceniach, maszynistach, lokomotywach i siatce połączeń. Główny przepływ wydarzeń:
+
+Automat P-C-C-I inicjuje proces planowania kontenerów. Automat P-C-C-I analizuje zdefiniowane reguły: reguły ze zleceń (Daty, hierarchia klientów), schematy załadunkowe (rozłożenie kontenerów na pociągu).
+
+Na podstawie zdefiniowanych reguł Automat P-C-C-I automatycznie przypisuje kontenery z poszczególnego zlecenia do poszczególnych wagonów. Alternatywne przepływy:
+
+A1a. Mechanizm automatyczny może zostać wyłączony na rzecz planowania manualnego. Następuje UC20 Warunki końcowe:
+
+Wszystkie kontenery ze zleceń obejmujących transport kolejowy są przypisane do konkretnych połączeń kolejowych na konkretne dni. Częstotliwość występowania:
+
+Planowanie kontenerów jest procesem ciągłym, dostosowywanym do bieżących potrzeb operacyjnych i zmian w harmonogramie ruchu pociągów.
+
+K U-C 20: Manualne planowanie kontenerów (obudowanie składu pociągu) Aktor główny: Planista Kolejowy Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+System posiada informacje o aktualnych zleceniach, maszynistach, lokomotywach i siatce połączeń.
+
+Wyjątkowe i nieplanowane sytuacje, w których zdefiniowane reguły w UC19 są niewystarczające. Główny przepływ wydarzeń:
+
+Automatyczne obudowanie pociągów zostało wyłączone. Planista Kolejowy inicjuje manualne planowanie obudowy składu pociągu.
+
+Planista ręcznie przypisuje poszczególne kontenery do poszczególnych wagonów, uwzględniając wszystkie operacyjne ograniczenia i wymagania. Warunki końcowe:
+
+Wszystkie kontenery ze zleceń obejmujących transport kolejowy są przypisane do konkretnych połączeń kolejowych na konkretne dni. Częstotliwość występowania:
+
+Planowanie kontenerów jest procesem ciągłym, dostosowanym do bieżących potrzeb operacyjnych i zmian w harmonogramie ruchu pociągów.
+
+K U-C 21: Zapisanie planu załadunkowego pociągu Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik D-O-K, Klient Warunki wstępne:
+
+System zawiera aktualne informacje o składach pociągów, dostępnych kontenerach i wymaganiach załadunkowych.
+
+Jest ustalona godzina graniczna przed załadunkiem. Główny przepływ wydarzeń:
+
+Automat P-C-C-I dokonuje ostatniego przeplanowania składu kontenerowego pociągu z uwzględnieniem:
+
+innych zaszytych reguł. Automat P-C-C-I dokonuje zapisu finalnego składu pociągu.
+
+Automat P-C-C-I wysyła powiadomienie do Planisty Kolejowego o zatwierdzeniu i zapisaniu planu załadunkowego. Alternatywne przepływy:
+
+Automat P-C-C-I wysyła alert do Planisty Kolejowego o wolnym miejscu w składzie pociągu. Planista może podjąć działania, w porozumieniu z innymi komórkami operacyjnymi, pozwalające na wypełnienie wolnego miejsca w składzie.
+
+Komunikat o braku kontenerów na załadunku generuje automatycznie zadanie dla Pracownika D-O-K, z uwagi na konieczność modyfikacji zlecenia w porozumieniu z Klientem i lub lub nałożenia kary na Klientów, których kontenerów brakuje. Warunki końcowe:
+
+Ostateczny plan załadunkowy pociągu jest zapisany i gotowy do implementacji.
+
+Wszystkie zainteresowane strony są informowane o finalnym planie załadunkowym. Częstotliwość występowania:
+
+Cyklicznie, przed każdym planowanym załadunkiem, zgodnie z harmonogramem operacji kolejowych.
+
+K U-C 22: Automatyczne wzywanie Rewidenta Aktor główny: Automat P-C-C-I Aktorzy wspierający: Rewident Wewnętrzny (Pracownik Sekcji Technicznej), Rewident Zewnętrzny Warunki wstępne:
+
+Automat P-C-C-I identyfikuje, że wszystkie zadania załadunkowe zostały zrealizowane.
+
+Automat P-C-C-I wzywa Rewidenta: Dla Rewidenta Wewnętrznego (Pracownik Sekcji Technicznej):
+
+Automat P-C-C-I tworzy zadanie poprzez aplikację do Rewidenta. ii. Rewident otrzymuje komunikat push Próba hamulca dla pociągu X do wykonania na torze Y. iii. Rewident otrzymuje dostęp do podglądu składu w aplikacji.
+
+Dla Rewidenta Zewnętrznego: Automat P-C-C-I informuje Rewidenta o zadanym załadunku poprzez:
+
+inicjuje połączenie telefoniczne z automatycznym wezwaniem do wykonania próby hamulców. ii. Rewident otrzymuje dostęp do podglądu składu w aplikacji terminalowej.
+
+(lub innej dedykowanej lub lub posługuje się wydrukiem - wtedy komunikacja mailowa w zakresie dokumentów). Alternatywne przepływy:
+
+Godzina wezwania Rewidenta może być uzależniona od aktualnej planowanej godziny odjazdu, a nie od zrealizowania wszystkich załadunków.
+
+Innym wariantem jest wzywanie Rewidenta po rozładunku i przeglądzie składu, ale przed załadunkiem. Warunki końcowe:
+
+Rewident został pomyślnie wezwany i potwierdza lub nie potwierdza otrzymanie informacji.
+
+Zgodnie z potrzebami, każdorazowo po zakończeniu załadunku i przed planowanym wyjazdem pociągu.
+
+K U-C 23: Przyjęcie lub nieprzyjęcie zgłoszenia przez Rewidenta Aktor główny: Rewident Aktorzy wspierający: Kierujący Zmianą Warunki wstępne:
+
+Rewident otrzymał automatyczne wezwanie do wykonania próby hamulca (z UC22). Główny przepływ wydarzeń:
+
+Rewident odbiera wezwanie do wykonania próby hamulca dla pociągu.
+
+Rewident Wewnętrzny zaznacza w aplikacji na narzędziu na terminalu przyjąłem zgłoszenie.
+
+Rewident Zewnętrzny potwierdza zgłoszenie poprzez link lub hasło lub sms. Alternatywne przepływy: A2a. Rewident nie przyjmuje zlecenia przeprowadzenia hamulca.
+
+Rewident odrzucił zlecenie lub w ustalonym czasie nie zareagował na zlecenie w ustalonym kanale.
+
+System zgłasza taką sytuację do Kierującego Zmianą, który pozasystemowo ustala przyczynę i rozwiązanie sytuacji. Warunki końcowe:
+
+Zadanie rewizji hamulców zostało przyjęte lub nieprzyjęte, a system został zaktualizowany.
+
+Ad hoc, w zależności od potrzeb operacyjnych i harmonogramu załadunku.
+
+K U-C 24: Weryfikacja przyjęcia zgłoszenia przez Rewidenta Aktor główny: Automat P-C-C-I Aktorzy wspierający: Kierujący Zmianą Warunki wstępne:
+
+Automat P-C-C-I w wyznaczonym czasie od przesłania zlecenia Rewidenta identyfikuje nie przyjęcie zlecenia przez Rewidenta.
+
+Automat P-C-C-I generuje zadania dla Kierującego Zmianą w celu skontaktowania się z Rewidentem. Warunki końcowe:
+
+Ad hoc, w zależności od harmonogramu operacji kolejowych i potrzeby wykonania prób hamulców.
+
+K U-C 25: Wezwanie Rewidenta Aktor główny: Kierujący Zmianą Aktorzy wspierający: Rewident Warunki wstępne:
+
+Automat P-C-C-I stworzył zadanie dla Kierującego Zmianą w celu kontaktu z Rewidentem. Główny przepływ wydarzeń:
+
+Kierujący Zmianą otrzymał automatyczne powiadomienie w celu skontaktowania się z Rewidentem.
+
+Rewident w odpowiednim kanale przekazuje informację potwierdzającą przyjęcie wezwania.
+
+A2.a Brak dostępności Rewidenta: Jeśli Rewident jest niedostępny lub nie może przyjąć zadania, Kierujący Zmianą musi znaleźć alternatywnego Rewidenta lub zastosować inne procedury awaryjne. Warunki końcowe:
+
+Rewident został pomyślnie wezwany do wykonania próby hamulca. Częstotliwość występowania:
+
+Ad hoc, w sytuacjach wymagających bezpośredniego wezwania Rewidenta ze względów operacyjnych lub awaryjnych.
+
+K U-C 26: Przeprowadzenie próby hamulca Aktor główny: Rewident Aktorzy wspierający: Sekcja Techniczna Terminala Warunki wstępne:
+
+Rewident został pomyślnie wezwany do wykonania próby hamulca. Główny przepływ wydarzeń:
+
+Rewident realizuje czynności w ramach próby hamulca zgodnie z procedurami krajowymi.
+
+Rewident zaznacza w narzędziu (tablecie) na terminalu, przeprowadzenie poszczególnych elementów próby hamulca.
+
+Rewident opisuje próbę hamulca w narzędziu (tablecie). Rewident zatwierdził pomyślne przeprowadzenie próby hamulca. Alternatywne przepływy: A4b. Niekompletne dane w karcie próby hamulca.
+
+Rewident realizując próbę hamulca nie odznaczył wszystkich czynności - w takiej sytuacji aplikacja nie pozwoli zatwierdzić pozytywnie próby hamulca. Rewident musi uzupełnić wtedy brakujące elementy procedury.
+
+Zgłoszenie usterki i negatywna ocena próby hamulca jest możliwa przed kompletnym zakończeniem próby hamulca.
+
+A4b. Rewident nie zatwierdził próby hamulca pozytywnie. Rewident zgłasza usterki:
+
+Na terminalu własnym: Rewident zgłasza usterkę w systemie z opisem usterki, co automatycznie tworzy odpowiednie zadanie dla Sekcji Technicznej danego Terminala. ii. Na terminalu obcym: Komunikacja Rewident-Terminal nie jest przekazywana jest kanałem telefonicznym.
+
+Jeżeli próba hamulca za pierwszym razem spowodowała wykrycie usterki, która skutkowała zmianą składu pociągu, to po dokonaniu manewrów i wypięciu wagonu próba hamulca dokonywana jest jeszcze raz. Warunki końcowe:
+
+Test hamulca został pomyślnie przeprowadzony i zatwierdzony przez Rewidenta, a lokomotywa jest gotowa do dalszej eksploatacji. Specjalne wymagania:
+
+System Monitorowania Bezpieczeństwa Kolei musi być w stanie analizować dane z testu hamulca w czasie rzeczywistym.
+
+Procedura testowania hamulca musi być zgodna z obowiązującymi przepisami bezpieczeństwa kolejowego. Częstotliwość występowania:
+
+Przeprowadzany regularnie, zgodnie z harmonogramem konserwacji i obsługi lokomotywy. Próba przeprowadzana przynajmniej raz na każdym ze składów opuszczających terminal P-C-C-I lub zewnętrzny - wymóg formalny z przepisów kolejowych.
+
+K U-C 28: Przekazanie danych do systemu PKP PLK Aktor główny: Automat P-C-C-I Aktorzy wspierający: System PKP PLK Warunki wstępne:
+
+Test hamulca został pomyślnie przeprowadzony i zatwierdzony przez Rewidenta.
+
+System PKP PLK jest dostępny i gotowy do przyjęcia danych.
+
+System KROL jest zintegrowany z systemem PKP PLK. Główny przepływ wydarzeń:
+
+Automat P-C-C-I automatycznie przesyła odpowiednie dane do systemu PKP PLK (przesłane dane mogą mieć formę automatycznie generowanych lub uzupełnianych dokumentów):
+
+Informację z zakończonej i pozytywnie zatwierdzonej próby hamulca. Ścieżka alternatywna:
+
+A2a. Problem z przesłaniem danych: Automat P-C-C-I podejmuje próby ponownego przekazania danych.
+
+W razie dalszych problemów system przekazuje informację do odpowiedniego pracownika, który weryfikuje i zarządza sytuacją. Warunki końcowe:
+
+Dane dotyczące zatwierdzonej próby hamulca oraz ostatecznego planu załadunku zostały przekazane do systemu PKP PLK.
+
+System PKP PLK musi być zdolny do przyjmowania i przetwarzania danych przesyłanych automatycznie przez Automat P-C-C-I.
+
+Dane przekazywane do systemu PKP PLK muszą być zgodne z ustalonymi standardami i formatami danych. Częstotliwość występowania:
+
+Dane są przekazywane do systemu PKP PLK za każdym razem, gdy zostanie zatwierdzona próba hamulca przez Rewidenta i zakończony proces kontroli składu.
+
+K U-C 29: Wysyłka planu załadunku do zewnętrznego terminala Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Automat P-C-C-I przekazał ostateczny plan załadunku do systemu PKP PLK - do potwierdzenia ostateczny moment przekazania planu załadunku (możliwa opcja z wysyłką w momencie opuszczenia terminala przez skład) Główny przepływ wydarzeń:
+
+Automat P-C-C-I wysyła plan załadunku do docelowego zewnętrznego terminala przy użyciu ustalonego kanału komunikacji, takiego jak:
+
+EDI (Electronic Data Interchange), A-P-I (Application Programming Interface), e-mail. Alternatywne przepływy: A2a. Problem z transmisją danych: Automat P-C-C-I podejmuje próby ponownego przekazania planu załadunku.
+
+W razie dalszych problemów z transmisją poprzez EDI lub A-P-I system informuje odpowiedniego pracownika oraz przesyła plan załadunkowy alternatywnym kanałem mailowym z odpowiednim komentarzem o problemach technicznych wymiany danych w podstawowym kanale. Warunki końcowe:
+
+Plan załadunku został pomyślnie wysłany do terminala zewnętrznego. Specjalne wymagania:
+
+Automat P-C-C-I musi być zdolny do wysyłania planu załadunku do zewnętrznego terminala przy użyciu różnych kanałów komunikacji.
+
+Zewnętrzny terminal musi być zdolny do przyjmowania danych przesyłanych przez Automat P-C-C-I w ustalonym kanale komunikacji. Częstotliwość występowania:
+
+Plan załadunku jest wysyłany do zewnętrznego terminala za każdym razem, gdy zostanie ostatecznie zatwierdzony i finalizowany.
+
+K U-C 30: Zatwierdzenie gotowości pociągu do wyjazdu Aktor główny: Kierujący zmianą (lub TrafÏc Planner).
+
+Aktorzy wspierający: Zespół manewrowy, Automat P-C-C-I Warunki wstępne: Przeprowadzona próba hamulca przez Rewidenta. Główny przepływ wydarzeń:
+
+Kierujący weryfikuje oczekiwaną godzinę wyjazdu pociągu z terminala, w razie potrzeby wprowadza manualnie nową godzinę planowanego odjazdu.
+
+Automat P-C-C-I tworzy zadania dla zespołu manewrowego. Warunki końcowe:
+
+Stworzone zadania dla zespołu manewrowego. Specjalne wymagania: Nie dotyczy Częstotliwość występowania:
+
+Zatwierdzenie gotowości pociągu do wyjazdu może odbywać się codziennie.
+
+K U-C 31: Poinformowanie Maszynisty Trakcyjnego o statusie pociągu Aktor główny: Automat P-C-C-I Aktorzy wspierający: Maszynista Trakcyjny Warunki wstępne:
+
+Maszynista Trakcyjny ma uzupełnione dane kontaktowe w systemie i zdefiniowany sposób komunikacji.
+
+Maszynista jest przypisany w systemie do określonego pociągu. Główny przepływ wydarzeń:
+
+Automat P-C-C-I wysyła do Maszynisty Trakcyjnego komunikat zawierający status załadunku w zależności od wybranej formy za pośrednictwem:
+
+automatyczny kontakt telefoniczny. Maszynista Trakcyjny odbiera komunikat z informacją: kiedy ma się zjawić na pociągu,.
+
+kiedy ma nie przychodzić na pociąg ze względu na opóźnienie. Warunki końcowe:
+
+Maszynista Trakcyjny został poinformowany o aktualnym statusie pociągu. Specjalne wymagania:
+
+System umożliwiać szybkie i skuteczne przekazywanie informacji o statusie pociągu.
+
+Komunikaty dla Maszynisty Trakcyjnego powinny być jasne, zwięzłe i łatwe do zrozumienia. Częstotliwość występowania:
+
+Informowanie Maszynisty Trakcyjnego o statusie pociągu może zachodzić regularnie, w zależności od aktualnych warunków ruchu kolejowego i potrzeb operacyjnych.
+
+K U-C 32: Zlecenie manewrów Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownicy Manewrowi, Maszynista Trakcyjny.
+
+Przeprowadzona próba hamulca przez Rewidenta. Zatwierdzona gotowość pociągu do wyjazdu. Główny przepływ wydarzeń:
+
+Automat P-C-C-I za pomocą aplikacji przesyła określone informacje w zależności od rodzaju lokomotywy:
+
+system wysyła do Pracowników Manewrowych zlecenie przemieszczenia składu lub jego określonej części, komunikat zawiera opcjonalnie informację o zmianie składu w ramach zlecenia na przykład numery dopinanego wagonu, numer odpinanego wagonu, etc.
+
+dla składu z lokomotywą trakcyjną: system wysyła do Pracowników Manewrowych zlecenie przemieszczenia składu z terminala z i na bocznicę, na której czeka lokomotywa trakcyjna, ii. dla składu z lokomotywą o zmiennym napędzie (nie wymaga obsługi lokomotywami manewrowymi): komunikaty dotyczące manewrów na i z terminala otrzymuje na urządzeniu tabletowym maszynista trakcyjny Warunki końcowe:
+
+Manewry zostały zlecone w zależności od rodzaju lokomotywy. Specjalne wymagania:
+
+System zarządzania ruchem kolejowym musi umożliwiać szybkie i skuteczne zlecenie manewrów.
+
+Interfejs użytkownika powinien być intuicyjny umożliwiając płynne przepływanie informacji. Częstotliwość występowania:
+
+Zlecenie manewrów może być realizowane w zależności od potrzeb operacyjnych, czasem nawet kilka razy w ciągu dnia.
+
+K U-C 33: Automatyczne zarządzanie manewrami Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Zlecone manewry w zależności od rodzaju lokomotywy. Główny przepływ wydarzeń:
+
+Na podstawie zadanych reguł Automat P-C-C-I zarządza kolejnością manewrów.
+
+System przydziela zadania do Maszynistów manewrowych lub lokomotyw manewrowych (lub trakcyjnych).
+
+A2a. Funkcja automatycznego zarzadzania manewrami może zostać wyłączona na rzecz sterowania manualnego.
+
+System musi być wysoce niezawodny i elastyczny, aby efektywnie zarządzać ruchem i manewrami. Częstotliwość występowania:
+
+Automatyczne zarządzanie manewrami może być realizowane w zależności od potrzeb operacyjnych, zazwyczaj na bieżąco w czasie rzeczywistym.
+
+K U-C 34: Manualne zarządzanie manewrami Aktor główny: Kierujący zmianą Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Funkcja automatycznego zarzadzania manewrami została wyłączona na rzecz sterowania manualnego. Główny przepływ wydarzeń:
+
+Kierujący Zmianą monitoruje bieżące zlecone manewry. Kierujący Zmianą manualnie zarządza kolejnością manewrów.
+
+Kierujący Zmianą przydziela manualnie zadania do Maszynistów Manewrowych. Warunki końcowe:
+
+Kierujący Zmianą musi być doświadczonym pracownikiem, posiadającym wystarczającą wiedzę o ruchu kolejowym, aby podejmować odpowiednie decyzje dotyczące manewrów. Częstotliwość występowania:
+
+Manualne zarządzanie manewrami jest stosowane zazwyczaj w sytuacjach wymagających natychmiastowej interwencji lub gdy Automat P-C-C-I jest niedostępny.
+
+K U-C 35: Nadanie statusu manewrów Aktor główny: Maszynista lokomotywy manewrowej (w szczególnym przypadku maszynista trakcyjny) Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Maszynista manewrowy ma dostęp do systemu w aplikacji. Główny przepływ wydarzeń:
+
+Maszynista manewrowy nadaje statusy zadania w szczególności zakończenia manewrów, takie jak:
+
+Inne (lista do ustalenia na etapie przygotowywania narzędzia - możliwe uproszczenie do komunikatu zadanie zrealizowane)).
+
+Status manewrów został nadany i zaktualizowany w systemie, co umożliwia śledzenie ich postępu i koordynację działań na torach. Specjalne wymagania:
+
+System musi umożliwiać natychmiastową aktualizację statusu manewrów w czasie rzeczywistym. Częstotliwość występowania:
+
+Nadanie statusu manewrów jest konieczne przy każdym planowanym manewrze na torach i może się powtarzać kilka razy dziennie, w zależności od natężenia ruchu kolejowego i potrzeb konserwacji infrastruktury.
+
+K U-C 36: Identyfikacja godziny wyjazdu lub wjazdu składu z lub na terminal Aktor główny: Brama OCR Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Brama OCR wyposażona w system kamer liniowych, system detektorów, czujniki, etc. Główny przepływ wydarzeń:
+
+Pociąg wyjeżdża lub wjeżdża z lub na terminal. Brama OCR skanuje wyjeżdżający lub wjeżdżający pociąg.
+
+W systemie zostaje zapisana data i godzina wyjazdu lub wjazdu pociągu. Warunki końcowe:
+
+Godzina wyjazdu lub wjazdu składu z lub na terminal została zidentyfikowana i zarejestrowana w systemie. Specjalne wymagania:
+
+System zarządzania ruchem kolejowym musi umożliwiać szybką identyfikację godziny wyjazdu lub wjazdu składu z lub na terminal i aktualizację harmonogramu ruchu w czasie rzeczywistym. Częstotliwość występowania:
+
+Identyfikacja godziny wyjazdu lub wyjazdu składu z lub na terminal może być wymagana codziennie, w zależności od zaplanowanego natężenia ruchu na terminalu.
+
+K U-C 37: Nadanie statusu przewozu kolejowego Aktor główny: Maszynista lokomotywy trakcyjnej Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Każdy pociąg wyposażony jest w tablet, na którym Maszynista dokonuje odznaczania statusów i na którym dysponuje dostępem do niezbędnych dokumentów.
+
+Główny przepływ wydarzeń: Maszynista trakcyjny loguje się do aplikacji w tablecie. Maszynista trakcyjny odznacza statusy przejazdu: wyjechałem, b. zatrzymałem się,.
+
+inne (lista do ustalenia na etapie przygotowywania narzędzia) Warunki końcowe:
+
+Status przewozu kolejowego został nadany i zaktualizowany w systemie, co umożliwia śledzenie postępu realizacji transportu przez zainteresowane strony. Specjalne wymagania:
+
+System musi umożliwiać szybką aktualizację statusu przewozu kolejowego w czasie rzeczywistym. Częstotliwość występowania:
+
+Nadanie statusu przewozu kolejowego może być wymagane przy każdym planowanym przewozie kolejowym, w zależności od liczby realizowanych transportów.
+
+K U-C 38: Monitoring pozycji pociągu i szacowanie godziny dojazdu Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Aktywne połączenie systemu z modułem GPS. Główny przepływ wydarzeń:
+
+Automat P-C-C-I pobiera dane z modułu GPS i monitoruje pozycję pociągu.
+
+Automat P-C-C-I na podstawie zadanych reguł szacuje czas przyjazdu pociągu na terminal docelowy.
+
+Automat P-C-C-I na bieżąco dokonuje aktualizacji szacowanego czasu przyjazdu w systemie. Warunki końcowe:
+
+Automat P-C-C-I zaktualizował szacowany czas przyjazdu pociągu. Specjalne wymagania:
+
+System zarządzania ruchem kolejowym musi umożliwiać ciągłe monitorowanie pozycji pociągów i aktualizację szacowanych czasów przyjazdu. Częstotliwość występowania:
+
+Monitorowanie realizacji transportu kolejowego jest wykonywane dla każdego zaplanowanego przewozu kolejowego, a częstotliwość zależy od liczby realizowanych transportów.
+
+K U-C 39: Identyfikacja i weryfikacja kontenerów Aktor główny: Automat P-C-C-I Aktor wspierający: Pracownik D-O-K, Pracownik Terminala, Klient Warunki wstępne:
+
+Brama OCR wyposażona jest w system kamer liniowych, detektorów, czujników i tym podobne, zdolne do skanowania wszystkich kontenerów wjeżdżających na terminal.
+
+System jest gotowy do odczytu informacji z kontenerów. Główny przepływ wydarzeń:
+
+Brama OCR skanuje wszystkie kontenery wjeżdżające na terminal. Brama OCR odczytuje informacje takie jak:
+
+numer plomby na kontenerze (do rozważenia na etapie wdrażania),.
+
+Automat P-C-C-I zbiera dane z Bramy OCR i rozpoczyna proces weryfikacji kontenerów na składzie z planem załadunku oraz danymi w zleceniach.
+
+Automat P-C-C-I zweryfikował, że kontener jest w składzie zgodnie z planem.
+
+Automat P-C-C-I zweryfikował, że kontener stoi na odpowiedniej platformie.
+
+Automat P-C-C-I zweryfikował, że kontener nie jest uszkodzony. Alternatywne przepływy:
+
+Automat P-C-C-I wzywa do oględzin Pracownika Terminala i tworzy zadanie na urządzenie tabletowe.
+
+Automat P-C-C-I wzywa do oględzin Pracownika Terminala i tworzy zadanie na urządzenie tabletowe.
+
+Następuje aktualizacja danych w systemie na potrzeby planowania ruchów rozładunkowych.
+
+Automat P-C-C-I wzywa do oględzin Pracownika Terminala i tworzy zadanie na urządzenie tabletowe, automatycznie o sytuacji informowany jest Pracownik D-O-K (opiekun klienta, na którego zleceniu transportowany jest dany kontener, lub pod nieobecność opiekuna inny wolny pracownik) Warunki końcowe:
+
+Wszystkie kontenery zostały zidentyfikowane, zweryfikowane, a ewentualne niezgodności lub uszkodzenia zostały odpowiednio udokumentowane i przekazane do dalszej obsługi. Specjalne wymagania:
+
+System musi być w stanie szybko i dokładnie przetwarzać dane z wielu kontenerów.
+
+Identyfikacja i weryfikacja kontenerów są wykonywane za każdym razem, gdy kontenery wjeżdżają na pociąg.
+
+K U-C 40: Identyfikacja i weryfikacja wagonów (lokomotyw) Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik Terminala, Pracownik D-O-K Warunki wstępne:
+
+Brama OCR wyposażona jest w system kamer liniowych, detektorów, czujników i tym podobne, zdolne do skanowania wszystkich wagonów wjeżdżających na terminal.
+
+System jest gotowy do odczytu informacji z wagonów (do rozważnie również skan lokomotyw). Główny przepływ wydarzeń:
+
+Brama OCR skanuje wszystkie wagony (lokomotywy) wjeżdżające na terminal.
+
+Brama OCR odczytuje informacje takie jak: Numer wagonu (lokomotywy), Kolejność wagonów w składzie,.
+
+Automat P-C-C-I zbiera dane z Bramy OCR i rozpoczyna proces weryfikacji wagonów (lokomotywy).
+
+Automat P-C-C-I zweryfikował, że wagon stoi w prawidłowej kolejności w składzie.
+
+Automat P-C-C-I zweryfikował, że stan wagonu, w tym osi, jest prawidłowy. Alternatywne przepływy:
+
+Automat P-C-C-I wzywa do oględzin Pracownika Sekcji Technicznej i tworzy zadanie na urządzenie tabletowe - oględziny mają miejsce w ramach K U-C 44.
+
+Następuje aktualizacja danych w systemie na potrzeby planowania ruchów rozładunkowych.
+
+Automat P-C-C-I wzywa do oględzin Pracownika Sekcji Technicznej i tworzy zadanie na urządzenie tabletowe - oględziny mają miejsce w ramach K U-C 44. Warunki końcowe:
+
+Wszystkie wagony (lokomotywy) zostały zidentyfikowane, zweryfikowane, a ewentualne niezgodności lub uszkodzenia zostały odpowiednio udokumentowane i przekazane do dalszej obsługi. Specjalne wymagania:
+
+System musi być w stanie szybko i dokładnie przetwarzać dane z wielu wagonów (lokomotyw).
+
+Identyfikacja i weryfikacja wagonów (lokomotyw) są wykonywane za każdym razem, gdy wagon (lokomotywa) wjeżdża na teren terminala kolejowego.
+
+K U-C 41: Generowanie zadań w zakresie oględzin składu Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik Sekcji Technicznej Warunki wstępne:
+
+Informacje w systemie na temat liczby przejechanych kilometrów składu, liczby dni od ostatniego przeglądu. Główny przepływ wydarzeń:
+
+Zadanie przeglądu składu generowane jest każdorazowo po przyjeździe składu na terminal, na którym funkcjonuje Sekcja Techniczna odpowiedzialna za przeglądy.
+
+System automatycznie generuje dodatkowe zadania dla Pracownika Sekcji w ramach przeglądu składu pociągu na podstawie ustalonych kryteriów, takich jak liczba przejechanych kilometrów, liczba dni od ostatniego przeglądu, i tym podobne Warunki końcowe:
+
+Automat P-C-C-I stworzył zadanie przeglądu składu pociągu. Specjalne wymagania:
+
+System musi umożliwiać elastyczne zarządzanie harmonogramem przeglądów technicznych w czasie rzeczywistym. Częstotliwość występowania:
+
+Przeglądy techniczne składu pociągów realizowane są za każdym razem, kiedy skład przyjeżdża na Terminal P-C-C-I.
+
+K U-C 42: Automatyczne zarządzanie zleceniami oględzin składu Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik Sekcji Technicznej Warunki wstępne:
+
+Wygenerowane zadania dla Sekcji Technicznej w celu wykonania przeglądu składu pociągu. Główny przepływ wydarzeń:
+
+Automat P-C-C-I zarządza kolejnością obsługi zadań oględzin składu na podstawie zdefiniowanych reguł.
+
+Automat P-C-C-I przydziela zadania oględzin składu do poszczególnych Pracowników Sekcji Technicznej. Alternatywne przepływy:
+
+A2a. Funkcja automatyczna może zostać wyłączona na rzecz manualnego zarządzania zleceniami technicznymi. Warunki końcowe:
+
+Zlecenia oględzin składu zostały rozdysponowane pomiędzy Pracowników Sekcji Technicznej.
+
+System musi umożliwiać elastyczne zarządzanie automatycznym generowaniem zleceń oględzin składu w czasie rzeczywistym. Częstotliwość występowania:
+
+Zlecenia oględzin składu są generowane automatycznie w zależności od ustalonych kryteriów, zwykle co określoną liczbę przejechanych kilometrów lub co określoną liczbę dni.
+
+K U-C 43: Manualne zarządzanie zleceniami oględzin składu Aktor główny: Kierownik Sekcji Technicznej Aktorzy wspierający: Pracownik Sekcji Technicznej Warunki wstępne:
+
+Wygenerowane zadania dla Sekcji Technicznej w celu wykonania przeglądu składu pociągu.
+
+Funkcja automatycznego zarządzania zleceniami oględzin składu została wyłączona. Główny przepływ wydarzeń:
+
+Kierownik Sekcji Technicznej loguje się do systemu i przechodzi do modułu zarządzania zleceniami oględzin składu.
+
+Kierownik Sekcji Technicznej wybiera opcję manualnego zarządzania zleceniami oględzin składu.
+
+Kierownik Sekcji Technicznej manualnie przydziela zadania do poszczególnych Pracowników Sekcji Technicznej. Warunki końcowe:
+
+Zlecenia oględzin składu zostały rozdysponowane pomiędzy Pracowników Sekcji Technicznej. Specjalne wymagania:
+
+Interfejs użytkownika powinien być intuicyjny i łatwy w obsłudze Kierownika Sekcji Technicznej. Częstotliwość występowania:
+
+Manualne zarządzanie zleceniami oględzin składu może być stosowane w przypadku szczególnych sytuacji, które wymagają pilnej interwencji lub gdy automatyczne generowanie zleceń nie jest wystarczające.
+
+K U-C 44: Nadawanie statusów w czasie oględzin składu Aktor główny: Pracownik Sekcji Technicznej Aktorzy wspierający: Kierownik Sekcji Technicznej Warunki wstępne:
+
+Pracownik Sekcji Technicznej ma dostęp do systemu poprzez aplikację na tablecie.
+
+Pracownik Sekcji Technicznej ma przypisane zadanie wykonania przeglądu pociągu.
+
+Pracownik Sekcji Technicznej dokonuje przeglądu pociągu, który wjechał na terminal.
+
+Pracownik Sekcji Technicznej loguje się do systemu poprzez aplikację.
+
+Pracownik Sekcji Technicznej wybiera zakładkę odpowiedzialną za aktualizację wyników przeglądu.
+
+Pracownik Sekcji Technicznej nie stwierdza usterek i wybiera dla każdego obiektu (wagon, kontener lub lokomotywa), że obiekt jest sprawny i nie wymaga naprawy. Alternatywne przepływy:
+
+A3a. Pracownik Sekcji Technicznej stwierdza usterkę i wybiera dla każdego obiektu (wagon, kontener lub lokomotywa), że obiekt nie jest sprawny i wymaga naprawy.
+
+Pracownik Sekcji Technicznej opisuje czego dotyczy dana usterka obiektu Warunki końcowe:
+
+Kierownik Sekcji Technicznej ma aktualne informacje na temat postępu prac i ewentualnych zgłoszonych usterkach podczas oględzin. Specjalne wymagania:
+
+System musi umożliwiać ciągłe aktualizowanie statusów oględzin składu w czasie rzeczywistym.
+
+Interfejs użytkownika powinien być intuicyjny i zapewniać łatwy dostęp do funkcji nadawania statusów dla Technika kolejowego i monitorowania dla Kierownika utrzymania taboru. Częstotliwość występowania:
+
+Nadawanie statusów w czasie oględzin składu jest często stosowane podczas każdych oględzin, aby monitorować postęp prac i reagować na ewentualne problemy w czasie rzeczywistym.
+
+K U-C 45: Wyłączenie wagonu z użycia Aktor główny: Pracownik Sekcji Technicznej Aktorzy wspierający: Technik kolejowy, Kierownik utrzymania taboru Warunki wstępne:
+
+Zgłoszona w systemie usterka obiektu (wagon, kontener, lokomotywa). Główny przepływ wydarzeń:
+
+Pracownik Sekcji Technicznej wybiera w aplikacji opcję wybicia wagonów.
+
+Pracownik wybiera wagon, który ma zostać wybity i dokonuje wyłączenia danego wagonu w systemie.
+
+Informacja o wybitym wagonie wpływa na automatyczne procesy planowania. Warunki końcowe:
+
+Wagon został oznaczony w systemie jako wyłączony z użycia. Specjalne wymagania:
+
+Interfejs użytkownika powinien być intuicyjny i zapewniać łatwy dostęp do funkcji wyłączania wagonów dla Technika kolejowego.
+
+Operacje wyłączania wagonów z użycia mogą być stosowane w zależności od potrzeb i stanu technicznego taboru, ale mogą występować regularnie, na przykład każdego dnia lub tygodnia, w przypadku planowych przeglądów i napraw.
+
+K U-C 46: Generowanie zadań w zakresie naprawy wagonu Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik Sekcji Technicznej Warunki wstępne:
+
+Wagon został wyłączony z użytkowania i skierowany do naprawy. Główny przepływ wydarzeń:
+
+System automatycznie generuje zlecenia dla Pracownika Sekcji Techniczne i tworzy zadania naprawy obiektu (wagonu, lokomotywy, kontenera). Warunki końcowe:
+
+System zarządzania utrzymaniem taboru musi umożliwiać elastyczne generowanie zadań naprawczych w zależności od potrzeb i stanu technicznego wagonów. Częstotliwość występowania:

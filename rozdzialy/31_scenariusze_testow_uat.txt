@@ -1,0 +1,153 @@
+Scenariusze testów uat.
+
+20, 40 General Purpose Full Gdańsk(Baltic Hub) - EJOT Polska 47-XXX Olszowa - Gliwice PCC.
+
+20,40 Full Gdańsk(Baltic Hub) - Reslogistic Park Logistyczny Rogoźnica Rogoźnica 306A 36-XXX Głogów Małopolski - Gdynia BCT lub GCT Kontenery: - 40 General Purpose Waga.
+
+20 40 Full Gdańsk(Baltic Hub) - 7r Solution ( Wonder Auto Poland ) Bażaniec 12 43-XXX Czechowice-Dziedzice - Gdańsk Balticon lub Refcon.
+
+20 40 full Hamburg CTT - podstawienie Gdańsk - pusty Balticon Gdańsk.
+
+20 40 full Hamburg CTT - Żarów U-C Wałbrzych- pusty Gdynia BCT lub GCT.
+
+Pełny PCC Brzeg Dolny - PCC Gliwice. Pusty PCC Kutno - PCC Kolbuszowa.
+
+20 Full Rotterdam CTT (PCT) - Frankfurt Oder - Unload at Grossbeeren - Frankfurt Oder - Empty Berlin Behala.
+
+20 Empty Brzeg Dolny - Load at Brzeg Dolny - Full Brzeg Dolny.
+
+full 20, 40 Gdańsk Baltic Hub- podstawienie 4691 SV Tholen, NL via Rotterdam CTT - pusty Gdańsk Baltic Hub.
+
+full 20, 40 Gdańsk Baltic Hub- podstawienie 41199 Mönchengladbach, DE via Duisburg -.
+
+20 tank (ładunek neutralny) pełny Rotterdam CTT - Gliwice PCC - Łaziska Górne 43XXX - Gliwice PCC - Rotterdam CTT (do rozładunku potrzebny wąż, kompresor i złączki, SENT).
+
+20 tank pełny (ładunek ADR) Rotterdam CTT - Gliwice PCC - Łaziska Górne 43-XXX + podjazd na myjnie Bratrans Łaziska Górne - pusty Gliwice (do rozładunku potrzebny wąż, kompresor i złączki).
+
+20 tank neutral 26500 kg Rotterdam CTT - Kutno PCC - Sokołów Podlaski 08-XXX - podjazd na myjnie Mena Kowiesy - Kutno PCC - Rotterdam RST North.
+
+20 tank full Gdańsk - podstawienie Dwikozy (naczepa zostaje na tydzień) potem wracamy truckiem po pustego, brudnego tanka po ADR i wieziemy koleja na Gdynia BCT lub GCT lub Gdańsk Baltic Hub.
+
+Rotterdam Maasvlakte - Rotterdam CTT - Kolbuszowa PCC - Opatów 27-XXX - Kolbuszowa PCC - Kutno PCC - Łódź 93-XXX.
+
+Rotterdam CTT - Brzeg Dolny PCC - Kąty Wrocławskie 55-XXX - Brzeg Dolny PCC - Kutno PCC - Mszczonów 96-XXX - Kutno PCC - Rotterdam CTT.
+
+20 tank Rotterdam CTT - brzeg dolny pcc - pobranie brzeg dolny - podstawienie na grzanie autochem - brzeg dolny - odebranie z grzania na autochemie - rozładunek Wrocław - powrót na Brzeg Dolny.
+
+Mam klienta który zleca kontenery lub tanki z pozostawieniem na zakładzie A na pewien okres, później przerzut truckiem z zakładu A do zakładu B i po kolejnym okresie czasu zabranie z zakładu B na Depot.
+
+Full: GCT Gdynia (w tym awizacja na podjęcie) - Dąbrowa Górnicza.
+
+Empty dirty: Chorzów - GCT Gdynia (w tym awizacja na złożenie).
+
+I wszystko w ramach jednej oferty lub stawki. W tym nadwaga, dodatek za ADR.
+
+Klient OBI - z Hamburga - do Świebodzina - zwrot pustego do Hamburga.
+
+Oferty z podjęciem z różnych terminali w Hamburgu: CTA, CTB, EUROGATE, CTT.
+
+Zwrot na wszystkie dostępne depoty w Hamburgu. Opcja podstawień shuttle lub standard. Nadwagi, dodatek za ADR.
+
+Podjęcie pełnego kontenera na RST South, a więc shunting. Kolej do CLIPu. Odprawa (T1) w Nowym Tomyślu, Rozładunek w Lwówku, Po dostawie mycie w Poznaniu.
+
+Podjęcie z terminali morskich w RTM + pociąg do KVT lub CLIP - dwie opcje dla klienta.
+
+Podstawienie via KVT lub CLIP - dwie opcje dla klienta.
+
+Zwrot albo na terminale morskie w RTM albo do Gądek.
+
+Przerzut pełnych z BCT (klient dostarczy truckiem) do DIT, stawka zależna od tego kto awizuje na BCT (koszty terminalowe różne).
+
+Pełny jedzie na rozładunek do Sosnowca(Gliwice), odmowa rozładunku, wraca na PCC Gliwice, przerzucamy pociągiem na BD, podstawienie z BD (różne magazyny).
+
+2 zlecenia, 2 kontrakty, dodatek za powrót na pełno do Gliwic. - zmiany na etapie realizacji, ale bardzo częste.
+
+Pełny jedzie na rozładunek do Sosnowca(Gliwice), odmowa rozładunku, jedzie na założenie siatki zabezpieczającej na magazyn zewnętrzny via Gliwice, ponowne podstawienie do Sosnowca.
+
+Na masterze, 1 zlecenie, dodatki za podjazd na magazyn zewnętrzny, powrót na pełno do Gliwic, ponowne podstawienie innego dnia.
+
+podjęcie zewnętrzny depot ANT lub RTM - kolej KVT - zawrotka kolejowa do ANT lub RTM - podjazd na skanowanie lub rewizję - kolej KVT - podstawienie truckowe - kolej ANT lub RTM.
+
+20, 40-General Purpose Empty DG Metrans - 32-XXX Skawina - U-C Kraków- Gdynia(GCT).
+
+20, 40 pusty ET Sławków - załadunek Kozy + doładunek Bielsko-BIała - U-C CzechowiceDziedzice - full Hamburg CTT.
+
+20, 40-General Purpose Empty Gliwice PCC- Górecki 32-XXX Kęty - U-C Andrychów - Hamburg(CTA).
+
+40-General Purpose Empty Kolbuszowa PCC - Nowy Styl ul. Fabryczna 8, 38-200 Jasło - Rotterdam (Rhenus).
+
+40-General Purpose Empty Dąbrowa Górnicza - Nowy Styl ul. Fabryczna 8, 38-200 Jasło (podstawienie truck via KOL) - U-C Krosno - Rotterdam(Rhenus).
+
+Export 20 40 full Gdynia GCT lub BCT - Hamburg CTA - sama kolej.
+
+(Kontenery na GCT lub BCT dostarczy klient - towar z naszego magazynu).
+
+Empty Brzeg Dolny PCC - Cersanit Wałbrzych ul. Uczniowska 21, 58-306 Wałbrzych lub Compass Am Schürmannshütt 11d, 47-441 Moers - Compass Am Schürmannshütt 11d 47-441 Moers - Antwerpia(Main Hub).
+
+20, 40 OT pusty Balticon Gdańsk - Wrocław U-C Katy Wrocławskie - pełen Rotterdam Delta (barka).
+
+20, 40 OT pusty Balticon Gdynia - Łódź U-C Łódź - pełen Antwerpia Q1700.
+
+Sama kolej PCC Brzeg Dolny - Gdańsk Baltic Hub. Sama kolej full PCC Gliwice - Rotterdam Waalhavenn. Sama kolej full PCC Kutno - Antwerpia Q869. sama kolej empty Gliwice - Rotterdam CTT. 40 Empty Kolbuszowa Load at Sanok Full Bremerhaven.
+
+40 Empty Kutno Load at Grodzisk Mazowiecki Warszawa - Full Rotterdam Waalhaven (truck).
+
+40 Full Rotterdam CTT (PCT) Frankfurt Oder Unload at Frankfurt Oder Empty Rotterdam CTT (PCT).
+
+20,40 Full Rotterdam Maasvlakte Frankfurt Oder Unload at Pasewalk Empty Hamburg CMR.
+
+Rotterdam CTT - Gliwice PCC - Oświęcim 32-XXX - Rotterdam CTT- podstawienie Breda.
+
+20 tank empty Gliwice PCC - Gdańsk OT Port - - sama kolej.
+
+empty Warszawa - Stromiec 26-804 - Kutno - odbiór naczepy Stromiec - Kutno PCC - Antwerpen MainHub.
+
+20 tank neutral Kolbuszowa - Samborzec 27-XXX - doładunek Tarnobrzeg - Kolbuszowa - Rotterdam RST South lub RTS North (wersja z barką lub truckiem).
+
+20 tank 26 300 kg neutral (bez gate in handlingu w BD) Brzeg Dolny PCC - Kolbuszowa - załadunek Trzeszczany 22-XXX - doładunek Głogów Małopolski - Rotterdam CTT.
+
+45' Empty Kutno Load at Opoczno + doładunek Wałbrzych- Full Duisburg- trucking.
+
+45' 40 Empty Kutno Load at Piotrków Trybunalski Full Rotterdam CTT- trucking Zaltbommel 5301 via Rotterdam.
+
+45' Empty u klienta w trasie (czyli pobranie od klienta z miejsca załadunku - klient posiada u siebie dźwig do załadowania kontenera na trucka) - (podstawienie nr 1) Nowy Dwór Mazowiecki 05-XXX - Kutno PCC - Duisburg DIT - (podstawienie nr 2) Unna 59425 (kontener zostaje u klienta).
+
+45' Empty u klienta w trasie - (podstawienie nr 1) Nowy Dwór Mazowiecki 05-XXX - Kutno PCC - Antwerpia Main Hub - (podstawienie nr 2) Turnhout 2300 (kontener zostaje u klienta).
+
+załadunek+ doładunek - kolej- rozładunek, Przykładowe zlecenie 25 10 04086 F lub PABI.
+
+załadunek- kolej- rozładunek- zwrot palet, Przykładowe zlecenie 25 04 03741 F lub ADMI.
+
+przerzut pustych kontenerów z Radomska (Loconi) do Gliwic (sam truck).
+
+Funkcjonalności do testów: kopiowanie oferty w obrębie tego samego klienta.
+
+kopiowanie więcej niż jednej oferty w obrębie tego samego klienta.
+
+kopiowanie więcej niż jednej oferty z klienta A do klienta B.
+
+czy na ofercie poprawnie wyświetlają się wszystkie warianty tras.
+
+generowanie oferty do pliku PDF z poprawna nazwą. przesyłanie oferty do strefy Klienta.
+
+sprawdzenie, czy można ustawić ilość czasu wolnego na rozładunek i potem jakie będą opłaty, jeśli będzie to coś innego niż standardowe ustalenia.
+
+informacja informacja o tym jak inni sprzedawcy zakatowali tą samą trasę ( o ile taka wycena powstała).
+
+poprawne wczytywanie stawek z taryfy. przygotowanie taryfy dla danego klienta.
+
+wpisywanie specjalnych warunków za składowanie kontenerów na terminalu dla danego klienta ( na przykład na konkretny biznes, pod dany adunek, na damym terminalu).
+
+czy oferta generuje poprawne zapisy co dana rasa zawiera lub nie zawiera.
+
+przechodzenie z “nowego zapytania ofertowego na liście zadań bezpośrednio pod ofertę pod danym klientem.
+
+możliwość wpisania ręcznie(pole do tekstu), bez załączania screena lub pliku, na przykład akceptacja lub odrzucenie po rozmowie telefonicznej oferty lub odrzucenia oferty.
+
+sprawdzenie, czy działa filtr w ofertach, aby móc ukryć wszystkie odrzucone oferty lub możliwość wyboru kilku filtrów i zapamiętania tego wybory per dany klient w ramach 'karty klienta'.
+
+Tworzenie Klientów zagranicznych z innym formatem NIP. Np.: klient z Grecji: OB STREEM GLOBAL SUPPLY CHAIN SOLUTIONS SA, NIP:
+
+Klient z Niemiec: OBI Logistics Emil Lux, NIP: DE815214278.
+
+dopisywanie sprzedawcy do klienta lub osoby z D-O-K. wpisywanie adresu do wysyłki faktur.

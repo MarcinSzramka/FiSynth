@@ -1,0 +1,439 @@
+High level design — dokument główny, część 4.
+
+Kryterium aspiracji - nawet jeśli potencjalny ruch znajduje się na liście tabu, może być on wykonany, jeżeli rozwiązanie, do którego prowadzi, jest lepsze niż jakiekolwiek dotychczas znalezione rozwiązanie. To pozwala na przełamywanie lokalnych minimum i dalszą eksplorację przestrzeni rozwiązań.
+
+Powtarzanie procesu - należy powtarzać proces generowania sąsiadów, oceny rozwiązań, wyboru najlepszego sąsiada i aktualizacji listy tabu, aż do spełnienia kryterium zakończenia, takiego jak osiągnięcie określonej liczby iteracji bez poprawy najlepszego znalezionego rozwiązania.
+
+Algorytm przeszukiwania tabu jest szczególnie skuteczny w problemach optymalizacyjnych, gdzie przestrzeń rozwiązań jest duża i złożona, a ryzyko utknięcia w lokalnym minimum wysokie. Jego zdolność do zapamiętywania wykonanych ruchów i unikania powrotu do wcześniej odwiedzonych stanów pozwala na skuteczną eksplorację przestrzeni rozwiązań. Dzięki temu, algorytm przeszukiwania tabu jest w stanie efektywnie wyszukiwać globalne optimum w problemach, gdzie inne metody mogą mieć trudności z wyjściem poza lokalne minima.
+
+W kontekście optymalizacji rozmieszczenia kontenerów na placu, algorytm ten umożliwia dokładne przeszukanie możliwych konfiguracji kontenerów, biorąc pod uwagę ich daty opuszczenia, w celu znalezienia rozwiązania optymalnego lub bliskiego optymalnemu. Lista tabu skutecznie zapobiega cyklicznemu powracaniu do tych samych konfiguracji, co sprzyja odkrywaniu nowych i potencjalnie lepszych rozwiązań.
+
+Kryterium aspiracji dodatkowo zwiększa moc eksploracyjną algorytmu, pozwalając na przełamanie reguł listy tabu w sytuacjach, gdy potencjalne rozwiązanie wydaje się obiecujące. Dzięki temu algorytm przeszukiwania tabu jest w stanie adaptować się i eksplorować przestrzeń rozwiązań w sposób bardziej elastyczny niż metody, które ściśle trzymają się ustalonych zasad.
+
+Podsumowując, algorytm przeszukiwania tabu to potężne narzędzie do rozwiązywania skomplikowanych problemów optymalizacyjnych, takich jak rozmieszczanie kontenerów na placu. Jego zaawansowane mechanizmy eksploracji przestrzeni rozwiązań, w tym lista tabu i kryterium aspiracji, pozwalają na efektywne poszukiwanie optymalnych konfiguracji nawet w bardzo złożonych i dynamicznych środowiskach problemowych.
+
+Zastosowanie algorytmów zachłannych Algorytmy zachłanne to rodzaj strategii heurystycznej, która polega na podejmowaniu lokalnie optymalnych decyzji w nadziei, że te decyzje doprowadzą do znalezienia globalnego rozwiązania optymalnego dla całego problemu. W kontekście optymalizacji rozmieszczenia kontenerów na placu z uwzględnieniem ich dat opuszczenia, algorytm zachłanny może być wykorzystany do systematycznego rozmieszczania kontenerów w sposób, który maksymalizuje efektywność ich usuwania z placu.
+
+Sortowanie kontenerów - pierwszym krokiem powinno być posortowanie kontenerów według ich dat opuszczenia placu, od tych, które mają opuścić plac jako pierwsze, do tych, które mają opuścić go jako ostatnie. Dzięki temu, algorytm może najpierw skupić się na kontenerach, które wymagają szybkiego dostępu.
+
+Wybór lokalnie optymalnych położeń - następnie, dla każdego kontenera z posortowanej listy, algorytm zachłanny wybiera lokalnie optymalne położenie na placu. Lokalnie optymalne oznacza tutaj wybór miejsca, które minimalizuje przyszłe przesunięcia innych kontenerów lub umożliwia łatwy dostęp do kontenerów z wcześniejszymi datami opuszczenia.
+
+Miejsca najbliżej wyjścia z placu, aby ułatwić szybkie opuszczenie placu.
+
+Unikanie umieszczania kontenerów z późniejszymi datami opuszczenia na górze tych z wcześniejszymi datami, aby nie blokować dostępu.
+
+Iteracyjne rozmieszczanie kontenerów - algorytm zachłannie rozmieszcza kontenery na placu, iteracyjnie wybierając dla każdego z nich najlepsze dostępne miejsce według wyżej wspomnianych kryteriów. Proces ten jest kontynuowany aż wszystkie kontenery zostaną umieszczone na placu.
+
+Ocena rozwiązania - po rozmieszczeniu wszystkich kontenerów, algorytm może ocenić uzyskane rozwiązanie pod kątem jego efektywności, na przykład sprawdzając, ile razy kontenery musiały być przesunięte, aby umożliwić opuszczenie placu tym, które mają najwcześniejsze daty opuszczenia.
+
+Algorytmy zachłanne są zazwyczaj proste w implementacji i mogą szybko generować rozwiązania dla dużych problemów. Są szczególnie skuteczne, gdy istnieje jasna heurystyka pozwalająca na podejmowanie lokalnie optymalnych decyzji.
+
+Głównym ograniczeniem algorytmów zachłannych jest to, że lokalnie optymalne decyzje nie zawsze prowadzą do globalnie optymalnego rozwiązania. W przypadku rozmieszczania kontenerów, podejście zachłanne może nie zawsze uwzględniać najlepszą długoterminową strategię rozmieszczenia, zwłaszcza gdy przestrzeń na placu jest ograniczona, a konieczność przesunięć kontenerów staje się bardziej skomplikowana.
+
+Mimo tych ograniczeń, algorytmy zachłanne mogą być użytecznym narzędziem wstępnego szkicowania lub generowania rozwiązań startowych dla bardziej złożonych metod optymalizacyjnych, takich jak algorytmy metaheurystyczne, które mogą dalej doskonalić rozwiązanie wyszukane przez algorytm zachłanny. Dzięki ich prostocie i szybkości, algorytmy zachłanne mogą szybko dostarczyć dobre, choć nie zawsze optymalne, rozwiązania, które mogą służyć jako punkt wyjściowy dla bardziej zaawansowanych technik. W przypadku rozmieszczania kontenerów, takie podejście może pozwolić na szybkie osiągnięcie rozsądnych konfiguracji placu, które następnie mogą być poprawiane i optymalizowane przy użyciu technik takich jak symulowane wyżarzanie (SA), algorytm przeszukiwania tabu (TS) czy algorytmy genetyczne (GA). W zastosowaniach praktycznych, szczególnie tam, gdzie czas na znalezienie rozwiązania jest ograniczony lub gdzie przestrzeń rozwiązań jest na tyle duża, że dokładne metody są niepraktyczne, algorytmy zachłanne mogą oferować wartościowy kompromis między jakością rozwiązania a czasem obliczeń. Pozwalają one na szybkie uzyskanie rozwiązania, które może być wystarczająco dobre dla wielu praktycznych zastosowań, a także mogą pomóc w identyfikacji kierunków dla dalszych badań i optymalizacji.
+
+W kontekście rozmieszczania kontenerów, kluczowym aspektem jest wybór heurystyki, która najlepiej odzwierciedla priorytety i ograniczenia specyficzne dla danego problemu. Na przykład, jeśli nadrzędnym celem jest minimalizacja czasu potrzebnego na dostęp do kontenerów z najbliższymi datami opuszczenia, heurystyka może faworyzować umieszczanie takich kontenerów w miejscach najłatwiej dostępnych. Z kolei, jeśli ważniejsza jest maksymalizacja wykorzystania przestrzeni, heurystyka może skupiać się na optymalnym upakowaniu kontenerów, biorąc pod uwagę ich różnorodne rozmiary i kształty.
+
+Podsumowując, choć algorytmy zachłanne mogą nie zapewnić kompletnego rozwiązania dla wszystkich scenariuszy rozmieszczania kontenerów, stanowią one cenny element w arsenale metod optymalizacyjnych. Ich prostota, szybkość i zdolność do generowania użytecznych rozwiązań sprawiają, że są one użytecznym narzędziem w wielu kontekstach, szczególnie jako etap wstępny przed zastosowaniem bardziej skomplikowanych strategii optymalizacyjnych.
+
+rozmów handlowych. W formularzu zbierane będą dane identyfikacyjne Klienta, weryfikowane będą wstępnie jego potrzeby i przyczyna chęci rejestracji: czy jest zainteresowany złożeniem zlecenia czy tylko poznaniem oferty, ile kontenerów miesięcznie chciałby przewozić z P-C-C-I, jakim jest typem podmiotu (armator, spedytor, przewoźnik, klient detaliczny). Dalsza rejestracja przebiega zgodnie z US2.
+
+H US2: Wprowadzenie danych klienta przez pracownika sprzedaży Pracownik Sprzedaży do modułu rejestracyjnego wprowadza dane Klienta, z którym nawiązał rozmowy handlowe. Dane niezbędne do rejestracji: nazwa firmy, numer identyfikacji podatkowej, dane adresowe podmiotu (w tym kraj), kapitał zakładowy, dane osób reprezentujących podmiot, dane przedstawiciela do kontaktu z P-C-C-I, dane osoby do składania zleceń (w tym mail i telefon), dane kontaktowe do przekazywania faktur (mail - opcjonalnie), dane podmiotu na jaki następować ma rozliczenie (jeżeli inne od składającego zlecenia). Część danych, związanych już z operacyjną realizacją zleceń i ich rozliczeniem, może zostać uzupełniona już na etapie ofertowania - uzupełnienie danych jest niezbędne do złożenia pierwszego zlecenia, do tego czasu Klient nie ma możliwości składania zleceń. Rejestracja w systemie jest równoznaczna ze stworzeniem konta w Strefie Klienta i przekazaniem do Klienta drogą mailową automatycznie loginu dostępowego (hasło Klient ustanawia przy pierwszym logowaniu). Od tego momentu Klient może korzystać ze wsparcia Klienta dostępnego poprzez Strefę. Rejestracja umożliwia handlowcowi przygotowanie w systemie oferty dla Klienta.
+
+H US3: Weryfikacja nowo zarejestrowanego klienta Każdy nowy Klient podlega weryfikacji. W przypadku podmiotów z rynku polskiego weryfikacji podlega sprawdzenie aktywności podmiotu w KRS, weryfikacja podmiotu w GUS oraz weryfikacja numeru bankowego Klienta na białej liście. Wszystkie 3 weryfikacje realizowane są automatycznie w następstwie wprowadzenia nowego Klienta przez Handlowca. Informację.
+
+wyniku weryfikacji system zgłasza do pracownika Działu Księgowego. W przypadku podmiotów zagranicznych za weryfikację nowego Klienta i zatwierdzenie go do obsługi odpowiada Dział Księgowy.
+
+H US4: Prośba o przygotowanie oferty Przygotowanie i przekazanie oferty muszą być poprzedzone otrzymaniem od Klienta prośby.
+
+przedstawienie oferty handlowej. Klient ma do dyspozycji 2 kanały: Strefę Klienta i wiadomość mailową. Wiadomość mailowa trafia na zbiorczą skrzynkę sprzedaży, z której przekazywana jest do odpowiedniego handlowca (w pierwszej kolejności do tego, który rejestrował klienta). Formatka zgłoszenia w Strefie Klienta daje możliwość poproszenia o kontakt z Działu Handlowego w celu doprecyzowania potrzeb klienta lub uzupełnienia parametrów kontraktu jakiego ma dotyczyć oferta (miejsce startu, miejsce końca, typ kontenera, typ ładunku). Zgłoszenie mailowe nie posiada wystandaryzowanej formy lub szablonu. Szczególnym przypadkiem wyrażenia chęci otrzymania oferty jest także ogłoszenie przez Klienta przetargu.
+
+H US5: Przygotowanie oferty przez handlowca Handlowiec po otrzymaniu prośby o ofertę przygotowuje ją w dedykowanym module ofertowym systemu branżowego. Dane niezbędne do wyceny Handlowiec czerpie ze zgłoszenia nadesłanego poprzez Strefę Klienta i lub lub z dodatkowego kontaktu z Klientem. Oferta ma charakter zbioru kontraktów, jakie na potrzeby zleceń będzie mógł wykorzystać Klient po akceptacji warunków handlowych. Każdy kontrakt handlowy z założenia dostępny jest dla Klienta w wariancie z pełnym zestawem usług dodatkowych. Wycena kontraktów, połączeń transportowych, następuje w taki sposób, że system po wskazaniu relacji (na bazie adresu start i koniec) podpowiada minimalny koszt takiej relacji, który handlowiec ma prawo zmodyfikować pod danego Klienta. Usługi dodatkowe posiadają stały cennik, który może być modyfikowany pod danego Klienta.
+
+H US6: Przekazanie oferty klientowi i akceptacja oferty Niezależnie od kanału zgłoszenia do ofertowania oferta przekazana jest na Strefę Klienta. Klient ma możliwość akceptacji oferty na Strefie Klienta. W przypadku zgłoszenia mailowego oferta odesłana zostanie również na adres mailowy (opcjonalnie wg ustawień komunikacji w koncie Klienta). Jeżeli Klient akceptację prześle również mailowo, do systemu wprowadza ją Handlowiec. Oferty przygotowywane na potrzeby przetargów trafiają na Strefę Klienta w celu archiwizacji, jednak główna komunikacja z Klientem przebiega poza systemem. Akceptację oferty (wygraną w przetargu) do systemu wprowadza Handlowiec. Akceptacja oferty jest równoznaczna z możliwością jej wykorzystania w formie składania zleceń przez Klienta.
+
+H US7: Złożenie zlecenia przez EDI lub A-P-I Klient we własnym systemie wprowadza dane niezbędne do złożenia zlecenia do P-C-C-I. Na dane zlecenie składają się informacje o między innymi miejscu i dacie podjęcia kontenera, typie kontenera, typie ładunku, miejscu i dacie zdania kontenera, dacie podstawienia (jeżeli dotyczy). Po uzupełnieniu danych Klient przesyła zlecenie za pomocą EDI (Electronic Data Interchange) lub A-P-I (Application Programming Interface) do systemu P-C-C-I. Zlecenie jest złożone wstępnie przez Klienta, a ostateczne potwierdzenie przyjęcia zlecenia przekazywane jest automatycznie po realizacji kroków weryfikacyjnych (US10, US11, US13).
+
+H US8: Złożenie zlecenia przez Strefę Klienta Klient w Strefie Klienta w zakładce do składania zleceń wybiera z listy rozwijanej kontrakt, na podstawie którego złożyć chce zlecenie. Klient może złożyć zlecenie wyłączenie na posiadane aktywne kontrakty, wynikające z zaakceptowanych ofert handlowych. Następnie Klient wprowadza szczegółowe dane dla danego zlecenia, są to informacje o między innymi miejscu i dacie podjęcia kontenera, typie kontenera, typie ładunku, miejscu i dacie zdania kontenera, dacie podstawienia (jeżeli dotyczy). Po wprowadzeniu danych zlecenia Klient zatwierdza zlecenie do wysyłki, następuje w tym momencie automatyczna weryfikacja zgodnie z US10 i US11. W przypadku negatywnej weryfikacji, niezależnie czy na etapie US10 czy US11, Klient w Strefie Klienta otrzymuje informację push, że zlecenie nie może zostać przyjęte z opisanego w komunikacie powodu - albo brak uregulowania płatności, albo brak potwierdzenia zwolnienia danego kontenera przez armatora. W zakładce ze zleceniami nowe zlecenie pojawia się w efekcie ze statusem Zlecenie odrzucone. W przypadku weryfikacji pozytywnej Klient otrzymuje potwierdzenie, w formie komunikatu push, że zlecenie zostało przyjęte do dalszej weryfikacji (US13). W zakładce ze zleceniami nowe zleceni pojawia się w efekcie ze statusem Zlecenie złożone.
+
+H US9: Złożenie zlecenia drogą mailową Klient przesyła zlecenie w szablonie narzuconym przez P-C-C-I na skrzynkę handlową Skrzynka mailowa P-C-C-I nie będzie miała ograniczeń technicznych, które uniemożliwiłyby przyjęcie wiadomości ze zleceniem z szablonem uzupełnionym niekompletnie lub w zupełnie innym formacie.
+
+H US10: Weryfikacja stanu zobowiązań klienta Weryfikacja stanu zobowiązań, a dokładnie nałożenia na Klienta blokady składania zleceń, uruchamiana będzie w 2 przypadkach: 1) Logowanie Klienta do Strefy Klienta - System automatycznie weryfikuje czy Klient, który loguje się do Strefy Klienta, ma nałożoną blokadę. Jeżeli tak, to wyświetlany jest odpowiedni komunikat informujący o blokadzie składania zleceń i kwocie zaległości do uregulowania - Klient nie ma możliwości uzupełnić danych do złożenia zlecenia, pokazuje mu się w zakładce komunikat push przypominający o blokadzie. Jeżeli Klient nie ma nałożonej blokady, nic się nie dzieje dodatkowo i Klient może w pełni korzystać z funkcjonalności Strefy Klienta. 2) Klient złożył zlecenie poprzez EDI - Zlecenie podlega weryfikacji po złożeniu poprzez EDI, w pierwszym kroku weryfikowane jest nałożenie blokady z powodu zadłużenia. Jeżeli blokady nie ma procedura przechodzi do kroku US11. Jeżeli Klient ma zablokowane składanie zleceń, zlecenie jest wstrzymywane (trafia do poczekalni) i do Pracownika D-O-K przekazywane jest zadanie polegające na skontaktowaniu się z Klientem celem poinformowania o zaistniałej sytuacji. W momencie zdjęcia blokady procedura przejdzie do kroku US11.
+
+H US11: Weryfikacja zwolnienia kontenera Weryfikacja stanu zobowiązań, a dokładnie nałożenia na Klienta blokady składania zleceń, uruchamiana będzie w 2 przypadkach: 1) Klient składa zlecenie poprzez Strefę Klienta - System automatycznie weryfikuje czy kontener (numer), który Klient wskazał w zleceniu został zwolniony do obsługi przez armatora (w oparciu wprost o numer kontenera lub numer zwolnienia i stan depotu danego armatora). Jeżeli tak, nowe zlecenie wysyłane jest do dalszej weryfikacji w US13. Jeśli weryfikacja zwolnienia kontenera Klienta jest negatywna, to Klient otrzymuje w Strefie Klienta informację, iż zlecenie nie będzie przyjęte do realizacji zanim dany kontener nie zostanie zwolniony przez armatora. 2) Klient złożył zlecenie poprzez EDI - Zlecenie podlega weryfikacji po złożeniu poprzez EDI, po pozytywnym zweryfikowaniu stanu zobowiązań klienta. Jeżeli kontener wskazany w zleceniu został zwolniony procedura przechodzi do kroku US13. Jeżeli kontener nie został zwolniony, zlecenie jest wstrzymywane (trafia do poczekalni) i do Pracownika D-O-K przekazywane jest zadanie polegające na skontaktowaniu się z Klientem celem poinformowania o zaistniałej sytuacji. W momencie uzupełnienia zwolnienia kontenera procedura przejdzie do kroku US13.
+
+H US12: Dopięcie dokumentów do zlecenia Niektóre typy zleceń wymagają dołączenia do nich konkretnych typów dokumentów, na przykład dokumentów celnych. Po przekazaniu zlecenia Klient ma obowiązek załączyć odpowiednie dokumenty w Strefie Klienta - Strefa Klienta podpowiada, na podstawie danych w zleceniu, jakie dokumenty są wymagane dla danego zlecenia. Generalnie komplet dokumentów musi zostać dołączony do zlecenia najpóźniej 48h przed datą gotowości kontenera wskazaną w zleceniu, wybrane dokumenty będą miały ustalony indywidualny czas graniczny na ich uzupełnienie w systemie - oznacza to w szczególnym przypadku, że ich brak w dniu dostępności nie będzie skutkował wstrzymaniem zlecenia. Klient dopina wymagane dokumenty załączając je jako załącznik do danego zlecenia w zakładce ze zleceniami w Strefie Klienta. Pliki stanowią potwierdzenie danych zadeklarowanych przez Klienta w zleceniu. Strefa Klienta pozwala także na dołączenie do zlecenia dokumentów dodatkowych i opisanie ich typu.
+
+H US13: Automatyczna weryfikacja zdolności przewozowych Niezależnie od kanału przesłania zlecenia po kroku US10 i US11 następuje automatyczne sprawdzenie zdolności przewozowej do danego zlecenia - dostępności miejsca na pociągach lub autach. Jeżeli system znajduje możliwe dopasowanie, zgodnie z datami zadeklarowanymi przez Klienta w zleceniu, zlecenie zostaje przyjęte do realizacji, a system wysyła do Klienta wiadomość potwierdzająca przyjęcie zlecenia. Jeżeli zlecenie było złożone poprzez Strefę Klienta potwierdzenie jest jedynie widoczne w postaci zmiany statusu złożonego zlecenia. Jeżeli zlecenie złożone było mailowo lub poprzez EDI, Klient otrzymuje dodatkowo wiadomość mailową z potwierdzeniem przyjęcia zlecenia do realizacji. Jeżeli system nie znajduje możliwego dopasowania, zgodnie z datami zadeklarowanymi przez Klienta w zleceniu, zlecenie przekazywane jest do Pracownika D-O-K z zadaniem skontaktowanie się z Klientem w celu zaproponowania innej daty realizacji zlecenia.
+
+H US14: Konsultacja parametrów zlecenia z klientem W przypadku braku możliwości przyjęcia zlecenia zgodnie z oczekiwanie Klienta w zakresie dat obsługi, Pracownik D-O-K kontaktuje się z Klientem mailowo i telefonicznie (opcjonalnie), i proponuje alternatywne terminy obsługi zlecenia. W razie zgody, Pracownik D-O-K zmienia parametry zlecenia i przekazuje je do realizacji, Klient otrzymuje potwierdzenie na Strefę Klienta i mailowo (opcjonalnie). W sytuacji, w której Klient nie wyraża zgody na zmianę dat obsługi zlecenia, Pracownik D-O-K może:
+
+Poinformować go o braku możliwości obsługi zlecenia, zlecenie zostaje odrzucone, informacja.
+
+tym fakcie pojawia się w Strefie Klienta w postaci odpowiedniego statusu zlecenia.
+
+Skonsultować się z Działem Operacyjnym i dopytać o możliwość zorganizowania dodatkowego przewozu - możliwe, że taka opcja zostanie w przyszłości wyłączona.
+
+H US15: Automatyczne informowanie o konieczności weryfikacji dokumentów Zlecenie, które wymaga załączenia konkretnych dokumentów w systemie jest odpowiednio otagowane od momentu wysłania zlecenia przez Klienta. System automatycznie generuje zadanie weryfikacji kompletności dokumentów dla Pracownika D-O-K 48h przed datą dostępności kontenera oraz w innych terminach dla wybranych dokumentów, zgodnie z ich datami krytycznymi na dopięcie do zlecenia.
+
+H US16: Weryfikacja wymaganych dokumentów Pracownik D-O-K, po otrzymaniu zadania systemowego polegającego na weryfikacji kompletności dokumentów w zleceniu, weryfikuje dokumenty załączone do zlecenia przez Klienta. Wskutek weryfikacji Pracownik D-O-K oznacza zlecenie jako:
+
+kompletne - zlecenie będzie realizowane zgodnie z datami w zleceniu.
+
+niekompletne - zlecenie zostanie przeniesione do poczekalni, straci wprowadzone pierwotnie daty obsługi, i będzie wymagało ponownego zaplanowanie przez Klienta w Strefie Klienta - Klient dostaje w efekcie automatyczną informację na Strefę Klienta oraz maila podanego w koncie na Strefie Klienta.
+
+H US17: Automatyczna weryfikacja zlecenia mailowego Zlecenie przesłane przez Klienta trafia na wspólną skrzynkę pocztową D-O-K. Automat identyfikuje nową wiadomość i dokonuje szeregu czynności:
+
+Weryfikacja stanu zobowiązań Klienta - identyfikacja Klienta na podstawie adresu mailowego. Jeżeli weryfikacja jest pozytywna to zlecenie może być (pod warunkiem z 2. rozpatrywane dalej. Jeżeli weryfikacja jest negatywna (Klient ma nałożoną blokadę) Klient otrzyma informacje zwrotną o braku możliwości przyjęcia zlecenia z uwagi na zadłużenie Klienta.
+
+Weryfikacja kompletności zlecenia i zgodności z kontraktem polega na sprawdzeniu kompletności danych: 2.1. Dane są kompletne - Automat jest w stanie zweryfikować kontrakt: 2.1.1. Automat dopasowuje aktywny (oferta zaakceptowana) kontrakt do zlecenia - Automat wprowadza zlecenie do bazy danych, zlecenie podlega dalszej weryfikacji zgodnie z US13 2.1.2. Automat dopasowuje nieaktywny (oferta niezaakceptowana) kontrakt do zlecenia - automatyczna wiadomość do Klienta o braku możliwości przyjęcia zlecenia z powodu niezaakceptowania oferty (zlecenie w poczekalni czeka na zaakceptowanie oferty) 2.1.3. Automat nie przypisał kontraktu (brak kontraktu) - następuje przekazanie wiadomości do Klienta o braku możliwości przyjęcia zlecenia z powodu braku kontraktu oraz przekazanie zapytania Klienta do Handlowca. 2.2. Dane są niekompletne, ale da się zweryfikować kontrakt: 2.2.1. Automat dopasowuje aktywny (oferta zaakceptowana) kontrakt do zlecenia - poinformowanie Klienta o braku możliwości przyjęcia zlecenia z powodu niekompletności zlecenia (zlecenie w poczekalni czeka na uzupełnienie zlecenia) 2.2.2. Automat dopasowuje nieaktywny (oferta niezaakceptowana) kontrakt do zlecenia - automatyczna wiadomość do Klienta o braku możliwości przyjęcia zlecenia z powodu niezaakceptowania oferty (zlecenie w poczekalni czeka na zaakceptowanie oferty) oraz poinformowanie o braku możliwości przyjęcia zlecenia z powodu niekompletności zlecenia (zlecenie w poczekalni czeka na uzupełnienie zlecenia) 2.2.3. Automat nie przypisał kontraktu (brak kontraktu) - następuje przekazanie wiadomości do Klienta o braku możliwości przyjęcia zlecenia z powodu braku kontraktu oraz przekazanie zapytania Klienta do Handlowca. 2.3. Dane są niekompletne i nie da się zweryfikować kontraktu - poinformowanie Klienta o braku możliwości przyjęcia zlecenia z powodu niekompletności zlecenia (zlecenie w poczekalni czeka na uzupełnienie zlecenia) 2.4. Klient przesłał niekompletne zlecenie po raz drugi - automatyczne przekazanie zlecenia w formie zadania do Pracownika D-O-K i postępowanie wg US18 (ten krok występuje tylko po wariantach 2.2.1., 2.2.2. oraz 2.3.) 2.5. Klient przesłał zlecenie, którego nie rozpoznaje automat do obsługi maili ze zleceniami, następnie postępowanie wg US18 Jeżeli zarówno warunek 1. i 2. zostały spełnione (brak blokady i zlecenie kompletne) proces przechodzi do weryfikacji zwolnienia kontenera podanego w zleceniu zgodnie z US11 (jeżeli dotyczy) lub do kroku US13. W przypadku przekazywania zapytań do Handlowców lub Pracowników D-O-K automat w pierwszej kolejności przesyła dane zapytanie klienta do jego opiekuna (jeżeli jest wskazany w systemie) lub do osoby opiekuna zastępującej (pod nieobecność). Jeżeli dany klient nie ma opiekuna zapytania trafia do losowego pracownika odpowiedniego działu.
+
+H US18: Ręczna weryfikacja zlecenia mailowego Wskutek otrzymania od Klienta po raz drugi niekompletnego zlecenia w szablonie P-C-C-I lub wskutek otrzymania nieczytelnego dla automatu zlecenia, Pracownik D-O-K otrzymuje zadanie polegające na weryfikacji zlecenia od Klienta. Pracownik weryfikuje zlecenie poprzez wprowadzenie go do systemu (interface podobny do tego w Strefie Klienta do składania zleceń) - weryfikacja zgodności z kontraktem, kompletności zlecenia i zwolnienia kontener (opcjonalnie). W efekcie:
+
+Weryfikacja pozytywna - Pracownik D-O-K wprowadza zlecenie do systemu, staje się ono widoczne w Strefie Klienta, zlecenie przekazane jest do kolejnego kroku zgodnie z US13.
+
+Weryfikacja negatywna - zlecenie niekompletne - Pracownik D-O-K kontaktuje się z Klientem celem uzupełnienia zlecenia i wprowadza brakujące dane; po uzupełnieniu danych zastępuje krok US13.
+
+Weryfikacja negatywna - zlecenie niezgodne z kontraktem - Pracownik D-O-K kontaktuje się z Klientem celem weryfikacji faktycznej chęci założenia nowego kontraktu, po potwierdzeniu wiadomość Klienta przekazywane jest do Handlowca.
+
+H US19: Modyfikacja zlecenia w Strefie Klienta Modyfikacje zleceń są dopuszczalne do 48 godzin przed datą dostępności kontenera oraz wyłącznie w ramach warunków danego kontraktu. Klient może dokonać zmiany w zleceniu poprzez Strefę Klienta, jednak zmiana zmieniająca kontrakt nie jest możliwa - możliwe jest w takiej sytuacji anulowanie kontraktu, co może skutkować nałożeniem na klienta kosztów obsługi. Wprowadzenie zmiany może skutkować ponownym uruchomieniem weryfikacji zdolności obsługi zlecenia (na przykład przy zmianie dat zlecenia). Jeżeli zmiany w zleceniu są możliwe i nie wymagają dodatkowej akceptacji pracownika D-O-K, Automat sam dokonuje zmian i zmodyfikowane zlecenie zostaje przyjęte do realizacji. Klient zostaje poinformowany.
+
+zaakceptowanej zmianie poprzez Strefę Klienta i (opcjonalnie) wysłany dostaje automatyczny mail o akceptacji. Jeżeli zmiany nie są możliwe Klient dostaje na Strefie Klienta informację zwrotną, że zmiana nie może zostać wprowadzona w proponowanym zakresie. Klient, który chciałby wprowadzić zmianę w zleceniu później niż 48h przed datą dostępności kontenera może zapytać o także możliwość jedynie poprzez chat na Strefie Klienta lub poprzez wiadomość mailową. UWAGA: zasada 48h nie dotyczy ewentualnych danych, których uzupełnienie zostanie dopuszczone po 48h przed datą dostępności.
+
+H US20: Modyfikacja zlecenia przez zapytanie mailowe Pracownik D-O-K identyfikuje wiadomość mailową zawierającą zgłoszenie Klienta, która dotyczy zapytania o możliwość modyfikacji warunków zlecenia. Pracownik D-O-K weryfikuje możliwość dokonania zmiany zlecenia. Jeśli modyfikacja zlecenia jest możliwa Pracownik D-O-K przyjmuje zmodyfikowane zlecenie do realizacji i informuje mailowo Klienta, a możliwej zmianie, równolegle zapisuje zmiany w systemie. Jeśli modyfikacja zlecenia nie jest możliwa to zlecenie zostaje odrzucone, a Klient zostaje poinformowany mailowo o braku możliwości wprowadzenia takiej zmiany w zleceniu wraz z przyczyną.
+
+H US21: Konsultacja z klientem na temat modyfikacji warunków zlecenia Pracownik D-O-K identyfikuje w systemie informację o zagrożonym podstawieniu lub braku możliwości realizacji podstawienia, konieczne jest wprowadzenie modyfikacji zlecenia z winy P-C-C-I. Pracownik D-O-K analizuje możliwość obsługi zlecenia. Następnie Pracownik kontaktuje się z Klientem mailowo i lub lub telefonicznie i proponuje zmianę parametrów zlecenia. Jeśli Klient zgadza się na nowe warunki Pracownik D-O-K dokonuje zmiany zlecenia w systemie branżowym i przyjmuje zlecenie do realizacji. W sytuacji, gdy Klient nie zgodził się na nowe warunki Pracownik D-O-K konsultuje możliwość realizacji zlecenia z Zespołami Operacyjnymi (na przykład szukanie innego kanału realizacji zlecenia). Jeżeli brak możliwości realizacji zlecenia w pierwotnej wersji to Pracownik D-O-K informuje Klienta poprzez maila i system branżowy, że zlecenie nie będzie zrealizowane (jeżeli dzieje się to w trakcie obsługi, decyzja musi zostać podjęta).
+
+H US22: Obsługa zapytań klienta w Strefie Klienta Klient poprzez Strefę Klienta ma możliwość składania zapytań. Do dyspozycji Klienta będzie pole na wprowadzanie pytań, chat. W pierwszej kolejności narzędzie automatycznie będzie zadawało kilka pytań służących selekcji zapytania - pierwsze kroki będą weryfikowały możliwość udzielenia odpowiedzi Klientowi bez angażowania Pracownika D-O-K, na przykład w zakresie statusu zlecenia. Zapytania handlowe przekazywane będą do Handlowców, zlecenia dotyczące procesu obsługi będą przekazywane do Pracowników D-O-K.
+
+H US23: Obsługa zapytań mailowych Zapytania mailowe obsługiwane będą przez Pracowników D-O-K. Kwestie sprzedażowe przekazywane będą do Handlowców.
+
+H US24: Weryfikacja czy dane zlecenie wymaga przedpłaty Automat na podstawie zdefiniowanych reguł weryfikuje, które z przyjętych zleceń wymaga przedpłaty. Następnie automat zintegrowany z systemem Enova pobiera informacje.
+
+Weryfikacja pozytywna - Klient dokonał przedpłaty, więc zlecenie przekazane zostaje do realizacji, po zrealizowaniu wystawiana jest faktura zgodnie z US30 Wystawianie faktury automatycznie lub wcześniej wysyłana lub otrzymywana jest specyfikacja US25 Automatyczne wystawienie specyfikacji do faktury lub US29 Weryfikacja otrzymanej specyfikacji.
+
+Weryfikacja negatywna - Klient nie dokonał przedpłaty w związku z tym zlecenie nie jest realizowane i nie będzie fakturowane, dopóki Klient nie dokona przedpłaty - zlecenie zatrzymane w systemie branżowym. Automat wysyła maila lub lub i powiadomienie na Strefie Klienta.
+
+H US25: Automatyczne wystawienie specyfikacji do faktury Automat na podstawie zdefiniowanych reguł identyfikuje w systemie takich Klientów, dla których wymagane jest wygenerowanie i wysłanie specyfikacji do faktury przed ostatecznym wystawieniem faktury. Automat generuje specyfikacje do faktury dla określonych Klientów i wysyła na Strefę Klienta oraz mailowo.
+
+H US26: Weryfikacja przez klienta przesłanej specyfikacji do faktury Klient otrzymał specyfikacje do faktury. Następnie Klient dokonuje jej weryfikacji. Wyniki weryfikacji mogą być dwojakie:
+
+Weryfikacja pozytywna - Klient zatwierdza specyfikacje. Potwierdzenie akceptacji wysyła drogą mailową lub przez Strefę Klienta.
+
+Weryfikacja negatywna - Klient nie zatwierdza specyfikacji. Brak akceptacji specyfikacji Klient wysyła drogą mailową lub przez Strefę Klienta.
+
+H US27: Identyfikacja odpowiedzi po dokonanej weryfikacji przez klienta Automat identyfikuje odpowiedź od Klienta, który dokonał weryfikacji przesłanej specyfikacji przez P-C-C-I. Odpowiedź może zostać przesłana przez Klienta w dwóch kanałach.
+
+Klient wysłał odpowiedź na specyfikacje drogą mailową: 1.1 Odpowiedź Klienta pozytywna - Automat identyfikuje, że Klient zaakceptował przesłaną specyfikacje w związku z tym Automat przekazuje informacje do systemu, gdzie na podstawie zaakceptowanej specyfikacji zostaje wystawiona faktura w sposób automatyczny. 1.2. Odpowiedź Klienta negatywna - Automat identyfikuje, że Klient nie zaakceptował przesłanej specyfikacji w związku z tym Automat przekierowuje takiego maila do Pracownika D-O-K, aby dokonał weryfikacji powodu braku akceptacji specyfikacji.
+
+2.1 Odpowiedź Klienta pozytywna - Automat identyfikuje, że Klient zaakceptował specyfikacje w Strefie Klienta w związku z tym Automat przekazuje informacje do systemu, gdzie zostaje wystawiona faktura w sposób automatyczny. 2.2 Odpowiedz Klienta negatywna - Automat identyfikuje, że Klient nie zaakceptował przesłanej specyfikacji w Strefie Klienta. W związku z tym Automat wysyła powiadomienie w Strefie Klienta do Pracownika D-O-K oraz wysyła maila, aby Pracownik D-O-K dokonał weryfikacji powodu braku akceptacji specyfikacji.
+
+H US28: Weryfikacja powodu braku akceptacji przez klienta wysłanej specyfikacji Pracownik D-O-K otrzymał informacje o odrzuceniu przez Klienta specyfikacji do faktury. Pracownik D-O-K zidentyfikował informacje o odrzuceniu na Strefie Klienta i lub lub na mailu. Następnie Pracownik D-O-K dokonuje weryfikacji powodu odrzucenia specyfikacji do faktury przez Klienta. W kolejnym kroku Pracownik może:
+
+Potwierdzić, że specyfikacja do faktury była faktycznie błędnie wystawiona przez zespół P-C-C-I. W związku z tym Pracownik D-O-K poprawia specyfikacje i wysyła ją raz jeszcze do Klienta droga mailową lub lub i przesyła przez Strefę Klienta.
+
+Zweryfikować, że powód odrzucenia specyfikacji do faktury przez Klienta jest według Pracownika D-O-K niezasadny. W związku z tym Pracownik D-O-K kontaktuje się z Klientem w celu wyjaśnień. Komunikacja jest mailowa lub lub i telefoniczna. Po ustaleniach Pracownik D-O-K przywraca status danej specyfikacji na do akceptacji.
+
+H US29: Weryfikacja otrzymanej specyfikacji do faktury od określonych klientów Pracownik D-O-K otrzymuje specyfikacje do faktury od określonych Klientów drogą mailową. Automat rozdziela maile z przesłaną specyfikacją per opiekun danego Klienta (Pracownik D-O-K obsługujący danego Klienta lub osoba go zastępująca w czasie nieobecności). Pracownik D-O-K dokonuje weryfikacji przesłanej specyfikacji do faktury:
+
+Weryfikacja pozytywna Pracownik D-O-K zatwierdza w systemie branżowym zakres podlegający fakturowaniu. Faktura zostaje wysłana zgodnie z US30.
+
+Weryfikacja negatywna - Pracownik D-O-K nie zatwierdza przesłanej specyfikacji przez Klienta. W związku z tym Pracownik D-O-K kontaktuje się z Klientem w celu wyjaśnień. Komunikacja jest mailowa lub lub telefoniczna. Po ustaleniach Klient wysyła raz jeszcze specyfikacje do faktury do Pracownika D-O-K drogą mailową lub lub i przesyła przez Strefę Klienta. Możliwe jest stopniowe uczenie systemu formatek dla poszczególnych klientów (opcjonalnie), w takiej sytuacji system automatycznie weryfikuje specyfikację z listą pozycji do zafakturowania.
+
+H US30: Wystawienie faktury automatycznie System identyfikuje wszystkie zrealizowane zlecenia. Automat na podstawie zdefiniowanych reguł w systemie weryfikuje, które zlecenia pozwalają na wystawienie faktury w sposób automatyczny od razu po zrealizowanym zleceniu. Po identyfikacji takich faktur system wystawia fakturę do każdego zlecenia w systemie Enova - faktura staje się od razu dostępna dla Klienta poprzez Strefę Klienta, wybrani Klienci otrzymują dodatkowo fakturę drogą mailową. Wraz z fakturą dostępne lub wysyłane są wybrane dokumenty, jeżeli tylko Klient ma takie ustawienia konta. Brak tych dokumentów nie wstrzymuje fakturowania.
+
+H US31: Ręczne wystawienie faktury dla określonych typów klientów przez system enova Pracownik D-O-K dla określonej zdefiniowanej grupy Klientów wystawia fakturę ręcznie. Pracownik loguje się do systemu branżowego, gdzie otrzymuje odpowiednie zadania i identyfikuje faktury, które należy wystawić ręcznie zgodnie z preferencjami Klientów. Pracownik dla każdej faktury może wykonać jedno lub wiele z dostępnych czynności. Jednym typem operacji może być polecenie rozbij fakturę - w efekcie na usługi dodatkowe wystawiana jest osobna faktura niż na transportowe. Po określeniu typu fakturowania (zadań lub operacji) Pracownik klika zatwierdź fakturę. Faktura się generuje i zostaje wysłana automatycznie z systemu zgodnie z regułą US30.
+
+H US32: Przesłanie powiadomienia do klienta 3 dni przed terminem płatności Automat wysyła powiadomienie do Klienta, gdy Klient nie dokonał zapłaty i jest 3 dni do planowanego terminu płatności. Automat wysyła przypomnienie do Klienta drogą mailową lub lub i na Strefę Klienta. Adres mailowy Klienta jest zaciągany z systemu branżowego. Przypomnienie wysyłane jest dla wszystkich Klientów. W przypadku większej liczby dokumentów o tej samej dacie płatności system generuje pojedyncze powiadomienie.
+
+H US33: Założenie automatycznej blokady na klienta Automat weryfikuje status płatności 1 dzień po terminie płatności danej faktury. W przypadku stwierdzenia braku płatności oraz przekroczenia dopuszczalnego zadłużenia danego Klienta, Automat nakłada automatyczną blokadę na takiego Klienta. Blokada może być nakładana dopiero od kwoty x, na przykład po przekroczeniu 10000 PLN zadłużenia. Równolegle wysyłana zostaje wiadomość.
+
+założonej blokadzie do Klienta drogą mailową oraz wiadomość przesyłana jest w Strefie Klienta. W przypadku wybranych Klientów opcja automatycznej blokady jest nieaktywna na rzecz US 35.
+
+H US34: Założenie ręcznej blokady na klientów strategicznych W przypadku wybranych Klientów Upoważniony Pracownik D-O-K otrzymuje zadanie z systemu Termin płatności dla Klienta minął i należy podjąć decyzje o nałożeniu blokady. Pracownik po otrzymaniu powiadomienia na maila może podjąć jedno z dwóch działań:
+
+Upoważniony Pracownik D-O-K zakłada blokadę na takiego Klienta - Po założeniu blokady Automat wysyła odpowiednią wiadomość mailową, informacja trafia też na Strefę Klienta.
+
+Upoważniony Pracownik D-O-K nie zakłada blokady na takiego Klienta - Pracownik nie założył blokady, lecz kontaktuje się z Klientem mailowo lub telefonicznie w celu przypomnienia.
+
+konieczności dokonania zapłaty, informacja trafia także na Strefę Klienta.
+
+H US35: Automatyczne zdjęcie blokady Każdego dnia o północy automat weryfikuje stan zadłużenia Klienta w systemie ENOVA (raz dziennie, bo księgowanie wyciągów jest raz dziennie). Jeżeli Klient uregulował zobowiązanie - zszedł poniżej limitu zadłużenia - blokada składania zleceń jest automatycznie zdejmowana.
+
+SerwisRejestracjiKlienta: Odpowiada za przetwarzanie formularzy rejestracyjnych i tworzenie kont dla nowych klientów.
+
+Przyjmowanie i walidacja danych z formularza rejestracyjnego. Tworzenie konta klienta w systemie.
+
+Wysyłanie powiadomień do klienta z informacjami o kontynuacji procesu rejestracji.
+
+SerwisWeryfikacjiKlienta: Realizuje weryfikację danych klienta, włączając w to sprawdzenie w bazach danych i listach kontrolnych.
+
+Automatyczna weryfikacja danych klienta w bazach danych (na przykład KRS, GUS).
+
+Sprawdzanie aktywności gospodarczej klienta. Informowanie odpowiednich działów o wyniku weryfikacji.
+
+Obsługa ofert Obejmuje tworzenie, przesyłanie oraz akceptację ofert handlowych między P-C-C-I a klientami. Do tego obszaru zaliczają się procesy opisane w H US4, H US5 oraz H US6. Można również rozważyć dołączenie obsługi przetargów jako części tego kontekstu.
+
+Oferta: Szczegółowe informacje dotyczące oferty przekazanej klientowi. ZapytanieOOfertę: Zapytanie klienta dotyczące oferty.
+
+SerwisOfert: Zarządza cyklem życia ofert od tworzenia po akceptację.
+
+Tworzenie i zarządzanie ofertami na podstawie danych od handlowców i potrzeb klientów.
+
+Przekazywanie ofert do klientów oraz monitorowanie ich statusu. Aktualizacja ofert na podstawie feedbacku klienta. SerwisZapytańOOferty: Obsługuje zapytania klientów dotyczące ofert.
+
+Rejestracja zapytań o oferty w systemie. Przekazywanie zapytań do odpowiednich osób lub działów. Śledzenie statusu zapytań i informowanie klienta o postępach.
+
+Składanie i obsługa zleceń Kontekst ten dotyczy całego procesu zleceń, od momentu ich składania (zarówno przez Strefę Klienta, EDI lub A-P-I, jak i drogą mailową), poprzez weryfikację zlecenia, weryfikację dokumentów, aż po finalną realizację zlecenia. Dotyczy to H US7 do H US21.
+
+Zlecenie: Informacje dotyczące konkretnego zlecenia. WeryfikacjaZlecenia: Wyniki procesu weryfikacji zlecenia. Dokument: Dokumenty związane ze zleceniem.
+
+Przyjmowanie zleceń przez różne kanały i ich weryfikacja. Koordynacja procesu weryfikacji dokumentów. Komunikacja ze zleceniodawcą w przypadku potrzeby modyfikacji zlecenia. Informowanie o finalnym przyjęciu zlecenia do realizacji.
+
+SerwisWeryfikacjiDokumentów: Odpowiada za sprawdzenie kompletności i zgodności dokumentów zleceń.
+
+Automatyczne generowanie zadań weryfikacji dokumentów. Ręczna weryfikacja załączonych dokumentów.
+
+Informowanie klienta o ewentualnych brakach lub błędach w dokumentacji.
+
+Fakturowanie i płatności Ten kontekst skupia się na procesach weryfikacji płatności, wystawiania faktur, obsługi przedpłat oraz monitorowania i zarządzania zadłużeniem klientów. Obejmuje założenia z H US24 do H US31 oraz H US33 do H US36.
+
+Faktura: Szczegóły faktury za zlecenie. Płatność: Informacje o płatnościach dokonanych przez klienta. SpecyfikacjaDoFaktury: Szczegółowy wykaz usług i towarów do fakturowania.
+
+Wysyłanie faktur do klientów poprzez preferowane kanały (e-mail, Strefa Klienta).
+
+Zarządzanie zapytaniami i reklamacjami dotyczącymi faktur. Monitorowanie terminów płatności i wysyłanie przypomnień. SerwisPłatności: Monitoruje płatności i zarządza zobowiązaniami klientów.
+
+Weryfikacja, czy wymagane przedpłaty zostały zrealizowane przed rozpoczęciem wykonania zlecenia.
+
+Zarządzanie blokadami kont klientów w przypadku przekroczenia terminów płatności.
+
+Automatyczne informowanie klienta o zaległych płatnościach i nadchodzących terminach płatności.
+
+Obsługa klienta i zapytań Zajmuje się wszystkimi aspektami komunikacji z klientem, w tym obsługą zapytań przez Strefę Klienta, mailowo oraz chat. Obejmuje to H US22, H US23, H US32 oraz potencjalnie części dotyczące obsługi zmian w zleceniach i komunikacji z klientami w innych kontekstach.
+
+ZapytanieKlienta: Reprezentuje zapytanie lub prośbę klienta. Odpowiedz: Przechowuje treść odpowiedzi na zapytanie klienta.
+
+Przyjmowanie i rejestrowanie zapytań klientów przez różne kanały komunikacji.
+
+Automatyczna klasyfikacja zapytań i przekierowywanie ich do odpowiednich działów lub osób.
+
+Monitorowanie czasu reakcji i zapewnienie, że wszystkie zapytania są obsługiwane w ustalonym czasie.
+
+Udostępnianie klientom bazy wiedzy i FAQ, aby umożliwić samodzielną pomoc.
+
+SerwisKomunikacjiZKlientem: Specjalizuje się w bezpośredniej komunikacji z klientami, zwłaszcza w kontekście negocjacji i rozwiązywania problemów.
+
+Konsultacje z klientami w sprawie modyfikacji zleceń, warunków umów, i tym podobne.
+
+Prowadzenie negocjacji i mediacji w przypadku ewentualnych sporów. Zapewnienie spersonalizowanego podejścia do kluczowych klientów.
+
+Integracja z armatorami i kontrola kontenerów Ten kontekst dotyczy integracji danych z armatorami, w tym zwolnienia kontenerów do obsługi zleceń (H US37), oraz może obejmować obsługę kontenerów w innych aspektach logistycznych.
+
+Kontener: Informacje o konkretnym kontenerze. ZwolnienieKontenera: Informacja o zwolnieniu kontenera do użytku.
+
+Śledzenie lokalizacji i statusu kontenerów. Zarządzanie rezerwacjami i zwolnieniami kontenerów. Integracja z systemami armatorów dla aktualnych danych.
+
+Automatyczne rejestrowanie zwolnień kontenerów w systemie. Informowanie klientów o statusie ich kontenerów.
+
+Współpraca z armatorami w celu usprawnienia procesów zwolnienia kontenerów.
+
+Zarządzanie cennikiem usług W kontekście zarządzania cennikiem usług, kluczowe jest dostosowanie oferowanych cen do indywidualnych potrzeb klientów, dynamiki rynku oraz strategii firmy. Zarządzanie Cennikiem Usług.
+
+Cennik: Reprezentuje strukturę cenową dla określonych usług, może zawierać różne poziomy cen w zależności od klienta, ilości usług czy długości współpracy.
+
+Usługa: Konkretna usługa oferowana przez firmę, która ma przypisany cennik.
+
+Zniżka: Specjalne obniżki cen, które mogą być aplikowane do cennika na podstawie różnych kryteriów, takich jak ilość zakupionych usług, stałość klienta i tym podobne.
+
+UmowaKlienta: Zawiera szczegóły dotyczące warunków współpracy z klientem, w tym indywidualnie ustalone ceny lub zniżki.
+
+SerwisCennika: Odpowiada za zarządzanie cennikami usług, umożliwiając ich tworzenie, aktualizację oraz dostosowywanie do potrzeb poszczególnych klientów.
+
+Możliwość definiowania indywidualnych cenników dla wybranych klientów lub grup klientów.
+
+Aktualizacja cen w odpowiedzi na zmiany na rynku lub wewnętrzne decyzje biznesowe.
+
+Przechowywanie historii zmian cen, umożliwiające analizę i optymalizację strategii cenowej.
+
+SerwisZniżek: Zarządza systemem zniżek i promocji, umożliwiając ich aplikowanie do transakcji zgodnie z ustalonymi zasadami.
+
+Definiowanie różnych typów zniżek (procentowe, kwotowe, ilościowe). Przypisywanie zniżek do konkretnych usług, klientów lub umów.
+
+Automatyczne aplikowanie zniżek do transakcji na podstawie zdefiniowanych kryteriów.
+
+Monitorowanie wykorzystania promocji i analiza ich wpływu na sprzedaż.
+
+SerwisUmówKlienta: Umożliwia zarządzanie umowami z klientami, w tym indywidualnymi ustaleniami cenowymi.
+
+Przechowywanie i zarządzanie dokumentacją umowną z klientami. Rejestrowanie indywidualnych ustaleń cenowych i warunków współpracy.
+
+Integracja z SerwisemCennika i SerwisemZniżek, aby zapewnić spójność w aplikowaniu ustalonych cen i zniżek.
+
+Zapewnienie dostępu do aktualnych informacji o warunkach współpracy dla innych serwisów systemu, na przykład SerwisuOfert czy SerwisuZleceń.
+
+Zarządzanie zadaniami dla pracowników W kontekście zarządzania zadaniami dla pracowników skoncentrujemy się na systemie, który pozwala na efektywne przydzielanie, monitorowanie oraz raportowanie zadań wykonywanych przez pracowników na różnych szczeblach organizacji. Taki system ma na celu usprawnienie pracy zespołowej, zapewnienie ciągłości operacji oraz optymalizację alokacji zasobów ludzkich.
+
+Zadanie: Reprezentuje pojedyncze zadanie do wykonania, zawiera opis, termin wykonania, priorytet, a także informacje o przypisanym pracowniku lub zespole.
+
+Pracownik: Informacje o pracowniku, w tym jego umiejętności, dostępność oraz historię wykonanych zadań.
+
+RaportZadań: Agreguje dane o wykonanych zadaniach, ich statusach i czasie realizacji.
+
+(występowanie wariantów zachowań w standardowym przebiegu procedury) lub działania opcjonalne (alarmowe, naprawcze, weryfikacyjne, etc.).
+
+Warunki końcowe - opis sytuacji będącej stanem na koniec procesu lub procedury, opis produktów lub efektów powstałych w ramach zrealizowanego przebiegu zdarzeń.
+
+Wymagania specjalne - opcjonalna informacja o szczególnych uwarunkowaniach realizacji danej procedury.
+
+Częstotliwość występowania - opis trybu w jakim występować może dane zjawisko, określenie jak często realizowana powinna być dane procedura.
+
+H U-C 1: Rejestracja klienta w systemie Aktor główny: Potencjalny Klient Aktorzy wspierający: Handlowiec Warunki wstępne:
+
+System rejestracyjny jest online i funkcjonalny. Główny przepływ wydarzeń:
+
+Klient odwiedza stronę internetową P-C-C-I i nawiguje do sekcji rejestracji.
+
+Klient wybiera opcję Utwórz nowe konto w Strefie Klienta.
+
+Klient wypełnia formularz rejestracyjny, podając wymagane informacje, takie jak nazwa firmy, typ podmiotu, kontakt, przewidywana ilość przewożonych kontenerów miesięcznie i tym podobne.
+
+System sprawdza kompletność i poprawność wprowadzonych danych. Klient wysyła formularz rejestracyjny, klikając Zarejestruj się. System przesyła zgłoszenie rejestracyjne do Działu Sprzedaży.
+
+Pracownik Sprzedaży odbiera zgłoszenie i przeprowadza wstępną weryfikację zgodnie z procedurami wewnętrznymi.
+
+Jeśli wszystko jest w porządku, Pracownik Sprzedaży aktywuje konto Klienta w systemie.
+
+System generuje dane logowania (identyfikator użytkownika) i wysyła je na adres e-mail Klienta wraz z linkiem do strony ustawiania hasła.
+
+Klient jest teraz w stanie zalogować się do Strefy Klienta i korzystać z dostępnych funkcji. Alternatywne przepływy:
+
+A4a. Niekompletne lub błędne dane: System informuje Klienta o błędach lub brakujących danych. Klient poprawia dane i ponownie wysyła formularz. A7a. Weryfikacja danych klienta wymaga dodatkowych informacji:
+
+Pracownik Sprzedaży kontaktuje się z Klientem w celu uzyskania dodatkowych informacji lub dokumentów.
+
+Klient dostarcza wymagane informacje i kontynuuje proces rejestracji. Warunki końcowe:
+
+Klient ma możliwość logowania i korzystania ze Strefy Klienta. Wymagania specjalne:
+
+System musi zabezpieczać dane osobowe i biznesowe Klienta zgodnie z obowiązującymi przepisami o ochronie danych.
+
+System powinien logować wszelkie działania użytkowników dla celów audytu i monitoringu bezpieczeństwa. Częstotliwość występowania:
+
+W zależności od aktywności rynkowej i kampanii marketingowych, może występować wielokrotnie w ciągu dnia.
+
+H U-C 2: Wprowadzenie danych klienta przez pracownika sprzedaży Aktor główny: Pracownik Sprzedaży (Handlowiec) Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Formularz rejestracyjny został prawidłowo wypełniony i przesłany przez potencjalnego Klienta. Główny przepływ wydarzeń:
+
+Pracownik Sprzedaży otrzymuje powiadomienie o nowym formularzu rejestracyjnym od Klienta.
+
+Pracownik Sprzedaży loguje się do systemu sprzedażowego. Pracownik przegląda i weryfikuje przesłane informacje rejestracyjne Klienta.
+
+Pracownik wprowadza dane Klienta do systemu sprzedażowego, włączając w to wszelkie wymagane dane korporacyjne i operacyjne.
+
+Pracownik Sprzedaży przekazuje dane do wstępnej weryfikacji zgodnie z polityką firmy, w tym sprawdzenie aktywności podmiotu w odpowiednich rejestrach publicznych i weryfikację tożsamości.
+
+Pracownik Sprzedaży tworzy w systemie sprzedażowym profil Klienta, przypisuje unikalne ID i zapisuje wszelkie notatki dotyczące komunikacji handlowej oraz preferencji.
+
+Po wprowadzeniu i zweryfikowaniu danych, Pracownik Sprzedaży zleca systemowi wygenerowanie danych logowania.
+
+System generuje i wysyła na adres e-mail Klienta dane logowania oraz instrukcje dotyczące aktywacji konta.
+
+Pracownik Sprzedaży monitoruje proces aktywacji konta, gotów do wsparcia w przypadku pytań lub problemów Klienta.
+
+Po pomyślnej aktywacji, Pracownik Sprzedaży aktualizuje status Klienta w systemie na aktywny. Alternatywne przepływy:
+
+Jeśli dane są niekompletne lub błędne, Pracownik Sprzedaży kontaktuje się z Klientem w celu ich uzupełnienia lub korekty.
+
+Jeśli weryfikacja wykazuje problemy, Pracownik Sprzedaży kontaktuje się z Działem Prawnym lub Księgowym w celu ich rozwiązania.
+
+Jeżeli Klient nie aktywuje konta w określonym czasie, Pracownik Sprzedaży nawiązuje kontakt w celu wsparcia. Warunki końcowe:
+
+Klient ma aktywne konto i może korzystać z funkcji Strefy Klienta. Wymagania specjalne:
+
+Proces musi być zgodny z wewnętrznymi procedurami bezpieczeństwa danych.
+
+Dane powinny być chronione zgodnie z GDPR i innymi lokalnymi przepisami o ochronie danych. Częstotliwość występowania:
+
+Może mieć miejsce kilkakrotnie w ciągu dnia, w zależności od liczby nowych zgłoszeń rejestracyjnych.
+
+H U-C 3: Weryfikacja nowo zarejestrowanego klienta Aktor główny: Automat, Pracownik Działu Księgowego Aktorzy wspierający: Handlowiec Warunki wstępne:
+
+Klient zakończył proces rejestracji i jego dane są już wprowadzone do systemu przez Handlowca.
+
+System weryfikacyjny jest zintegrowany z zewnętrznymi bazami danych i działa poprawnie. Główny przepływ wydarzeń:
+
+System inicjuje proces weryfikacji, korzystając z zewnętrznych baz danych:
+
+Sprawdzenie aktywności prawnej Klienta w Krajowym Rejestrze Sądowym (KRS).
+
+Weryfikacja informacji o Kliencie w Głównym Urzędzie Statystycznym (GUS).
+
+Sprawdzenie numeru konta bankowego Klienta na białej liście bankowej.
+
+System analizuje otrzymane odpowiedzi z zewnętrznych baz danych i określa status weryfikacji dla każdego z punktów.
+
+W przypadku pozytywnej weryfikacji we wszystkich punktach, system aktualizuje profil Klienta jako zweryfikowany. Alternatywne przepływy:
+
+System identyfikując Klienta zagranicznego automatycznie przekazuje informację do Pracownika Działu Księgowego o konieczności ręcznego zweryfikowania klienta.
+
+Pracownik Działu Księgowego dokonuje ręcznej weryfikacji podmiotu przy wykorzystaniu odpowiednich, zagranicznych baz danych.
+
+Po pozytywnej weryfikacji Pracownik Działu Księgowego ręcznie potwierdza status dokonania weryfikacji nowego klienta.
+
+Jeśli system wykryje niezgodność danych, automatycznie informuje o tym Pracownika Działu Księgowego.
+
+Pracownik Działu Księgowego inicjuje procedurę wyjaśnienia niezgodności, która może wymagać kontaktu z Klientem (pośredniczyć w kontakcie może Handlowiec) Warunki końcowe:
+
+Klient jest zweryfikowany i możliwa jest dalsza współpraca. Wymagania specjalne:
+
+System musi zapewniać zgodność z przepisami o ochronie danych osobowych i poufności danych (na przykład GDPR).
+
+Weryfikacja powinna być zautomatyzowana w jak największym stopniu, aby zminimalizować czas potrzebny na aktywację Klienta. Częstotliwość występowania:
+
+Weryfikacja nowych Klientów może występować codziennie, z częstotliwością zależną od ilości nowych rejestracji.
+
+H U-C 4: Prośba o przygotowanie oferty Aktor główny: Klient Aktorzy wspierający: Handlowiec, System CRM, Dział Ofertowania, System Zarządzania Zleceniami, Dział IT Warunki wstępne:
+
+Klient posiada wystarczającą wiedzę o produktach i usługach firmy do złożenia prośby.
+
+System CRM i system operacyjny do zarządzania zleceniami są online i w pełni funkcjonalne. Główny przepływ wydarzeń:
+
+Klient loguje się do Strefy Klienta. Klient nawiguje do formularza zgłoszeniowego oferty.
+
+Klient wypełnia formularz, podając szczegóły takie jak typ usługi, wymagany termin realizacji, miejsce dostawy i odbioru, typ ładunku, i tym podobne.
+
+System automatycznie przekazuje prośbę o ofertę do Działu Handlowego. Alternatywne przepływy:
+
+Klient przesyła zapytanie o ofertę mailowo do Handlowca (dedykowana skrzynka pocztowa).
+
+Na etapie wypełniania formularza Klient ma możliwość wysłania prośby o kontakt w celu wsparcia procesu wypełniania formularza przez Handlowca, po kontakcie z Handlowcem Klient składa standardowe zapytanie poprzez Strefę Klienta Warunki końcowe:
+
+Zapytanie o ofertę przekazane do Działu Handlowego Wymagania specjalne: Nie dotyczy.
+
+Proces może mieć miejsce wielokrotnie w ciągu dnia, w zależności od aktywności klientów.
+
+H U-C 5: Przygotowanie oferty przez handlowca Aktor główny: Handlowiec Aktorzy wspierający: Klient Warunki wstępne:
+
+Wszystkie niezbędne informacje od Klienta dotyczące prośby o ofertę zostały otrzymane i są kompletnie. Główny przepływ wydarzeń:
+
+Handlowiec otrzymuje prośbę o ofertę od Klienta za pośrednictwem Strefy Klienta lub mailowo.
+
+W razie potrzeby, Handlowiec kontaktuje się z Klientem w celu doprecyzowania informacji lub negocjacji warunków.
+
+Handlowiec analizuje możliwości logistyczne i operacyjne firmy, konsultując się z odpowiednimi działami.
+
+Handlowiec wykorzystuje system ofertowy do stworzenia wstępnej kalkulacji kosztów usług, uwzględniając między innymi marżę, koszty transportu, koszty dodatkowe usług.
+
+System ofertowy prezentuje Handlowcowi minimalny koszt relacji transportowej oraz cennik usług dodatkowych.
+
+Handlowiec dostosowuje ofertę do potrzeb Klienta, może zaoferować opcjonalne usługi dodatkowe lub rabaty.
+
+Handlowiec wysyła ofertę do Klienta za pośrednictwem Strefy Klienta (zawsze), mailowo lub przez inny uzgodniony kanał komunikacji (opcjonalnie).
+
+Handlowiec pozostaje dostępny dla Klienta do odpowiadania na pytania i dalszych negocjacji. Alternatywne przepływy:
+
+Jeżeli informacje od Klienta są niekompletne, Handlowiec wysyła zapytanie.
+
+dodatkowe dane niezbędne do przygotowania oferty. A7a. Specjalne warunki Klienta:

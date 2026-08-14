@@ -1,0 +1,95 @@
+Karta projektu.
+
+Dostarczenie systemu operacyjnego Logistyka 4.0. Karta Projektu Wersja: 1.0.
+
+Spis treści dla user story wybranych do Sprintu, definiowane jasne i mierzalne kryteria odbiorów oraz następuje przygotowanie dokumentacji dla User Story lub Use Cases. Szablony dokumentacji stanowią załącznik do Karty Projektu.
+
+Weryfikacja i potwierdzenie z Właścicielem Biznesowym lub Głównym Użytkownikiem test cases oraz kryteriów odbioru. Odpowiedzialny: Product Owner P-C-C-I; Wspólnie z Właścicielem Biznesowym lub Kluczowym Użytkownikiem przegląda dokumentację (diagram przepływu, test case, kryteria odbioru), zgłasza ewentualne uwagi lub poprawki a następnie formalnie potwierdza akceptację test cases i kryteriów odbioru. następujące elementy:
+
+W ten sposób wymagania biznesowe zawarte w H-L-D będą podstawę do określenia zakresu poszczególnych Sprintów w ramach realizacji projektu. Kolejność realizacji poszczególnych obszarów biznesowych zostało określona w harmonogramie projektu, będzie dodatkowo potwierdzana z Product Ownerem P-C-C-I.
+
+Implementację user stories lub use cases. Odpowiedzialny: Główny Deweloper lub Zespół Deweloperski. Działania realizowane w organizacji.
+
+Identyfikacja zakresu zmiany Cel: Zrozumienie, jak nowy system wpłynie na obecne procesy i jakie zmiany są potrzebne. Odpowiedzialni: Product Owner P-C-C-I, Właściciel Biznesowy lub Kluczowy Użytkownik, Kierownik ds. zmiany (Change Manager). Działania:
+
+Analiza funkcjonalności nowego systemu i ich wpływu na obecne procesy.
+
+Określenie, jakie zmiany w sposobie pracy, komunikacji i dostarczaniu danych są konieczne.
+
+Współpraca z interesariuszami w celu zidentyfikowania oczekiwań i obaw.
+
+Cel: Ocena skutków wprowadzenia nowego systemu dla organizacji. Odpowiedzialni: Product Owner P-C-C-I, Kluczowy Użytkownik, Kierownik ds. zmiany (Change Manager). Działania:
+
+Przeprowadzenie oceny wpływu zmian na poszczególne działy i zespoły.
+
+Identyfikacja potrzeb szkoleniowych i rozwojowych pracowników. Opracowanie planu komunikacji zmiany. Przygotowanie zmiany do wdrożenia.
+
+Cel: Przygotowanie organizacji i pracowników do zmiany. Odpowiedzialni: Właściciel Biznesowy lub Kluczowy Użytkownik, Kierownicy Działów, Zespół Szkoleniowy, Kierownik ds. zmiany (Change Manager). Działania:
+
+Opracowanie strategii szkoleniowej i materiałów szkoleniowych. Planowanie i organizacja szkoleń dla użytkowników.
+
+Komunikacja zmiany w organizacji, w tym korzyści i oczekiwane efekty.
+
+Cel: Wprowadzenie nowego systemu i towarzyszących mu zmian procesowych lub organizacyjnych. Kierownicy Działów, Zespół IT, HR. Działania:
+
+Realizacja szkoleń dla użytkowników. Wprowadzenie nowego systemu i zmian w procesach. Zapewnienie wsparcia dla użytkowników w okresie przejściowym. Monitorowanie i informacja zwrotna.
+
+Cel: Upewnienie się, że zmiana została przyjęta i przynosi oczekiwane rezultaty. Kierownicy Działów, Zespół Wsparcia, HR. Działania:
+
+Dostosowywanie procesów i szkoleń w oparciu o otrzymaną informację zwrotną.
+
+Szkolenia i materiały szkoleniowe Przygotowanie: Etap 3 (Przygotowanie zmiany do wdrożenia). Realizacja: Etap 4 (Wdrożenie zmiany). Kierownicy Działów. Działania: poszczególnych grup użytkowników.
+
+Planowanie release'ów i sprintów, ustalanie klarownych celów dla zespołu, priorytetyzowanie zadań zgodnie z wymaganiami biznesowymi.
+
+Przekształcanie informacji dostarczanych przez Analityka biznesowego w user story lub use cases i umieszczanie ich w backlogu produktu.
+
+Facylitowanie procesu Scrum: organizowanie i przewodzenie Scrum spotkań (Daily Stand-ups), planowanie i prowadzenie Sprint Planning, organizowanie Sprint Review dla prezentacji wyników master lub A sprintu interesariuszom, prowadzenie Sprint Retrospective dla gile omówienia mocnych stron i obszarów do poprawy, a także coach ulepszania procesów.
+
+Wsparcie zespołów developerskich: pomoc zespołom w samoorganizacji i efektywnej współpracy, zapewnienie zrozumienia i przestrzegania zasad Agile i Scrum przez zespoły, pomoc zespołom w estymacji zadań i planowaniu pracy.
+
+Promowanie wartości Agile i Scrum w zespołach, organizowanie sesji edukacyjnych na temat zasad i praktyk Agile dla zespołu i interesariuszy.
+
+Koordynacja zespołu deweloperskiego: (i) przydział zadań, (ii) zarządza dostępnymi zasobami (iii) monitoring postępów oraz (iv) pomoc w rozwiązywaniu problemów technicznych w zespole deweloperskim.
+
+Utrzymanie harmonogramu i osiąganie celów projektowych Główny • Budowanie i utrzymanie jakości: (i) dbanie o wysoką jakość Dewelop kodu, (ii) przestrzeganie ustalonych standardów oraz (iii) er weryfikacja wymaganiami funkcjonalnymi i niefunkcjonalnymi.
+
+Nadzór nad testowaniem i wdrażaniem: współpraca z zespołem testującym, monitorowanie procesu testowania i zapewnienie jakości produktu końcowego.
+
+Wsparcie w procesie wdrażania aplikacji i zapewnienie jego sprawności.
+
+Enterpri • Definiowanie Wizji Produktu. Tworzenie i komunikowanie wizji se produktu, która jest zgodna z celami biznesowymi. Ustalanie długoterminowych i krótkoterminowych celów produktu. Architek Utrzymywanie roadmapy produktu i aktualizowanie jej na t podstawie postępów oraz informacji zwrotnych.
+
+Wsparcie Zespołu Deweloperskiego i Infrastrukturalnego. Odpowiadanie na pytania zespołu dotyczące wymagań i priorytetów oraz infrastruktury. Udzielanie bieżących informacji zwrotnych i wyjaśnień. Wspieranie zespołu w rozwiązywaniu problemów i przeszkód związanych z wymaganiami biznesowymi i technicznymi.
+
+Definiowanie Architektury Systemu (nadzór i utrzymywanie ogólnej architektury systemu, która jest zgodna z celami biznesowymi i strategią IT, zapewnienie architektury wysokopoziomowej, uwzględniającej skalowalność, wydajność, bezpieczeństwo i integrację.
+
+Zapewnienie wprowadzenia i zarządzania Standardami Technicznymi, ustanawianie standardów technicznych oraz najlepszych praktyk dla rozwoju systemów. Upewnianie się, że zespół deweloperski stosuje się do wytycznych architektonicznych.
+
+Nadzór nad zapewnieniem Integracji Systemów (wsparcie w projektowaniu i koordynowaniu integracji nowego systemu z istniejącymi systemami, zapewnieniu spójności i interoperacyjności między różnymi systemami i komponentami).
+
+Wsparcie w badaniu i ocenie nowych technologii oraz narzędzi, które mogą być wykorzystane w projekcie. Dokonywanie rekomendacji dotyczących wyboru technologii, urządzeń i narzędzi zgodnych z architekturą systemu.
+
+Upewnianie się, że system jest realizowany i wdrażane zgodnie z wymaganiami bezpieczeństwa oraz z regulacjami i standardami branżowymi.
+
+Odpowiedzialny za zarządzanie środowiskiem deweloperskim, testowym i produkcyjnym. Odpowiada za automatyzację procesów wdrożeniowych (C-I C-D). Dba o monitorowanie, bezpieczeństwo oraz wydajność systemu. Wspiera zespół deweloperski w kwestiach związanych z infrastrukturą.
+
+Bierze udział w planowaniu sprintu, gdzie identyfikuje zadania związane z infrastrukturą, które muszą być wykonane w nadchodzącym sprincie Inżynier DevOps • Daje regularne raporty do Scrum Mastera i Product Ownera o stanie infrastruktury, problemach oraz potrzebach.
+
+Prowadzi dokumentację dotyczącą infrastruktury, procedur wdrożeniowych oraz best practices, którą udostępnia zespołowi.
+
+Używa tych samych narzędzi do zarządzania zadaniami, co reszta zespołu, co zapewnia przejrzystość i śledzenie postępów prac.
+
+Dbanie o tworzenie dokumentacji i materiałów szkoleniowych przez zespoły oraz pomoc w organizacji sesji testowych i szkoleniowych dla użytkowników końcowych.
+
+U-X lub U-I • Projektowanie Interfejsu Użytkownika (tworzenie niskopoziomowych makiet (wireframes) oraz prototypów, aby wizualizować interfejs użytkownika i jego interakcje.
+
+Opracowywanie elementów wizualnych interfejsu, takich jak ikony, przyciski, kolory, typografia i tym podobne, zgodnie z zasadami projektowania i brandingiem organizacji.
+
+Współpraca z zespołem developerskim w zakresie strukturyzowania informacji i nawigacji w systemie, aby był intuicyjny i łatwy do zrozumienia.
+
+Wsparcie w projektowaniu ścieżek użytkowników (user flows) dla różnych funkcji i procesów, zapewniając płynne i logiczne przejścia między różnymi częściami systemu.
+
+Udział w testach z perspektywy użyteczności rozwiązania, z udziałem rzeczywistych użytkowników, aby ocenić łatwość użytkowania i identyfikować potencjalne problemy.
+
+Poniższa macierz RACI odnosi się do podziału zadań i odpowiedzialności w ramach realizowanego projektu Logistyka 4.0.

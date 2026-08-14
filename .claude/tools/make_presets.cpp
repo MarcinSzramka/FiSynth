@@ -6,7 +6,7 @@
 // Bank ~115 presetów w kategoriach (prefiks 2-literowy grupuje listę w GUI):
 //   BS Bass · LD Leads · PD Pads · PL Plucks · KY Keys & Organs ·
 //   BL Bells & Metals · ST Ensemble · DR Drones · SQ Sequences ·
-//   FX Efekty · RV Reverb Spaces · DI Destroyed
+//   FX Efekty · RV Reverb Spaces · DI Destroyed · QT Quantic
 //
 // Reguła banku: każdy preset ma JEDNEGO głównego bohatera (stretch albo ring
 // albo phyllotaxis albo FM albo word...), fundament tonalny zostaje słyszalny,
@@ -1809,6 +1809,195 @@ int main()
     FX (0, 0.10f, 0, 0.25f, 0.7f);
     AmpPerc (0.003f, 0.5f);
     save ("PH 13 Omega Machine");
+
+    // ================================================================
+    // QT · QUANTIC (12) — dziwny świat kwantowy. Celowo niepokojące:
+    // interwały ±833¢ zamiast oktaw, inharmoniczne stretche, ring, S&H.
+    // Każdy preset = jedno zjawisko kwantowe jako główny bohater.
+    // ================================================================
+
+    // Superpozycja: trzy stany naraz (0, +φ, −φ) — akord spoza każdej
+    // skali. Obwiednia powoli przelewa widmo między stanami, jakby układ
+    // nie mógł się zdecydować przed pomiarem.
+    init (0.52f);
+    O (1, 7, 0.60f, 0, 0, 1.4f);
+    O (2, 8, 0.50f, 0, 0, 1.2f, 3);
+    O (3, 0, 0.55f, 0, 0, 1.0f, 1);
+    P ("unison", 0.70f); P ("spread", 0.90f);
+    Filt (1, 1400, 1.4f);
+    Lfo (0.12f, 0.30f, 0, 0.60f);
+    Mod (1, 3, 0.60f);
+    Env (1, { {0,0,0}, {2.0f,1,0.2f}, {4.5f,0.25f,0}, {7.0f,0.85f,0} }, 3);
+    FX (0, 0.10f, 0, 0.45f, 0.9f);
+    AmpPad (2.5f, 4.0f);
+    save ("QT Superposition Choir");
+
+    // Kolaps funkcji falowej: nuta rodzi się jako inharmoniczna chmura
+    // prawdopodobieństwa (Golden stretch 0.9) i w ~1 s zapada do czystego
+    // tonu — pomiar wybrał jeden stan, reszta znika w pogłosie.
+    init (0.58f);
+    O (1, 9, 0.80f, 0.90f, 0, 1.3f);
+    O (2, 0, 0.40f);
+    P ("spread", 0.60f);
+    Filt (0, 6000, 0.8f);
+    Mod (1, 5, -0.88f); EnvRise (1, 1.1f);
+    Mod (2, 2, 0.04f);  EnvFall (2, 0.7f);
+    Dly (4, 0.35f, 0.20f);
+    FX (0, 0, 0, 0.35f, 0.8f);
+    AmpADSR (0.004f, 0.6f, 0.7f, 0.8f);
+    save ("QT Wavefunction Collapse");
+
+    // Splątanie: ring sin×sin na full rodzi skorelowaną PARĘ (f·φ² i
+    // f/φ), a triolowe echo odpowiada jak bliźniak "na odległość".
+    init (0.60f);
+    O (1, 0, 0.30f);
+    O (2, 0, 0.30f, 0.06f, 4, 1.0f, 3);
+    P ("ringMix", 1.0f); P ("spread", 1.0f);
+    Filt (0, 9000, 0.6f);
+    Dly (4, 0.62f, 0.45f);
+    FX (0, 0.10f, 0, 0.25f, 0.6f);
+    AmpPerc (0.002f, 0.9f);
+    save ("QT Entangled Photons");
+
+    // Tunelowanie: bas zamknięty za barierą (LP 300, wysoki rezonans),
+    // ale obwiednia i kwadratowe LFO cyklicznie przepuszczają go na
+    // drugą stronę. Fold groźby, sub zawsze zostaje pod barierą.
+    init (0.55f);
+    O (1, 8, 0.70f, 0.10f, 5, 1.1f);
+    O (2, 0, 0.45f);
+    P ("subLevel", 0.80f); P ("spread", 0.10f);
+    Filt (0, 300, 4.0f);
+    Lfo (0.7f, 0.50f, 1, 0.25f);
+    Mod (1, 1, 0.70f); EnvSwell (1, 0.8f, 1.4f);
+    FX (0.15f, 0.20f, 0.35f, 0, 0.3f);
+    AmpADSR (0.004f, 0.3f, 0.85f, 0.2f);
+    save ("QT Tunneling Sub");
+
+    // Dekoherencja: czysty sinusowy chór przez ~10 s gnije w metal —
+    // stretch pełznie do brązu, FM wnosi energię, tilt rozjaśnia do
+    // bólu, szum osc3 dosiada jako środowisko. Nie ma powrotu.
+    init (0.50f);
+    O (1, 0, 0.80f, 0, 5, 1.0f);
+    O (2, 2, 0.50f, 0, 5, 1.1f, 2, 7);
+    O (3, 5, 0.14f);
+    P ("spread", 0.70f);
+    Filt (0, 4500, 0.9f);
+    Lfo (0.5f, 0.25f, 3, 0.8f);
+    Mod (1, 5, 0.90f);  EnvRise (1, 8.0f);
+    Mod (2, 8, 0.45f);  EnvRise (2, 11.0f);
+    Mod (3, 9, -0.55f); EnvRise (3, 13.0f);
+    FX (0, 0.15f, 0, 0.40f, 0.9f);
+    AmpPad (3.0f, 6.0f);
+    save ("QT Decoherence");
+
+    // Zasada nieoznaczoności: wysokość nigdy nie stoi — postrzępiona
+    // obwiednia mikro-odstraja pitch (do ±96¢), S&H z pełnym driftem
+    // szarpie cutoff. Im dłużej mierzysz nutę, tym mniej wiesz, gdzie jest.
+    init (0.55f);
+    O (1, 3, 0.65f, 0.12f, 3, 1.3f);
+    O (2, 12, 0.40f, 0, 0, 1.1f, 2, 9);
+    P ("unison", 0.50f); P ("spread", 0.35f); P ("fmAmt", 0.10f);
+    Filt (0, 2200, 2.0f);
+    Lfo (6.5f, 0.35f, 3, 0.85f);
+    Mod (1, 2, 0.02f);
+    Env (1, { {0,0.5f,0}, {0.11f,1,0}, {0.23f,0.1f,0}, {0.37f,0.8f,0},
+              {0.52f,0,0}, {0.66f,0.9f,0}, {0.80f,0.3f,0}, {0.95f,0.6f,0} }, 7);
+    AmpADSR (0.006f, 0.2f, 0.85f, 0.25f);
+    save ("QT Uncertainty Lead");
+
+    // Piana kwantowa: wirtualne cząstki wrą i znikają — Random φ arp na
+    // 1/32, słowo Fibonacciego tnie rytm, gate 34 kroków miga, echo
+    // 105 ms mnoży bąble. Nigdy dwa razy ten sam wszechświat.
+    init (0.55f, 128);
+    O (1, 9, 0.75f, 0.35f, 4, 0.8f);
+    O (2, 0, 0.30f, 0, 0, 1.0f, 4);
+    P ("spread", 1.0f);
+    Filt (1, 3200, 1.8f);
+    Arp (3, 5, 4, true, 0.60f);
+    Gate (0.50f, 3, 4);
+    DlyMs (105, 0.55f, 0.40f);
+    FX (0, 0.10f, 0, 0.20f, 0.5f);
+    AmpPerc (0.001f, 0.16f);
+    save ("QT Quantum Foam");
+
+    // Organy Schrödingera: żywe i martwe naraz — dwa drawbary w
+    // superpozycji ±φ, a kwadratowe LFO 0.15 Hz otwiera i zamyka pudło:
+    // co kilka sekund słychać "drugi stan" tych samych organów.
+    init (0.50f);
+    O (1, 7, 0.65f, 0, 0, 1.3f);
+    O (2, 7, 0.45f, 0, 0, 1.1f, 3, 6);
+    O (3, 11, 0.35f, 0, 7, 1.2f, 1);
+    P ("ringMix", 0.25f); P ("spread", 0.60f);
+    Filt (0, 2800, 1.2f);
+    Lfo (0.15f, 0.65f, 1);
+    FX (0, 0.15f, 0.10f, 0.30f, 0.7f);
+    AmpADSR (0.05f, 0.2f, 0.9f, 0.4f);
+    save ("QT Schrodinger Organ");
+
+    // Fluktuacje próżni: szum przez wąski BP z wysokim rezonansem —
+    // z niczego wyskakują widmowe tony (S&H skacze po cutoffie), ring
+    // z sinusem −φ robi zjawy-sidebandy. Hiss punktu zerowego, który
+    // oddycha.
+    init (0.55f);
+    O (1, 5, 0.55f);
+    O (2, 0, 0.30f, 0, 0, 1.0f, 1);
+    P ("ringMix", 0.40f); P ("subLevel", 0.30f); P ("spread", 0.80f);
+    Filt (1, 1500, 6.0f);
+    Lfo (2.2f, 0.65f, 3, 1.0f);
+    FX (0, 0.10f, 0, 0.55f, 1.0f);
+    AmpPad (1.5f, 3.5f);
+    save ("QT Vacuum Static");
+
+    // "Upiorne działanie na odległość": Fib Walk stawia nutę, a jej
+    // splątany bliźniak odpowiada z triolowego echa daleko w stereo.
+    // Srebrny stretch nadaje odpowiedziom obcy, dzwonowy chłód.
+    init (0.55f, 96);
+    O (1, 12, 0.65f, 0.40f, 4, 1.0f);
+    O (2, 0, 0.35f, 0, 0, 1.0f, 4);
+    P ("ringMix", 0.30f); P ("spread", 1.0f);
+    Filt (1, 1600, 2.2f);
+    Arp (1, 4, 6, true, 0.45f);
+    Dly (4, 0.70f, 0.50f);
+    FX (0, 0.10f, 0, 0.35f, 0.8f);
+    AmpPerc (0.003f, 0.5f);
+    save ("QT Spooky Action");
+
+    // Czas jest ziarnisty: gate na full tnie dron w kwanty 1/32 (13
+    // kroków słowa), rezonans narasta jakby zegar się zacinał. Zimny
+    // mechanizm odmierzający najmniejszą możliwą chwilę.
+    init (0.52f, 100);
+    O (1, 1, 0.55f, 0.20f, 4, 1.5f);
+    O (2, 4, 0.45f, 0, 0, 1.4f, 2, -7);
+    P ("subLevel", 0.25f); P ("spread", 0.50f);
+    Filt (2, 600, 1.8f);
+    Gate (1.0f, 3, 2);
+    Mod (1, 4, 0.60f); EnvRise (1, 6.0f);
+    Dly (2, 0.50f, 0.35f);
+    FX (0.10f, 0.20f, 0, 0.15f, 0.5f);
+    AmpADSR (0.002f, 0.1f, 0.9f, 0.15f);
+    save ("QT Planck Clock");
+
+    // Burza prawdopodobieństw: wszystko naraz w superpozycji — brązowy
+    // stretch, ring, FM z obwiednią, pitch błądzi po kwantach 833¢,
+    // S&H szarpie filtr, fold dopala. Świat przed pomiarem: czysty chaos.
+    init (0.45f);
+    O (1, 3, 0.55f, 0.80f, 5, 0.9f);
+    O (2, 12, 0.50f, 0.55f, 0, 1.0f, 3);
+    O (3, 5, 0.10f);
+    P ("ringMix", 0.55f); P ("fmAmt", 0.35f); P ("subLevel", 0.40f);
+    P ("unison", 1.0f); P ("spread", 1.0f); P ("pitchQuant", 1);
+    Filt (1, 1800, 3.0f);
+    LfoSync (4, 0.70f, 3, 1.0f);
+    Mod (1, 8, 0.55f); EnvSwell (1, 1.5f, 2.5f);
+    Mod (2, 2, 0.52f);
+    Env (2, { {0,0,0}, {1.0f,0,0}, {1.05f,0.333f,0}, {2.2f,0.333f,0},
+              {2.25f,0.667f,0}, {3.4f,0.667f,0}, {3.45f,0.333f,0}, {4.6f,0.333f,0} }, 7);
+    Mod (3, 5, -0.50f); EnvRise (3, 7.0f);
+    Gate (0.45f, 2, 3);
+    Dly (1, 0.65f, 0.40f);
+    FX (0.30f, 0.20f, 0.45f, 0.35f, 0.9f);
+    AmpPad (0.8f, 3.0f);
+    save ("QT Probability Storm");
 
     std::printf ("\n%d presetow, %d bledow\nkatalog: %s\n", count, failures,
                  FiSynthAudioProcessor::getPresetDirectory().getFullPathName().toRawUTF8());

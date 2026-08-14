@@ -1,0 +1,27 @@
+Dokumentacja api dla klientów.
+
+Logistyka 4.0 Dokumentacja A-P-I dla klientów. Historia zmian i zatwierdzenia.
+
+{username} - nazwa użytkownika. {password} - hasło użytkownika. Odpowiedź z tokenem.
+
+Po poprawnej autoryzacji, serwer Keycloak zwróci odpowiedź zawierającą token dostępu:
+
+Token należy dołączyć do każdego zapytania A-P-I w nagłówku Authorization:
+
+Gdy token wygaśnie, można go odświeżyć za pomocą refresh token:
+
+nazwa (opcjonalny) - filtrowanie po nazwie (pełnej lub skróconej).
+
+nazwa skrocona (opcjonalny) - filtrowanie po nazwie skróconej. nazwa pelna (opcjonalny) - filtrowanie po pełnej nazwie. nip (opcjonalny) - filtrowanie po numerze NIP. krs (opcjonalny) - filtrowanie po numerze KRS.
+
+typ id (opcjonalny) - filtrowanie po identyfikatorze typu kontrahenta. waluta rozliczen id (opcjonalny) - filtrowanie po walucie rozliczeń. adres (opcjonalny) - filtrowanie po adresie. status id (opcjonalny) - filtrowanie po statusie.
+
+opiekun handlowy uuid (opcjonalny) - filtrowanie po UUID opiekuna handlowego. opiekun dok uuid (opcjonalny) - filtrowanie po UUID opiekuna dokumentacji.
+
+created at (opcjonalny) - filtrowanie po dacie utworzenia (format: YYYY-MM-DD).
+
+per page (domyślnie: 10, max: 100) - liczba wyników na stronę.
+
+status id (opcjonalny) - filtrowanie po statusie. nazwa (opcjonalny) - filtrowanie po nazwie.
+
+Opis: Pobiera uproszczoną listę jednostek biznesowych dla kontrahenta (format do dropdown).

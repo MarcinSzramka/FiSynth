@@ -1,0 +1,687 @@
+High level design modułu handlowego, część 2.
+
+USZ.4.Z.1 Modyfikacja logiki tworzenia zamówienia tak aby do listy operacji, które zostaną wygenerowane na podstawie parametrów zlecenia wygenerować listę wymaganych dokumentów i dodatkowych parametrów (na przykład SENT, numer zwolnienia etc). Wymagany dokument lub parametr może być przypięty do specyficznej operacji lub zlecenia. W przypadku dokumentów lub parametrów przypiętych do zlecenia reguły ich wymagalności są liczone od daty gotowości, natomiast wymagalność dokumentów lub parametrów przypiętych do operacji jest liczona od planowanej daty rozpoczęcia danej operacji.
+
+Opis: Każde zlecenie powinno mieć opiekuna. Opiekun zlecenia to osoba, która dostaje zdania wygenerowane przez system dotyczące danego zlecenia. W przypadku zleceń tworzonych ręcznie według H U-C 10 opiekunem jest osoba tworząca zlecenia. W przypadku H U-C 8 przy definicji poszczególnych interfejsów będzie wskazywana jednostka organizacyjna odpowiedzialna u klienta za dana integracje i opiekunem będzie osoba wskazana w definicji jednostki organizacyjnej. W przypadku składania zlecenia przez interfejs webowy użytkownik wybiera w trakcie składania zlecenia w ramach której jednostki biznesowej składa zamówienie i to powoduje automatyczne przypisane danego opiekuna do zlecenia.
+
+USZ.5.Z.1 Zmiana H U-C 8 polega na automatycznym przypisywaniu właściciela zlecenia przychodzącego po A-P-I EDI na podstawie ustawień danego A-P-I w systemie.
+
+Wersja końcowa Aktor główny: Klient Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Platforma EDI lub A-P-I jest skonfigurowana i zintegrowana z wewnętrznymi systemami firmy.
+
+Klient posiada wszystkie niezbędne informacje do złożenia zlecenia. Główny przepływ wydarzeń:
+
+Klient korzysta z interfejsu EDI lub A-P-I do przesłania danych zlecenia do systemu P-C-C-I, w tym informacji o miejscu i dacie podjęcia kontenera, typie kontenera, typie ładunku, miejscu i dacie zdania kontenera oraz ewentualnej dacie podstawienia.
+
+System P-C-C-I generuje listę operacji na podstawie parametrów zlecenia oraz listę wymaganych dokumentów i dodatkowych parametrów (na przykład SENT, numer zwolnienia).
+
+Wymagane dokumenty lub parametry są przypisane do specyficznej operacji lub zlecenia. Reguły ich wymagalności są liczone od daty gotowości dla zlecenia lub od planowanej daty rozpoczęcia danej operacji.
+
+System P-C-C-I automatycznie przypisuje opiekuna zlecenia na podstawie ustawień danego A-P-I w systemie.
+
+Klient jest informowany o statusie zlecenia na każdym etapie procesu. Warunki końcowe:
+
+Klient jest informowany o statusie zlecenia na każdym etapie procesu. Wymagania specjalne:
+
+System musi zapewniać wysoki poziom bezpieczeństwa danych i transakcji.
+
+Wszystkie transmisje danych muszą być szyfrowane i zabezpieczone przed nieautoryzowanym dostępem.
+
+System EDI lub A-P-I powinien być zdolny do obsługi wysokiego obciążenia i liczby transakcji. Częstotliwość występowania:
+
+Złożenie zlecenia przez EDI lub A-P-I może mieć miejsce wielokrotnie w ciągu dnia, w zależności od liczby Klientów korzystających z tych metod i ich aktywności biznesowej. H U-C 9: Złożenie zlecenia przez Strefę Klienta Pierwotna wersja Aktor główny: Klient Aktorzy wspierający: System, Dział Obsługi Klienta Warunki wstępne:
+
+Klient jest świadomy warunków i specyfikacji dotyczących zleceń. Główny przepływ wydarzeń:
+
+Klient loguje się do Strefy Klienta. Klient nawiguje do zakładki składania zleceń.
+
+Klient wybiera kontrakt, na podstawie którego chce złożyć zlecenie z listy rozwijanej.
+
+Klient wprowadza szczegółowe dane dla zlecenia, w tym miejsce i datę podjęcia i zdania kontenera, typ kontenera, typ ładunku, miejsce i dacie zdania kontenera, datę podstawienia (jeśli dotyczy).
+
+System automatycznie weryfikuje zlecenie pod kątem stanu zobowiązań finansowych Klienta (UC11 zawsze) oraz zwolnienia kontenera do zlecenia przez armatora (UC12 jeżeli dotyczy).
+
+W przypadku pozytywnej weryfikacji, zlecenie jest przekazywane do dalszej realizacji.
+
+Klient otrzymuje informację w formie komunikatu push, że zlecenie zostało wstępnie przyjęte do realizacji i weryfikowane są zasoby do jego obsługi.
+
+W Strefie Klienta w zakładce ze zleceniami nowe zlecenie pojawia się ze statusem Zlecenie złożone. Alternatywne przepływy:
+
+Klient w Strefie Klienta otrzymuje informację push, że zlecenie nie może zostać przyjęte z opisanego w komunikacie powodu:
+
+brak potwierdzenia zwolnienia danego kontenera przez armatora. Warunki końcowe:
+
+Zlecenie jest złożone lub odrzucone z powodu negatywnej weryfikacji finansowej.
+
+Klient jest na bieżąco informowany o statusie zlecenia. Wymagania specjalne:
+
+System musi zapewniać wysoki poziom bezpieczeństwa i prywatności danych.
+
+Proces składania zleceń powinien być intuicyjny i prosty dla Klienta, aby zminimalizować ryzyko błędów. Częstotliwość występowania:
+
+Złożenie zlecenia przez Strefę Klienta może mieć miejsce wielokrotnie w ciągu dnia, w zależności od liczby aktywnych klientów i ich potrzeb biznesowych. Uszczegółowienia Opis: Ze względu na fakt ze dokumenty i dodatkowe dane niezbędne do realizacji zamówienia spływają w asynchroniczny sposób należy zmienić sposób w jaki jest weryfikowana ich obecność i poprawność a także sposób przypominania klientowi o tym. Dokumenty i dane dodatkowe powinny być przypisane do operacji, która ich wymaga i wszystkie terminy notyfikacji i wymagalności dokumentów powinny być liczone od daty rozpoczęcia danej operacji.
+
+USZ.4.Z.1 Modyfikacja logiki tworzenia zamówienia tak aby do listy operacji, które zostaną wygenerowane na podstawie parametrów zlecenia wygenerować listę wymaganych dokumentów i dodatkowych parametrów (na przykład SENT, numer zwolnienia etc). Wymagany dokument lub parametr może być przypięty do specyficznej operacji lub zlecenia. W przypadku dokumentów lub parametrów przypiętych do zlecenia reguły ich wymagalności są liczone od daty gotowości, natomiast wymagalność dokumentów lub parametrów przypiętych do operacji jest liczona od planowanej daty rozpoczęcia danej operacji.
+
+Opis: Każde zlecenie powinno mieć opiekuna. Opiekun zlecenia to osoba, która dostaje zdania wygenerowane przez system dotyczące danego zlecenia. W przypadku zleceń tworzonych ręcznie według H U-C 10 opiekunem jest osoba tworząca zlecenia. W przypadku H U-C 8 przy definicji poszczególnych interfejsów będzie wskazywana jednostka organizacyjna odpowiedzialna u klienta za dana integracje i opiekunem będzie osoba wskazana w definicji jednostki organizacyjnej. W przypadku składania zlecenia przez interfejs webowy użytkownik wybiera w trakcie składania zlecenia w ramach której jednostki biznesowej składa zamówienie i to powoduje automatyczne przypisane danego opiekuna do zlecenia.
+
+USZ.5.Z.2 W przypadku klienta, który ma zdefiniowane więcej jednostek organizacyjnych niż 1 w trakcie składania zamówienia użytkownik może wybrać w ramach której jednostki organizacyjnej składa zamówienie. Ten wybór spowoduje przypisanie odpowiedniego opiekuna do zlecenia.
+
+Wersja końcowa Aktor główny: Klient Aktorzy wspierający: System Warunki wstępne:
+
+Klient jest świadomy warunków i specyfikacji dotyczących zleceń. Główny przepływ wydarzeń:
+
+Klient loguje się do Strefy Klienta. Klient nawiguje do zakładki składania zleceń.
+
+Klient wybiera kontrakt, na podstawie którego chce złożyć zlecenie z listy rozwijanej. 4. Klient wprowadza szczegółowe dane dla zlecenia, w tym miejsce i datę podjęcia i zdania kontenera, typ kontenera, typ ładunku, miejsce i dacie zdania kontenera, datę podstawienia (jeśli dotyczy). Klient wybiera jednostkę organizacyjną, w ramach której składa zamówienie, jeśli posiada więcej.niż jedną jednostkę organizacyjną. Ten wybór spowoduje przypisanie odpowiedniego opiekuna do zlecenia. W przypadku gdy do jednostki biznesowej przypisanych jest więecej niz jeden opiekun system wybierze opiekuna na zasadzie rotacyjnej (zlecenie 1 - opiekun 1, zlecenie 2 - opiekun 2, zelecenie 3 - opiekun1, zelecenie 4 - opiekun 2) 4. 5. Po wprowadzeniu danych, Klient zatwierdza zlecenie do wysyłki. 5. 6. System P-C-C-I generuje listę operacji na podstawie parametrów zlecenia oraz listę wymaganych dokumentów i dodatkowych parametrów (na przykład SENT, numer zwolnienia). 6. 7. Wymagane dokumenty lub parametry są przypisane do specyficznej operacji lub zlecenia. Reguły ich wymagalności są liczone od daty gotowości dla zlecenia lub od planowanej daty rozpoczęcia danej operacji. 7. 8. System automatycznie weryfikuje zlecenie pod kątem stanu zobowiązań finansowych Klienta (H U-C 11) 8. 9. W przypadku pozytywnej weryfikacji, zlecenie jest przekazywane do dalszej realizacji. 9. 10. Klient otrzymuje informację w formie komunikatu push, że zlecenie zostało wstępnie przyjęte do realizacji i weryfikowane są zasoby do jego obsługi. 10. 11. W Strefie Klienta w zakładce ze zleceniami nowe zlecenie pojawia się ze statusem Zlecenie złożone. Alternatywne przepływy:
+
+Klient w Strefie Klienta otrzymuje informację push, że zlecenie nie może zostać przyjęte z opisanego w komunikacie powodu:
+
+brak potwierdzenia zwolnienia danego kontenera przez armatora. Warunki końcowe:
+
+Zlecenie jest złożone lub odrzucone z powodu negatywnej weryfikacji finansowej.
+
+Klient jest na bieżąco informowany o statusie zlecenia. Wymagania specjalne:
+
+System musi zapewniać wysoki poziom bezpieczeństwa i prywatności danych.
+
+Proces składania zleceń powinien być intuicyjny i prosty dla Klienta, aby zminimalizować ryzyko błędów. Częstotliwość występowania:
+
+Złożenie zlecenia przez Strefę Klienta może mieć miejsce wielokrotnie w ciągu dnia, w zależności od liczby aktywnych klientów i ich potrzeb biznesowych. H U-C 10: Złożenie zlecenia drogą mailową Pierwotna wersja Aktor główny: Klient Aktorzy wspierający: Dział Obsługi Klient Warunki wstępne:
+
+Skrzynka mailowa P-C-C-I nie będzie miała ograniczeń technicznych, które uniemożliwiłyby przyjęcie wiadomości ze zleceniem z szablonem uzupełnionym niekompletnie lub w zupełnie innym formacie. Główny przepływ wydarzeń:
+
+Klient przygotowuje zlecenie korzystając ze szablonu mailowego dostarczonego przez P-C-C-I.
+
+Klient wysyła zlecenie na adres. Warunki końcowe:
+
+Zlecenie jest dostarczone na skrzynkę mailową i następnie weryfikowane automatycznie zgodnie z UC17. Wymagania specjalne:
+
+Wszystkie dane przetwarzane przez system muszą być zabezpieczone zgodnie z obowiązującymi standardami ochrony danych. Częstotliwość występowania:
+
+Złożenie zlecenia drogą mailową może mieć miejsce regularnie, w zależności od preferencji i potrzeb Klientów. Uszczegółowienia Opis: Ze względu na fakt ze dokumenty i dodatkowe dane niezbędne do realizacji zamówienia spływają w asynchroniczny sposób należy zmienić sposób w jaki jest weryfikowana ich obecność i poprawność a także sposób przypominania klientowi o tym. Dokumenty i dane dodatkowe powinny być przypisane do operacji, która ich wymaga i wszystkie terminy notyfikacji i wymagalności dokumentów powinny być liczone od daty rozpoczęcia danej operacji.
+
+USZ.4.Z.1 Modyfikacja logiki tworzenia zamówienia tak aby do listy operacji, które zostaną wygenerowane na podstawie parametrów zlecenia wygenerować listę wymaganych dokumentów i dodatkowych parametrów (na przykład SENT, numer zwolnienia etc). Wymagany dokument lub parametr może być przypięty do specyficznej operacji lub zlecenia. W przypadku dokumentów lub parametrów przypiętych do zlecenia reguły ich wymagalności są liczone od daty gotowości, natomiast wymagalność dokumentów lub parametrów przypiętych do operacji jest liczona od planowanej daty rozpoczęcia danej operacji.
+
+Opis: Każde zlecenie powinno mieć opiekuna. Opiekun zlecenia to osoba, która dostaje zdania wygenerowane przez system dotyczące danego zlecenia. W przypadku zleceń tworzonych ręcznie według H U-C 10 opiekunem jest osoba tworząca zlecenia.
+
+Wersja końcowa Aktor główny: Klient Aktorzy wspierający: System, System mailowy.
+
+Skrzynka mailowa P-C-C-I nie będzie miała ograniczeń technicznych, które uniemożliwiłyby przyjęcie wiadomości ze zleceniem z szablonem uzupełnionym niekompletnie lub w zupełnie innym formacie. Główny przepływ wydarzeń:
+
+Klient przygotowuje zlecenie korzystając ze szablonu mailowego dostarczonego przez P-C-C-I.
+
+Zlecenie trafia do systemu P-C-C-I poprzez automatyczna weryfikację mailową (H U-C 18) systemem mailowym lub ręczną weryfikację zlecenia mailowego (H U-C 19) przez Pracownika P-C-C-I D-O-K (Specjalista).
+
+System P-C-C-I generuje listę operacji na podstawie parametrów zlecenia oraz listę wymaganych dokumentów i dodatkowych parametrów (na przykład SENT, numer zwolnienia).
+
+Wymagane dokumenty lub parametry są przypisane do specyficznej operacji lub zlecenia. Reguły ich wymagalności są liczone od daty gotowości dla zlecenia lub od planowanej daty rozpoczęcia danej operacji.
+
+Każde zlecenie ma przypisanego opiekuna. Opiekun zlecenia to Pracownik P-C-C-I D-O-K (Specjalista), który dostaje zadania wygenerowane przez System mailowy dotyczące danego zlecenia. W przypadku zleceń tworzonych ręcznie według H U-C 19, opiekunem jest Pracownik P-C-C-I D-O-K (Specjalista), ktory tworzy zlecenie w Systemie P-C-C-I. Warunki końcowe:
+
+Zlecenie jest dostarczone na skrzynkę mailową i następnie weryfikowane automatycznie zgodnie z H U-C 17. Wymagania specjalne:
+
+Wszystkie dane przetwarzane przez System P-C-C-I muszą być zabezpieczone zgodnie z obowiązującymi standardami ochrony danych. Częstotliwość występowania:
+
+Złożenie zlecenia drogą mailową może mieć miejsce regularnie, w zależności od preferencji i potrzeb Klientów. H U-C 18: Automatyczna weryfikacja zlecenia mailowego Pierwotna wersja Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik D-O-K, Klient Warunki wstępne:
+
+Klient wysyła zlecenie używając ustalonego szablonu mailowego na adres mailowy firmy. Główny przepływ wydarzeń:
+
+Automat do obsługi maili identyfikuje nową wiadomość mailową jako zlecenie od Klienta.
+
+Automat weryfikuje na podstawie adresu mailowego stan zobowiązań Klienta.
+
+Automat zweryfikował, że Klient nie posiada nałożonych blokad (UC11).
+
+Automat sprawdza kompletność danych zlecenia i zgodność z kontraktem.
+
+Dane są kompletne - Automat jest w stanie zweryfikować kontrakt:
+
+Automat dopasowuje aktywny (oferta zaakceptowana) kontrakt do zlecenia - Automat wprowadza zlecenie do bazy danych, zlecenie podlega dalszej weryfikacji zgodnie z UC13.
+
+automatyczna wiadomość do Klienta o braku możliwości przyjęcia zlecenia z powodu niezaakceptowania oferty (zlecenie w poczekalni czeka na zaakceptowanie oferty).
+
+nie przypisał kontraktu (brak kontraktu) - następuje przekazanie wiadomości do Klienta o braku możliwości przyjęcia zlecenia z powodu braku kontraktu oraz przekazanie zapytania Klienta do Handlowca.
+
+Zostały spełnione warunki (brak blokady i zlecenie kompletne), dlatego proces przechodzi do weryfikacji zwolnienia kontenera podanego w zleceniu zgodnie z UC12 (jeżeli dotyczy) lub do UC14. Alternatywne przepływy:
+
+Autoresponder odpowiada o braku możliwości obsługi zlecenia z powodu nałożenia blokady finansowej.
+
+W przypadku odrzucenia zlecenia z powodu zadłużenia, Pracownik D-O-K może być zaangażowany w negocjacje z Klientem w celu rozwiązania problemów finansowych.
+
+A5a. Dane są niekompletne, ale da się zweryfikować kontrakt:
+
+Automat dopasowuje aktywny (oferta zaakceptowana) kontrakt do zlecenia - poinformowanie Klienta o braku możliwości przyjęcia zlecenia z powodu niekompletności zlecenia (zlecenie w poczekalni czeka na uzupełnienie zlecenia).
+
+automatyczna wiadomość do Klienta o braku możliwości przyjęcia zlecenia z powodu niezaakceptowania oferty (zlecenie w poczekalni czeka na zaakceptowanie oferty) oraz poinformowanie o braku możliwości przyjęcia zlecenia z powodu niekompletności zlecenia (zlecenie w poczekalni czeka na uzupełnienie zlecenia).
+
+Automat nie przypisał kontraktu (brak kontraktu) - następuje przekazanie wiadomości do Klienta o braku możliwości przyjęcia zlecenia z powodu braku kontraktu oraz przekazanie zapytania Klienta do Handlowca.
+
+A5b. Dane są niekompletne i nie da się zweryfikować kontraktu:
+
+poinformowanie Klienta o braku możliwości przyjęcia zlecenia z powodu niekompletności zlecenia (zlecenie w poczekalni czeka na uzupełnienie zlecenia).
+
+automatyczne przekazanie zlecenia w formie zadania do Pracownika D-O-K i postępowanie wg UC19 (ten krok występuje tylko po wariantach A5a i A5b).
+
+A5d. Klient przesłał zlecenie, którego nie rozpoznaje automat do obsługi maili ze zleceniami, następnie postępowanie wg UC19.
+
+W przypadku przekazywania zapytań do Handlowców lub Pracowników D-O-K automat w pierwszej kolejności przesyła dane zapytanie klienta do jego opiekuna (jeżeli jest wskazany w systemie) lub do osoby opiekuna zastępującej (pod nieobecność). Jeżeli dany klient nie ma opiekuna zapytania trafia do losowego pracownika odpowiedniego działu. Warunki końcowe:
+
+Klient jest poinformowany o statusie swojego zlecenia. Wymagania specjalne:
+
+Automat do obsługi maili musi być wysoce zaawansowany, aby efektywnie zarządzać dużą liczbą maili i różnymi formatami zleceń.
+
+Wszystkie procesy muszą być zgodne z obowiązującymi standardami bezpieczeństwa danych. Częstotliwość występowania:
+
+Automatyczna weryfikacja zleceń mailowych może mieć miejsce regularnie, w zależności od preferencji Klientów i ich aktywności w składaniu zleceń. Uszczegółowienia Opis: Aby usprawnić automatyczną obsługę zleceń przez maila tylko maile wybranych klientów powinny przechodzić przez pełen proces. W pozostałych przypadkach proces powinien być skrócony i trafiać jako zadanie do pracownika D-O-K. W definicji jednostki organizacyjnej można włączyć pełną obsługę zleceń automatycznych wybierając spodziewany format maili ze zleceniami i dodatkowe maile, z których mogą przychodzić zlecenia (poza mailami użytkowników podpiętych pod dany podmiot).
+
+USZ.6.Z.1 Zmiana H U-C 18 polega na dodaniu sprawdzenia po 3 kroku. Jeżeli nadawca jest zdefiniowany jako użytkownik dla danego podmiotu gospodarczego lub jest na liście osób mogących wysyłać zlecenia w imieniu podmiotu gospodarczego i dla wybranej jednostki organizacyjnej włączono automatyczne procesowanie maili ze zleceniami system wykona pozostałe w H U-C 17 kroki. Dla podmiotów, dla których nie włączono automatycznego przetwarzania zleceń mail po sprawdzeniu płatności mail zostanie skierowany jako zadanie do opiekuna D-O-K danego klienta. W ramach automatycznego przetwarzania maili system będzie pozwalał na definiowanie przez programistów reguł prasowania, które użytkownik biznesowy będzie mógł włączać na poziomie definicji jednostki organizacyjnej.
+
+Wersja końcowa Aktor główny: System Aktorzy wspierający: Pracownik P-C-C-I D-O-K (Specjalista), Klient Warunki wstępne:
+
+Klient wysyła zlecenie używając ustalonego szablonu mailowego na adres mailowy firmy.
+
+System do obsługi maili identyfikuje nową wiadomość mailową jako zlecenie od Klienta.
+
+System weryfikuje na podstawie adresu mailowego stan zobowiązań Klienta.
+
+System sprawdza, czy nadawca jest zdefiniowany jako użytkownik dla danego podmiotu gospodarczego lub jest na liście osób mogących wysyłać zlecenia w imieniu podmiotu gospodarczego oraz czy dla wybranej jednostki organizacyjnej włączono automatyczne procesowanie maili ze zleceniami. Jeśli nadawca spełnia powyższe kryteria, system mailowy kontynuuje automatyczne przetwarzanie zlecenia (H U-C 17).
+
+System weryfikuje, czy Klient nie posiada nałożonych blokad (H U-C 11).
+
+System sprawdza kompletność danych zlecenia i zgodność z kontraktem.
+
+System jest w stanie zweryfikować kontrakt: System dopasowuje aktywny (oferta zaakceptowana) kontrakt do zlecenia System wprowadza zlecenie do bazy danych, zlecenie podlega dalszej weryfikacji zgodnie z H U-C 13.
+
+System mailowy wysyła automatyczna wiadomość do Klienta o braku możliwości przyjęcia zlecenia z powodu niezaakceptowania oferty (zlecenie w poczekalni czeka na zaakceptowanie oferty).
+
+System mailowy przekazuje wiadomość do Klienta o braku możliwości przyjęcia zlecenia z powodu braku kontraktu oraz przekazanie zapytania Klienta do Handlowca.
+
+Zostały spełnione warunki (brak blokady i zlecenie kompletne), dlatego proces przechodzi do weryfikacji zgodnie z H U-C 14.
+
+Jeśli nadawca nie jest uprawniony do złożenia zlecenia lub nie jest zdefiniowany jako użytkownik dla danego podmiotu gospodarczego, System tworzy i przekazuje zadanie dla Pracownika P-C-C-I D-O-K (Specjalista) do ręcznej weryfikacji zlecenia mailowego zgodnie z H U-C 19.
+
+System mailowy informuje o braku możliwości obsługi zlecenia z powodu nałożenia blokady finansowej. W przypadku odrzucenia zlecenia z powodu zadłużenia, Pracownik P-C-C-I D-O-K (Starszy specjalista?) może być zaangażowany w negocjacje z Klientem w celu rozwiązania problemów finansowych.
+
+A5a. Dane są niekompletne, ale da się zweryfikować kontrakt:
+
+System dopasowuje aktywny (oferta zaakceptowana) kontrakt do zlecenia - poinformowanie Klienta o braku możliwości przyjęcia zlecenia z powodu niekompletności zlecenia (zlecenie w poczekalni czeka na uzupełnienie zlecenia).
+
+system mailowy wysyła automatyczną wiadomość do Klienta o braku możliwości przyjęcia zlecenia z powodu niezaakceptowania oferty (zlecenie w poczekalni czeka na zaakceptowanie oferty) oraz poinformowanie o braku możliwości przyjęcia zlecenia z powodu niekompletności zlecenia (zlecenie w poczekalni czeka na uzupełnienie zlecenia).
+
+System nie przypisał kontraktu (brak kontraktu) - system przekazuje zapytanie Klienta do Handlowca. System mailowy wysyła wiadomość do Klienta o niemożliwości przyjęcia zlecenia z powodu braku kontraktu oraz o przekazaniu sprawy do Handlowca.
+
+A5b. Dane są niekompletne i nie da się zweryfikować kontraktu:
+
+Poinformowanie Klienta o braku możliwości przyjęcia zlecenia z powodu niekompletności zlecenia (zlecenie w poczekalni czeka na uzupełnienie zlecenia).
+
+Automatyczne przekazanie zlecenia w formie zadania do Pracownika P-C-C-I D-O-K (Specjalista) i postępowanie wg H U-C 19 (ten krok występuje tylko po wariantach A5a i A5b).
+
+A5d. Klient przesłał zlecenie, którego nie rozpoznaje automat do obsługi maili ze zlecen:
+
+W przypadku przekazywania zapytań do Handlowców lub Pracowników P-C-C-I D-O-K (Specjalista) system w pierwszej kolejności przesyła dane zapytanie Klienta do jego opiekuna (jeżeli jest wskazany w systemie) lub do osoby opiekuna zastępującej (pod nieobecność). Jeżeli dany klient nie ma opiekuna, zapytania trafiają do losowego Pracownika P-C-C-I D-O-K (Specjalista).
+
+Zlecenie jest prawidłowo przetworzone i przyjęte do realizacji. Klient jest poinformowany o statusie swojego zlecenia.
+
+System do obsługi maili musi być wysoce zaawansowany, aby efektywnie zarządzać dużą liczbą maili i różnymi formatami zleceń.
+
+Wszystkie procesy muszą być zgodne z obowiązującymi standardami bezpieczeństwa danych.
+
+Automatyczna weryfikacja zleceń mailowych może mieć miejsce regularnie, w zależności od preferencji Klientów i ich aktywności w składaniu zleceń. H U-C 19: Ręczna weryfikacja zlecenia mailowego Pierwotna wersja Aktor główny: Pracownik D-O-K Aktorzy wspierający: Klient Warunki wstępne:
+
+Zlecenie zostało przesłane przez Klienta drogą mailową, ale dwukrotnie nie mogło być prawidłowo przetworzone przez automat do obsługi maili lub automat otrzymał nieczytelne zlecenie.
+
+Pracownik D-O-K ma dostęp do systemów niezbędnych do weryfikacji i przetwarzania zlecenia. Główny przepływ wydarzeń:
+
+Pracownik D-O-K otrzymuje powiadomienie lub zadanie dotyczące zlecenia, które wymaga ręcznej weryfikacji.
+
+Pracownik przegląda zlecenie, analizując dostarczone przez Klienta informacje i dokumenty.
+
+Pracownik sprawdza kompletność danych zlecenia i weryfikuje zgodność z kontraktem (oraz opcjonalnie sprawdza zwolnienie kontenera).
+
+Po uzupełnieniu wszystkich niezbędnych danych, Pracownik D-O-K wprowadza zlecenie do systemu zarządzania zleceniami.
+
+Weryfikacja pozytywna - Pracownik D-O-K wprowadza zlecenie do systemu, staje się ono widoczne w Strefie Klienta, zlecenie przekazane jest do kolejnego kroku zgodnie z UC14. Alternatywne przepływy:
+
+W przypadku otrzymania niekompletnych lub błędnych danych, Pracownik D-O-K może potrzebować kilku rund komunikacji z Klientem, aby skorygować i uzupełnić informacje.
+
+Pracownik D-O-K kontaktuje się z Klientem celem weryfikacji faktycznej chęci założenia nowego kontraktu, po potwierdzeniu wiadomość Klienta przekazywane jest do Handlowca Warunki końcowe:
+
+Zlecenie jest kompletnie zweryfikowane i wprowadzone do systemu zarządzania zleceniami.
+
+Klient jest na bieżąco informowany o statusie i postępie swojego zlecenia. Wymagania specjalne:
+
+Pracownik D-O-K musi wykazywać dokładność, uwagę na detale oraz umiejętności komunikacyjne w interakcjach z Klientem.
+
+System musi być elastyczny, aby umożliwić ręczne wprowadzanie i modyfikacje zleceń. Częstotliwość występowania:
+
+Ręczna weryfikacja zlecenia mailowego może być stosunkowo rzadka, zależna od skuteczności automatów do obsługi maili i jakości przesłanych danych przez Klientów. Uszczegółowienia.
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Specjalista) Aktorzy wspierający: Klient Warunki wstępne:
+
+Zlecenie zostało przesłane przez Klienta drogą mailową, ale dwukrotnie nie mogło być prawidłowo przetworzone przez system mailowy do obsługi maili lub system mailowy otrzymał nieczytelne zlecenie.
+
+Pracownik P-C-C-I D-O-K (Specjalista) ma dostęp do systemów niezbędnych do weryfikacji i przetwarzania zlecenia. Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Specjalista) otrzymuje powiadomienie lub zadanie dotyczące zlecenia, które wymaga ręcznej weryfikacji.
+
+Pracownik P-C-C-I D-O-K (Specjalista) przegląda zlecenie, analizując dostarczone przez Klienta informacje i dokumenty.
+
+Pracownik P-C-C-I D-O-K (Specjalista) sprawdza kompletność danych zlecenia i weryfikuje zgodność z kontraktem (oraz opcjonalnie sprawdza zwolnienie kontenera).
+
+Po uzupełnieniu wszystkich niezbędnych danych, Pracownik P-C-C-I D-O-K (Specjalista) wprowadza zlecenie do systemu zarządzania zleceniami.
+
+Weryfikacja pozytywna - Pracownik P-C-C-I D-O-K (Specjalista) wprowadza zlecenie do systemu, staje się ono widoczne w Strefie Klienta, zlecenie przekazane jest do kolejnego kroku zgodnie z H U-C 14.
+
+System wyznacza Pracownika P-C-C-I D-O-K (Specjalista) jako opiekuna zlecenia. Alternatywne przepływy:
+
+W przypadku otrzymania niekompletnych lub błędnych danych, Pracownik P-C-C-I D-O-K (Specjalista) może potrzebować kilku rund komunikacji z Klientem, aby skorygować i uzupełnić informacje.
+
+Pracownik P-C-C-I D-O-K (Specjalista) kontaktuje się z Klientem celem weryfikacji faktycznej chęci założenia nowego kontraktu, po potwierdzeniu wiadomość Klienta przekazywane jest do Handlowca Warunki końcowe:
+
+Zlecenie jest kompletnie zweryfikowane i wprowadzone do systemu zarządzania zleceniami.
+
+Klient jest na bieżąco informowany o statusie i postępie swojego zlecenia. Wymagania specjalne:
+
+Pracownik P-C-C-I D-O-K (Specjalista) musi wykazywać dokładność, uwagę na detale oraz umiejętności komunikacyjne w interakcjach z Klientem.
+
+System musi być elastyczny, aby umożliwić ręczne wprowadzanie i modyfikacje zleceń. Częstotliwość występowania:
+
+Ręczna weryfikacja zlecenia mailowego może być stosunkowo rzadka, zależna od skuteczności systemu mailowego do obsługi maili i jakości przesłanych danych przez Klientów. Dodatkowe informacje dla kontekstu Obiekty:
+
+Dokumenty H U-C 16: Automatyczne informowanie o konieczności weryfikacji dokumentów Pierwotna wersja Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik D-O-K Warunki wstępne:
+
+Zlecenie zostało złożone przez Klienta i wymaga załączenia określonych dokumentów. Główny przepływ wydarzeń:
+
+Po złożeniu zlecenia przez Klienta, system automatycznie identyfikuje, które dokumenty są wymagane na podstawie rodzaju zlecenia i specyfiki ładunku.
+
+System generuje zadanie weryfikacji dokumentów dla Pracownika D-O-K: 48h przed datą dostępności kontenera.
+
+oraz w innych terminach dla wybranych dokumentów, zgodnie z ich datami krytycznymi na dopięcie do zlecenia.
+
+Pracownik D-O-K otrzymuje powiadomienie o konieczności weryfikacji dokumentów zlecenia. Warunki końcowe:
+
+Wszystkie dokumenty i dane muszą być traktowane zgodnie z obowiązującymi przepisami.
+
+Automatyczne informowanie o konieczności weryfikacji dokumentów występuje przy każdym zleceniu wymagającym specyficznych dokumentów. Częstotliwość zależy od charakterystyki i ilości zleceń. Uszczegółowienia Opis: Ze względu na fakt ze dokumenty i dodatkowe dane niezbędne do realizacji zamówienia spływają w asynchroniczny sposób należy zmienić sposób w jaki jest weryfikowana ich obecność i poprawność a także sposób przypominania klientowi o tym. Dokumenty i dane dodatkowe powinny być przypisane do operacji, która ich wymaga i wszystkie terminy notyfikacji i wymagalności dokumentów powinny być liczone od daty rozpoczęcia danej operacji.
+
+USZ.4.Z.2 H U-C 16 powinien zostać zastąpiony przez proces asynchroniczny który dla wszystkich zleceń w realizacji sprawdza brakujące dokumenty i dane i na podstawie reguł zaszytych w tym procesie (według typu dokumentu, typu danej) wysyła odpowiednie powiadomienia do klienta. Powinny być 2 powiadomienia:
+
+parę dni przed data wymagalności (w zależności od typu dokumentu lub danej) przypomnienie o tym, że informacji brakuje,.
+
+w dniu wymagalności ponaglenie o dostarczenie brakujących danych Proces powinien być uruchamiany 3 - 4 razy dziennie. Oba powiadomienia powinny generować zadanie dla opiekuna zlecenia, aby skontaktować się z klientem w sprawie brakujących danych. Dokumenty uznaje się za kompletne dopiero po weryfikacji ich kompletności według H U-C 17. Jeżeli proces wykryje ze klient dostarczył dokument określonego typu, ale dokument nie został jeszcze potwierdzony przez człowieka ze zawiera potrzebne informacje jest generowanie zadania dla pracownika D-O-K w celu weryfikacji poprawności dokumentu zgodnie z H U-C 17.
+
+Wersja końcowa Aktor główny: System Aktorzy wspierający: Pracownik P-C-C-I D-O-K (Specjalista) Warunki wstępne:
+
+Zlecenie zostało złożone przez Klienta i wymaga załączenia określonych dokumentów. Główny przepływ wydarzeń:
+
+Po złożeniu zlecenia przez Klienta, system automatycznie identyfikuje, które dokumenty są wymagane na podstawie rodzaju zlecenia i specyfiki ładunku.
+
+Dokumenty i dodatkowe dane niezbędne do realizacji zamówienia spływają w asynchroniczny sposób. System przypisuje dokumenty i dane dodatkowe do operacji, która ich wymaga.
+
+Wszystkie terminy notyfikacji i wymagalności dokumentów są liczone od daty rozpoczęcia danej operacji.
+
+Proces asynchroniczny dla wszystkich zleceń w realizacji sprawdza brakujące dokumenty i dane. Na podstawie reguł zaszytych w tym procesie (według typu dokumentu, typu danej) wysyła odpowiednie powiadomienia do klienta:
+
+Parę dni przed datą wymagalności (w zależności od typu dokumentu lub danej) przypomnienie o tym, że informacji brakuje.
+
+W dniu wymagalności ponaglenie o dostarczenie brakujących danych. Proces jest uruchamiany 3 - 4 razy dziennie.
+
+Oba powiadomienia generują zadanie dla Pracownika P-C-C-I D-O-K (Specjalista), który jest opiekunem zlecenia, aby skontaktować się z klientem w sprawie brakujących danych.
+
+Dokumenty uznaje się za kompletne dopiero po weryfikacji ich kompletności według H U-C 17. Warunki końcowe:
+
+Pracownik P-C-C-I D-O-K (Specjalista) otrzymuje zadanie weryfikacji dokumentów lub kontaktu z klientem w sprawie brakujących dokumentów. Wymagania specjalne:
+
+Wszystkie dokumenty i dane muszą być traktowane zgodnie z obowiązującymi przepisami.
+
+Automatyczne informowanie o konieczności weryfikacji dokumentów występuje przy każdym zleceniu wymagającym specyficznych dokumentów. Częstotliwość zależy od charakterystyki i ilości zleceń. Proces asynchroniczny jest uruchamiany 3 - 4 razy dziennie. H U-C 13: Dopięcie dokumentów do zlecenia Pierwotna wersja Aktor główny: Klient Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Klient ma aktywne konto w systemie i złożył zlecenie. Główny przepływ wydarzeń:
+
+Klient otrzymuje powiadomienie o wymaganych dokumentach do dołączenia do zlecenia.
+
+Klient loguje się do Strefy Klienta i przechodzi do sekcji 'Zarządzanie Zleceniami'.
+
+Klient wybiera swoje aktualne zlecenie i przechodzi do sekcji dołączania dokumentów.
+
+System podpowiada, jakie dokumenty są wymagane na podstawie rodzaju zlecenia i przesyłanych towarów oraz informuje o obowiązku ich dostarczenia na 48h przed datą gotowości kontenera wskazaną w zleceniu.
+
+Klient skanuje i dołącza wymagane dokumenty w odpowiednich formatach poprzez Strefę Klienta.
+
+W przypadku brakujących lub niepoprawnych dokumentów, Klient otrzymuje powiadomienie z prośbą o korektę.
+
+Po pomyślnym dołączeniu dokumentów, zlecenie jest aktualizowane o status 'Dokumenty Kompletne'. Warunki końcowe:
+
+Zlecenie jest gotowe do dalszej realizacji z pełną dokumentacją. Wymagania specjalne:
+
+System musi być w stanie obsługiwać różne formaty dokumentów i być zabezpieczony przed utratą danych.
+
+Wszystkie przesłane dokumenty muszą być chronione zgodnie z obowiązującymi przepisami o ochronie danych. Uszczegółowienia.
+
+USZ.4.Z.4 U-I w H U-C 13 powinien być tak zmodyfikowany, aby klient wyraźnie widział listę wymaganych dokumentów lub parametrów i datę ich wymagalności. Przy dodawaniu dodatkowych dokumentów klient może wybierać typ dokumentu tylko ze słownika - nie można dodawać załącznika bez określenia jego treści przy użyciu słownika.
+
+Wersja końcowa Aktor główny: Klient. Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Klient ma aktywne konto w systemie i złożył zlecenie. Główny przepływ wydarzeń:
+
+Klient otrzymuje powiadomienie o wymaganych dokumentach do dołączenia do zlecenia.
+
+Klient loguje się do Strefy Klienta i przechodzi do sekcji 'Zarządzanie Zleceniami'.
+
+Klient wybiera swoje aktualne zlecenie i przechodzi do sekcji dołączania dokumentów.
+
+System podpowiada, jakie dokumenty są wymagane na podstawie rodzaju zlecenia i przesyłanych towarów oraz informuje o obowiązku ich dostarczenia na 48h przed datą gotowości kontenera wskazaną w zleceniu.
+
+U-I w Strefie Klienta wyraźnie pokazuje listę wymaganych dokumentów lub parametrów i datę ich wymagalności.
+
+Klient skanuje i dołącza wymagane dokumenty w odpowiednich formatach poprzez Strefę Klienta.
+
+Przy dodawaniu dodatkowych dokumentów klient może wybierać typ dokumentu tylko ze słownika - nie można dodawać załącznika bez określenia jego treści przy użyciu słownika.
+
+W przypadku brakujących lub niepoprawnych dokumentów, Klient otrzymuje powiadomienie z prośbą o korektę.
+
+Po pomyślnym dołączeniu dokumentów, zlecenie jest aktualizowane o status 'Dokumenty Kompletne'. Warunki końcowe:
+
+Zlecenie jest gotowe do dalszej realizacji z pełną dokumentacją. Wymagania specjalne:
+
+System musi być w stanie obsługiwać różne formaty dokumentów i być zabezpieczony przed utratą danych.
+
+Wszystkie przesłane dokumenty muszą być chronione zgodnie z obowiązującymi przepisami o ochronie danych. H U-C 17: Weryfikacja wymaganych dokumentów Pierwotna wersja Aktor główny: Pracownik D-O-K Aktorzy wspierający: Klient Warunki wstępne:
+
+Dokumenty zostały wcześniej przesłane przez Klienta i są dostępne w systemie.
+
+Pracownik D-O-K otrzymał zadanie polegające na weryfikacji dokumentów. Główny przepływ wydarzeń:
+
+Pracownik D-O-K loguje się do systemu i przegląda dostępne dokumenty związane ze zleceniem.
+
+Pracownik dokładnie analizuje każdy dokument pod kątem zgodności z wymaganiami zlecenia.
+
+Jeśli wszystkie dokumenty są kompletne i zgodne z wymaganiami, Pracownik D-O-K aktualizuje status zlecenia na kompletne.
+
+A3a. Dokumentacja nie jest kompletna: zlecenie zostanie przeniesione do poczekalni, zlecenie straci wprowadzone pierwotnie daty obsługi,.
+
+zlecenie będzie wymagało ponownego zaplanowanie przez Klienta w Strefie Klienta,.
+
+Klient dostaje w efekcie automatyczną informację na Strefę Klienta oraz maila podanego w koncie na Strefie Klienta. Warunki końcowe:
+
+Zlecenie jest gotowe do przejścia do kolejnej fazy realizacji. Wymagania specjalne:
+
+System musi zapewniać poufność i bezpieczeństwo przetwarzanych dokumentów. Częstotliwość występowania: Częstotliwość występowania zależy od liczby zleceń wymagających specyficznych dokumentów. Może to być częsty proces w zależności od charakterystyki operacji firmy.
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Specjalista) Aktorzy wspierający: Klient Warunki wstępne:
+
+Dokumenty zostały wcześniej przesłane przez Klienta i są dostępne w systemie.
+
+Pracownik P-C-C-I D-O-K (Specjalista) otrzymał zadanie polegające na weryfikacji dokumentów. Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Specjalista) loguje się do systemu i przegląda dostępne dokumenty związane ze zleceniem.
+
+Pracownik P-C-C-I D-O-K (Specjalista) dokładnie analizuje każdy dokument pod kątem zgodności z wymaganiami zlecenia.
+
+Jeśli wszystkie dokumenty są kompletne i zgodne z wymaganiami, Pracownik P-C-C-I D-O-K (Specjalista) aktualizuje status zlecenia na kompletne. Alternatywne przepływy:
+
+A3a. Dokumentacja nie jest kompletna: zlecenie zostanie przeniesione do poczekalni, zlecenie straci wprowadzone pierwotnie daty obsługi,.
+
+zlecenie będzie wymagało ponownego zaplanowania przez Klienta w Strefie Klienta,.
+
+Klient dostaje w efekcie automatyczną informację na Strefę Klienta oraz maila podanego w koncie na Strefie Klienta. A3b. Dokumentacja nie jest kompletna:
+
+Po upenieniu sie ze wsyzstkie dokumenty sa zalaczone specjalista aktualizuje status zlecenia. o Warunki końcowe:
+
+Zlecenie jest gotowe do przejścia do kolejnej fazy realizacji. Wymagania specjalne:
+
+System musi zapewniać poufność i bezpieczeństwo przetwarzanych dokumentów. Częstotliwość występowania: Częstotliwość występowania zależy od liczby zleceń wymagających specyficznych dokumentów. Może to być częsty proces w zależności od charakterystyki operacji firmy.
+
+Weryfikacja zlecenia H U-C 11: Weryfikacja stanu zobowiązań klienta Pierwotna wersja Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik Działu Obsługi Klienta, Klient Warunki wstępne:
+
+Klient loguje się do Strefy Klienta lub składa zlecenie przez EDI lub A-P-I.
+
+System weryfikacji finansowej automatycznie uruchamia się przy każdym logowaniu do Strefy Klienta oraz przy składaniu zlecenia w przypadku zleceń poprzez EDI lub A-P-I.
+
+System sprawdza aktualny stan zobowiązań finansowych Klienta, w tym wszelkie zaległe płatności lub nierozliczone zlecenia.
+
+Klient nie ma zaległości, nie ma nałożonej blokady i jego zlecenie może być dalej procedowane. Alternatywne przepływy:
+
+A4a. Weryfikacja negatywna, klient ma zaległości i założoną blokadę:
+
+System wyświetla komunikat push o blokadzie i kwocie zaległości do uregulowania.
+
+W przypadku zablokowanego konta, Klient nie może składać nowych zleceń ani korzystać z pełnej funkcjonalności Strefy Klienta.
+
+Do Pracownika D-O-K przekazywane jest zadanie polegające na skontaktowaniu się z Klientem celem poinformowania o zaistniałej sytuacji.
+
+W momencie zdjęcia blokady procedura przejdzie do dalszego procedowania zlecenia. Warunki końcowe:
+
+Klient jest w pełni poinformowany o swoim stanie finansowym wobec firmy i blokuje składanie zleceń w przypadku niespełnionych wymagań. Wymagania specjalne:
+
+System musi działać w czasie rzeczywistym i być w pełni zintegrowany z innymi systemami finansowymi i operacyjnymi firmy.
+
+Wszystkie interakcje i transakcje muszą być rejestrowane dla celów audytowych i zgodności z przepisami. Częstotliwość występowania:
+
+Weryfikacja stanu zobowiązań finansowych Klienta odbywa się za każdym razem, gdy Klient loguje się do Strefy Klienta lub składa zlecenie przez EDI lub A-P-I. Uszczegółowienia.
+
+USZ.12.Z.3 Wprowadzenie mechanizmu odraczania blokad, który powoduje ze dla klientów, dla których zostało ustawione odroczenie dla wskazanego zakresu dat, system pomimo założenia blokady ręcznej lub automatycznej zachowuje się tak jakby blokady nie było.
+
+Wersja końcowa Aktor główny: System Aktorzy wspierający: Pracownika P-C-C-I D-O-K (Specjalista), Klient Warunki wstępne:
+
+Klient loguje się do Strefy Klienta lub składa zlecenie przez EDI lub A-P-I.
+
+System weryfikacji finansowej automatycznie uruchamia się przy każdym logowaniu do Strefy Klienta oraz przy składaniu zlecenia w przypadku zleceń poprzez EDI lub A-P-I.
+
+System sprawdza aktualny stan zobowiązań finansowych Klienta, w tym wszelkie zaległe płatności lub nierozliczone zlecenia.
+
+Klient nie ma zaległości, nie ma nałożonej blokady i jego zlecenie może być dalej procedowane. Alternatywne przepływy:
+
+A4a. Weryfikacja negatywna, klient ma zaległości i założoną blokadę:
+
+System wyświetla komunikat push o blokadzie i kwocie zaległości do uregulowania.
+
+W przypadku zablokowanego konta, Klient nie może składać nowych zleceń ani korzystać z pełnej funkcjonalności Strefy Klienta.
+
+Do Pracownika P-C-C-I D-O-K (Specjalista) przekazywane jest zadanie polegające na skontaktowaniu się z Klientem celem poinformowania o zaistniałej sytuacji.
+
+W momencie zdjęcia blokady procedura przejdzie do dalszego procedowania zlecenia.
+
+Dla klientów, dla których zostało ustawione odroczenie dla wskazanego zakresu dat, system pomimo założenia blokady ręcznej lub automatycznej zachowuje się tak, jakby blokady nie było.
+
+Klient może składać zlecenia i korzystać z pełnej funkcjonalności Strefy Klienta w okresie odroczenia blokady. Warunki końcowe:
+
+Klient jest w pełni poinformowany o swoim stanie finansowym wobec firmy i blokuje składanie zleceń w przypadku niespełnionych wymagań. Wymagania specjalne:
+
+System musi działać w czasie rzeczywistym i być w pełni zintegrowany z innymi systemami finansowymi i operacyjnymi firmy.
+
+Wszystkie interakcje i transakcje muszą być rejestrowane dla celów audytowych i zgodności z przepisami. Częstotliwość występowania:
+
+Weryfikacja stanu zobowiązań finansowych Klienta odbywa się za każdym razem, gdy Klient loguje się do Strefy Klienta lub składa zlecenie przez EDI lub A-P-I. H U-C 12: Weryfikacja zwolnienia kontenera Pierwotna wersja Aktor główny: Automat P-C-C-I Aktorzy wspierający: Dział Obsługi Klienta, Armatorzy, Klienci Warunki wstępne:
+
+Klient składa zlecenie przez Strefę Klienta lub poprzez EDI.
+
+System otrzymuje zlecenie od Klienta zawierające szczegóły dotyczące kontenera.
+
+System automatycznie weryfikuje czy kontener (numer), który Klient wskazał w zleceniu został zwolniony do obsługi przez armatora (w oparciu wprost o numer kontenera lub numer zwolnienia i stan depotu danego armatora).
+
+Jeśli kontener jest zwolniony i dostępny, obsługa zlecenia jest dalej procedowana. Alternatywne przepływy:
+
+A5a. W przypadku braku zwolnienia kontenera: Zlecenie jest wstrzymywane (trafia do poczekalni).
+
+Do Pracownika D-O-K przekazywane jest zadanie polegające na skontaktowaniu się z Klientem celem poinformowania o zaistniałej sytuacji.
+
+W momencie zwolnienia kontenera procedura przechodzi do kolejnego kroku obsługi. Warunki końcowe:
+
+Zwolnienie kontenera zostało zweryfikowane i zlecenie przesłane do weryfikacji.
+
+Klient jest na bieżąco informowany o statusie i możliwych zmianach w zleceniu. Wymagania specjalne:
+
+System musi być zintegrowany z aktualnymi bazami danych armatorów i być w stanie szybko przetwarzać zapytania.
+
+Wymagana jest wysoka dokładność danych, aby uniknąć błędów i opóźnień w realizacji zleceń. Częstotliwość występowania:
+
+Weryfikacja zwolnienia kontenera jest standardowym procesem występującym przy każdym zleceniu wymagającym użycia kontenera, liczba wystąpień zależy od ilości składanych zleceń. Uszczegółowienia.
+
+USZ.4.Z.3 Proces w H U-C 12 jest specyficzna wersją procesu w zmodyfikowanym H U-C 16 dlatego jest zbędny i może zostać usunięty.
+
+W jaki sposób automatyczne informowanie o konieczności weryfikacji dokumentów (H U-C 16) zapewnia weryfikację zwolnienia kontenera?
+
+Co w przypadku braku zwolnienia kontenera? Wersja końcowa Usunięty.
+
+H U-C 14: Automatyczna weryfikacja zdolności przewozowych Pierwotna wersja Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik Działu Obsługi Klienta, Klienci Warunki wstępne:
+
+Zlecenie zostało prawidłowo złożone przez Klienta i przeszło wstępną weryfikację. Główny przepływ wydarzeń:
+
+System analizuje parametry zlecenia, w tym daty, miejsca odbioru i dostawy, typ ładunku, i inne istotne informacje.
+
+System analizuje dane dotyczące dostępności środków transportu, harmonogramów i zdolności przewozowych.
+
+System określa, czy zlecenie może być zrealizowane w zaplanowanych terminach i warunkach.
+
+Jeśli system znajduje dopasowanie, zlecenie jest automatycznie akceptowane do realizacji.
+
+Klient otrzymuje powiadomienie o pozytywnym przyjęciu zlecenia do realizacji. Alternatywne przepływy:
+
+W przypadku braku możliwości realizacji zlecenia, system generuje powiadomienie dla Pracownika D-O-K.
+
+Pracownik D-O-K analizuje sytuację i próbuje znaleźć alternatywne rozwiązania z Klientem, takie jak zmiana terminów lub środków transportu. Warunki końcowe:
+
+Zlecenie jest albo zaakceptowane do realizacji, albo odpowiednio zmodyfikowane lub anulowane, zależnie od dostępnych możliwości przewozowych i decyzji Klienta. Wymagania specjalne:
+
+System musi szybko i efektywnie przetwarzać duże ilości danych, zachowując wysoki poziom dokładności.
+
+Wszystkie działania i decyzje systemu powinny być rejestrowane dla celów audytowych i analizy operacyjnej. Częstotliwość występowania:
+
+Automatyczna weryfikacja zdolności przewozowych występuje przy każdym zleceniu, które wymaga transportu, liczba wystąpień jest zatem proporcjonalna do ilości przyjmowanych zleceń. Uszczegółowienia.
+
+Wersja końcowa Aktor główny: System Aktorzy wspierający: Pracownik P-C-C-I D-O-K (Specjalista) Klienci Warunki wstępne:
+
+Zlecenie zostało prawidłowo złożone przez Klienta i przeszło wstępną weryfikację. Główny przepływ wydarzeń:
+
+System analizuje parametry zlecenia, w tym daty, miejsca odbioru i dostawy, typ ładunku, i inne istotne informacje.
+
+System analizuje dane dotyczące dostępności środków transportu, harmonogramów i zdolności przewozowych.
+
+System określa, czy zlecenie może być zrealizowane w zaplanowanych terminach i warunkach.
+
+Jeśli system znajduje dopasowanie, zlecenie jest automatycznie akceptowane do realizacji.
+
+Klient otrzymuje powiadomienie o pozytywnym przyjęciu zlecenia do realizacji. Alternatywne przepływy:
+
+W przypadku braku możliwości realizacji zlecenia, system generuje powiadomienie dla Pracownika P-C-C-I D-O-K (Specjalista).
+
+Pracownik P-C-C-I D-O-K (Specjalista) analizuje sytuację i próbuje znaleźć alternatywne rozwiązania z Klientem, takie jak zmiana terminów lub środków transportu. Warunki końcowe:
+
+Zlecenie jest albo zaakceptowane do realizacji, albo odpowiednio zmodyfikowane lub anulowane, zależnie od dostępnych możliwości przewozowych i decyzji Klienta. Wymagania specjalne:
+
+System musi szybko i efektywnie przetwarzać duże ilości danych, zachowując wysoki poziom dokładności.
+
+Wszystkie działania i decyzje systemu powinny być rejestrowane dla celów audytowych i analizy operacyjnej. Częstotliwość występowania:
+
+Automatyczna weryfikacja zdolności przewozowych występuje przy każdym zleceniu, które wymaga transportu, liczba wystąpień jest zatem proporcjonalna do ilości przyjmowanych zleceń. H U-C 25: Weryfikacja czy dane zlecenie wymaga przedpłaty Pierwotna wersja Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik D-O-K, Klient Warunki wstępne:
+
+Istnieją zdefiniowane reguły określające, które zlecenia wymagają przedpłaty. Główny przepływ wydarzeń:
+
+System sprawdza zgodnie z zasadami biznesowymi (umowa lub regulamin), czy zlecenie wymaga przedpłaty.
+
+Jeśli zlecenie wymaga przedpłaty, system sprawdza, czy wpłata została zarejestrowana.
+
+W przypadku potwierdzenia zrealizowania przedpłaty, system aktualizuje status zlecenia jako gotowe do realizacji. Alternatywne przepływy:
+
+Jeśli przedpłata nie została zarejestrowana, system wysyła do Klienta powiadomienie z prośbą o dokonanie płatności.
+
+Zlecenie jest wstrzymane do momentu zarejestrowania w systemie przedpłaty. Warunki końcowe:
+
+Zlecenie jest oznaczone jako wymagające przedpłaty lub gotowe do realizacji w zależności od statusu płatności.
+
+Klient jest informowany o konieczności dokonania przedpłaty, jeśli jest wymagana. Wymagania specjalne:
+
+System musi mieć zintegrowaną funkcję weryfikacji płatności z systemem enova. Częstotliwość występowania:
+
+Proces weryfikacji przedpłat realizowany jest dla każdego zlecenia z przedpłatą. Uszczegółowienia Opis: Proces obsługi przedpłaty wymaga dodatkowych kroków w systemie dziedzinowym i w systemie księgowym.
+
+USZ.8.Z.1 Zmiana H U-C 25 polega na dołożeniu następujących kroków lub modyfikacji istniejących:
+
+po punkcie 2 - automatyczne wygenerowanie faktury pro-forma i wysłanie jej do klienta. Założenie jest takie, że faktury pro-forma mają stałą postać dla wszystkich klientów.
+
+punkt 3 - sprawdzenie wpłynięcia przedpłaty jest ręczny krokiem, który powinien generować zadanie dla pracownika P-C-C-I które polega na potwierdzeniu która wpłata rozlicza daną przedpłatę. System powinien pokazać użytkownikowi wpłaty, które nie są jeszcze przypisane do zaliczek w systemie Logistyka 4.0 i podpowiedzieć które z nich są możliwymi rozliczeniami pro-formy. Podpowiedz może bazować na:
+
+na wartości (jeżeli wartość wpłaty jest w przedziale + - 10% wartości pro-formy).
+
+po punkcie 4 - po potwierdzeniu płatności system powinien wystawić fakturę zaliczkową wraz z ze szczegółami dekretacji w systemie finansowo-księgowym.
+
+Wersja końcowa Aktor główny: System Aktorzy wspierający: Pracownik P-C-C-I D-O-K (Specjalista), Klient Warunki wstępne:
+
+Istnieją zdefiniowane reguły określające, które zlecenia wymagają przedpłaty. Główny przepływ wydarzeń:
+
+System sprawdza zgodnie z zasadami biznesowymi (umowa lub regulamin), czy zlecenie wymaga przedpłaty.
+
+System automatycznie generuję faktury pro-forma i wysyła jej do klienta. Faktury proforma mają stałą postać dla wszystkich klientów.
+
+Sprawdzenie wpłynięcia przedpłaty jest ręcznym krokiem, który generuje zadanie dla Pracownik P-C-C-I D-O-K (Specjalista) polegające na potwierdzeniu, która wpłata rozlicza daną przedpłatę. System pokazuje Pracownikowi P-C-C-I D-O-K (Specjalista) wpłaty, które nie są jeszcze przypisane do zaliczek w systemie Logistyka 4.0 i podpowiada, które z nich są możliwymi rozliczeniami pro-formy. Podpowiedź może bazować na:
+
+Wartości (jeżeli wartość wpłaty jest w przedziale + - 10% wartości pro-formy).
+
+Po potwierdzeniu płatności przez Pracownika P-C-C-I D-O-K (Specjalista) system wystawia fakturę zaliczkową wraz z ze szczegółami dekretacji w systemie finansowo-księgowym.
+
+W przypadku potwierdzenia zrealizowania przedpłaty, system aktualizuje status zlecenia jako gotowe do realizacji. Alternatywne przepływy:
+
+Jeśli przedpłata nie została zarejestrowana, system wysyła do Klienta powiadomienie z prośbą o dokonanie płatności.
+
+Zlecenie jest wstrzymane do momentu zarejestrowania w systemie przedpłaty. Warunki końcowe:
+
+Zlecenie jest oznaczone jako wymagające przedpłaty lub gotowe do realizacji w zależności od statusu płatności.
+
+Klient jest informowany o konieczności dokonania przedpłaty, jeśli jest wymagana. Wymagania specjalne:
+
+System musi mieć zintegrowaną funkcję weryfikacji płatności z systemem enova. Częstotliwość występowania:
+
+Proces weryfikacji przedpłat realizowany jest dla każdego zlecenia z przedpłatą. Dodatkowe informacje dla kontekstu Obiekty:
+
+Zobowiązania i Płatności. Zdolności przewozowe (?). Pytania: Linki do plików:
+
+Trudności w realizacji lub modyfikacja zlecenia H U-C 15: Konsultacja parametrów zlecenia z klientem Pierwotna wersja Aktor główny: Pracownik Działu Obsługi Klienta (D-O-K) Aktorzy wspierający: Klient, Dział Operacyjny Warunki wstępne:
+
+Zlecenie zostało złożone przez Klienta, ale napotkało na trudności w realizacji (na przykład brak możliwości przewozu w wyznaczonym terminie).
+
+Pracownik D-O-K ma dostęp do pełnych informacji o zleceniu i do systemów wewnętrznych. Główny przepływ wydarzeń:
+
+Pracownik D-O-K otrzymuje powiadomienie o problemie z realizacją zlecenia Klienta.
+
+Pracownik przegląda szczegóły zlecenia, identyfikując kluczowe parametry i przyczyny problemu.
+
+Pracownik D-O-K kontaktuje się z Klientem, aby omówić sytuację i możliwe opcje.
+
+Klient zgadza się na zmiany, Pracownik D-O-K aktualizuje zlecenie w systemie i przekazuje je do dalszej realizacji.
+
+Klient otrzymuje potwierdzenie zmian na Strefę Klienta i opcjonalnie mailowo. Alternatywne przepływy:
+
+Opcja 1: Pracownik D-O-K informuje klienta o braku możliwości obsługi zlecenia, zlecenie zostaje odrzucone, informacja o tym fakcie pojawia się w Strefie Klienta w postaci odpowiedniego statusu zlecenia.
+
+Opcja 2: Pracownik D-O-K konsultuje się z Działem Operacyjnym i dopytuje o możliwość zorganizowania dodatkowego przewozu - możliwe, że taka opcja zostanie w przyszłości wyłączona Warunki końcowe:
+
+Zlecenie jest albo dostosowane i kontynuowane, albo anulowane, w zależności od decyzji Klienta i możliwości operacyjnych firmy.
+
+Klient jest w pełni poinformowany o statusie i rozwiązaniu swojego zlecenia. Wymagania specjalne:
+
+Komunikacja z Klientem musi być jasna, profesjonalna i skoncentrowana na znalezieniu rozwiązania.
+
+Wszystkie interakcje i zmiany muszą być dokładnie dokumentowane w systemach firmy. Częstotliwość występowania:
+
+Konsultacje z Klientem odnośnie zmian w zleceniach mogą być częste, szczególnie w przypadkach trudnych lub niestandardowych zleceń. Uszczegółowienia.
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Specjalista) Aktorzy wspierający: Klient, Dział Operacyjny Warunki wstępne:
+
+Zlecenie zostało złożone przez Klienta, ale napotkało na trudności w realizacji (na przykład brak możliwości przewozu w wyznaczonym terminie).
+
+Pracownik P-C-C-I D-O-K (Specjalista) ma dostęp do pełnych informacji o zleceniu i do systemów wewnętrznych. Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Specjalista) otrzymuje powiadomienie o problemie z realizacją zlecenia Klienta.
+
+Pracownik P-C-C-I D-O-K (Specjalista) przegląda szczegóły zlecenia, identyfikując kluczowe parametry i przyczyny problemu.
+
+Pracownik P-C-C-I D-O-K (Specjalista) kontaktuje się z Klientem, aby omówić sytuację i możliwe opcje.
+
+Klient zgadza się na zmiany, Pracownik P-C-C-I D-O-K (Specjalista) aktualizuje zlecenie w systemie i przekazuje je do dalszej realizacji.
+
+Klient otrzymuje potwierdzenie zmian na Strefę Klienta i opcjonalnie mailowo. Alternatywne przepływy:
+
+Opcja 1: Pracownik P-C-C-I D-O-K (Specjalista) informuje klienta o braku możliwości obsługi zlecenia, zlecenie zostaje odrzucone, informacja o tym fakcie pojawia się w Strefie Klienta w postaci odpowiedniego statusu zlecenia.

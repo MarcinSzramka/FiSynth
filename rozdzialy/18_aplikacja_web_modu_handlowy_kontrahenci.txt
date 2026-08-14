@@ -1,0 +1,179 @@
+Aplikacja web — moduł handlowy: kontrahenci.
+
+Logistyka 4.0 Dokumentacja systemu Rejestracja i weryfikacja klienta. Historia zmian i zatwierdzenia.
+
+Lista i opis wykorzystanych i utworzonych głównych obiektów programistycznych oraz interfejsów A-P-I 10 o Handlowiec ma dostęp do systemu operacyjnego.
+
+Formularz rejestracyjny został prawidłowo wypełniony i przesłany przez potencjalnego Klienta. Główny przepływ wydarzeń:
+
+Handlowiec otrzymuje powiadomienie o nowym formularzu rejestracyjnym od Klienta.
+
+Handlowiec loguje się do systemu sprzedażowego. Handlowiec przegląda i weryfikuje przesłane informacje rejestracyjne Klienta.
+
+Handlowiec wprowadza dane Klienta do systemu sprzedażowego, włączając w to wszelkie wymagane dane korporacyjne i operacyjne.
+
+Handlowiec przekazuje dane do wstępnej weryfikacji zgodnie z polityką firmy, w tym sprawdzenie aktywności podmiotu w odpowiednich rejestrach publicznych i weryfikację tożsamości.
+
+Handlowiec tworzy w systemie sprzedażowym profil Klienta, przypisuje unikalne ID i zapisuje wszelkie notatki dotyczące komunikacji handlowej oraz preferencji.
+
+Po wprowadzeniu i zweryfikowaniu danych, Handlowiec zleca systemowi wygenerowanie danych logowania pierwszego użytkownika master.
+
+System generuje i wysyła na adres e-mail Klienta dane logowania oraz instrukcje dotyczące aktywacji konta.
+
+Handlowiec monitoruje proces aktywacji konta, gotów do wsparcia w przypadku pytań lub problemów Klienta.
+
+Po pomyślnej aktywacji, Handlowiec aktualizuje status Klienta w systemie na aktywny. Alternatywne przepływy:
+
+Jeśli dane są niekompletne lub błędne, Handlowiec kontaktuje się z Klientem w celu ich uzupełnienia lub korekty.
+
+Jeśli weryfikacja wykazuje problemy, Handlowiec kontaktuje się z Działem Prawnym lub Księgowym w celu ich rozwiązania.
+
+Jeśli klient nie wymaga tworzenia użytkownika można pominąć ten etap, uniemożliwia to klientowi zalogowanie się do systemu. Użytkownik może zostać dodany w każdej chwili do danego podmiotu gospodarczego przez Pracownik P-C-C-I D-O-K (Kierownik) zgodnie z H U-C 41.
+
+Jeżeli Klient nie aktywuje konta w określonym czasie, Handlowiec nawiązuje kontakt w celu wsparcia. Warunki końcowe:
+
+Klient ma aktywne konto i może korzystać z funkcji Strefy Klienta, jeżeli do klienta przypisany jest użytkownik i posiada dane do logowania. Wymagania specjalne:
+
+Proces musi być zgodny z wewnętrznymi procedurami bezpieczeństwa danych.
+
+Dane powinny być chronione zgodnie z GDPR i innymi lokalnymi przepisami o ochronie danych. Częstotliwość występowania:
+
+Może mieć miejsce kilkakrotnie w ciągu dnia, w zależności od liczby nowych zgłoszeń rejestracyjnych.
+
+H U-C 3: Weryfikacja nowo zarejestrowanego klienta. Aktor główny: System, Pracownik Działu Księgowego. Aktorzy wspierający: Handlowiec.
+
+Klient zakończył proces rejestracji i jego dane są już wprowadzone do systemu przez Handlowca.
+
+System weryfikacyjny jest zintegrowany z zewnętrznymi bazami danych i działa poprawnie. Główny przepływ wydarzeń:
+
+System inicjuje proces weryfikacji, korzystając z zewnętrznych baz danych:
+
+Sprawdzenie aktywności prawnej Klienta w Krajowym Rejestrze Sądowym (KRS).
+
+Weryfikacja informacji o Kliencie w Głównym Urzędzie Statystycznym (GUS).
+
+Sprawdzenie numeru konta bankowego Klienta na białej liście bankowej.
+
+System analizuje otrzymane odpowiedzi z zewnętrznych baz danych i określa status weryfikacji dla każdego z punktów.
+
+W przypadku pozytywnej weryfikacji we wszystkich punktach, system aktualizuje profil Klienta jako zweryfikowany. Alternatywne przepływy:
+
+System identyfikując Klienta zagranicznego automatycznie przekazuje informację do Pracownika Działu Księgowego o konieczności ręcznego zweryfikowania klienta.
+
+Pracownik Działu Księgowego dokonuje ręcznej weryfikacji podmiotu przy wykorzystaniu odpowiednich, zagranicznych baz danych.
+
+Sprawdzenie, czy lista klientów jest poprawnie wyświetlana po załadowaniu strony.
+
+Weryfikacja, czy lista klientów zawiera wszystkie wymagane kolumny zgodnie z wireframe.
+
+Sprawdzenie, czy lista klientów jest poprawnie paginowana. Weryfikacja, czy funkcja filtrowania klientów działa poprawnie. Sprawdzenie, czy funkcja sortowania klientów działa poprawnie.
+
+Weryfikacja, czy kliknięcie na klienta przekierowuje do widoku z danymi klienta.
+
+Sprawdzenie, czy lista klientów jest poprawnie aktualizowana po dodaniu nowego klienta.
+
+Weryfikacja, czy lista klientów jest poprawnie aktualizowana po edycji danych klienta.
+
+Sprawdzenie, czy lista klientów jest poprawnie aktualizowana po unieważnieniu klienta.
+
+Sprawdzenie, czy formularz tworzenia klienta jest poprawnie wyświetlany zgodnie z wireframe.
+
+Weryfikacja, czy wszystkie wymagane pola w formularzu tworzenia klienta są dostępne i poprawnie oznaczone.
+
+Sprawdzenie, czy walidacja formularza tworzenia klienta działa poprawnie (na przykład wymagane pola, format email).
+
+Weryfikacja, czy nowy klient jest poprawnie dodawany po wypełnieniu formularza i zapisaniu.
+
+Sprawdzenie, czy formularz edycji danych klienta jest poprawnie wyświetlany.
+
+Weryfikacja, czy dane klienta są poprawnie wczytywane do formularza edycji.
+
+Sprawdzenie, czy walidacja formularza edycji danych klienta działa poprawnie.
+
+Weryfikacja, czy zmiany w danych klienta są poprawnie zapisywane po edycji.
+
+Weryfikacja, czy status klienta jest poprawnie aktualizowany po unieważnieniu.
+
+Sprawdzenie, czy widok z danymi klienta jest poprawnie wyświetlany po kliknięciu na klienta z listy.
+
+Weryfikacja, czy wszystkie dane klienta są poprawnie wyświetlane (na przykład imię, nazwisko, email, status).
+
+Sprawdzenie, czy widok z danymi klienta zawiera opcje edycji i unieważnienia klienta.
+
+Weryfikacja, czy kliknięcie na opcję edycji przekierowuje do formularza edycji danych klienta.
+
+Sprawdzenie, czy kliknięcie na opcję unieważnienia powoduje unieważnienie klienta i aktualizację statusu.
+
+Weryfikacja, czy widok z danymi klienta jest poprawnie aktualizowany po edycji danych klienta.
+
+Sprawdzenie, czy system poprawnie sprawdza aktywność prawną Klienta w Krajowym Rejestrze Sądowym (KRS).
+
+Weryfikacja, czy system poprawnie weryfikuje informacje o Kliencie w Głównym Urzędzie Statystycznym (GUS).
+
+Sprawdzenie, czy system poprawnie sprawdza numer konta bankowego Klienta na białej liście bankowej.
+
+Sprawdzenie, czy Pracownik Działu Księgowego może ręcznie potwierdzić status dokonania weryfikacji nowego klienta po pozytywnej weryfikacji.
+
+Sprawdzenie, czy Klient jest zweryfikowany. Przypadki testowe dla Strefy Klienta.
+
+Sprawdzenie, czy handlowiec otrzymuje powiadomienie o nowym formularzu rejestracyjnym od Klienta.
+
+Sprawdzenie, czy handlowiec może przeglądać i weryfikować przesłane informacje rejestracyjne Klienta.
+
+Sprawdzenie, czy po wprowadzeniu i zweryfikowaniu danych, handlowiec może zlecić systemowi wygenerowanie danych logowania pierwszego użytkownika master.
+
+Sprawdzenie, czy system generuje i wysyła na adres e-mail Klienta dane logowania oraz instrukcje dotyczące aktywacji konta.
+
+Sprawdzenie, czy handlowiec może monitorować proces aktywacji konta i jest gotów do wsparcia w przypadku pytań lub problemów Klienta.
+
+Sprawdzenie, czy po pomyślnej aktywacji, handlowiec może zaktualizować status Klienta w systemie na aktywny.
+
+Sprawdzenie, czy system informuje handlowca o niekompletnych lub błędnych danych i czy handlowiec może skontaktować się z Klientem w celu ich uzupełnienia lub korekty.
+
+Sprawdzenie, czy system informuje handlowca o problemach z weryfikacją i czy handlowiec może skontaktować się z Działem Prawnym lub Księgowym w celu rozwiązania problemów.
+
+Sprawdzenie, czy system informuje handlowca o problemach z aktywacją konta i czy handlowiec może nawiązać kontakt z Klientem w celu wsparcia.
+
+Sprawdzenie, czy klient ma aktywne konto i może korzystać z funkcji Strefy Klienta, jeżeli do klienta przypisany jest użytkownik i posiada dane do logowania.
+
+Sprawdzenie, czy system automatycznie przekazuje informację do Pracownika Działu Księgowego.
+
+Adresy (główny, (klienta) wraz korespondencyjny) z jednostkami. Typ kontrahenta (na przykład biznesowymi i Armator, Spedytor) użytkownikie.
+
+Lista jednostek m master. biznesowych (z nazwą, walutą, grupą kontaktową).
+
+Dane użytkownika master (imię, nazwisko, email, telefon, hasło). Status początkowy, kraj, waluta, język, sposób wysyłki faktur.
+
+Zmiana nazwy, waluty, walutę, grupę grupy kontaktowej, kontaktową, powiązania z powiązania). kontrahentem.
+
+Lista zewnętrznych api (komunikacja backend-frontend). bankowego znajduje się na białej liście VAT.
+
+Status nadawany kontrahentom, którzy tymczasowo nie mogą korzystać z systemu.
+
+Może być nadany ręcznie przez odpowiednią osobę w przypadku problemów z płatnościami, naruszenia regulaminu i tym podobne.
+
+Jest możliwość dodawania innych użytkowników do danego klienta przez aplikacje dla użytkowników wewnętrznych.
+
+Master może dodawać innych użytkowników weryfikacje przez maila i po zalogowaniu do systemu.
+
+Zmiana statusu na zablokowany może występować tylko u kontrahenta ze statusem Aktywny.
+
+Status oznaczający trwałe wyłączenie kontrahenta z systemu i aktywnych funkcji(dodanie jednostki biznesowej, dodanie oferty, zlecenia, użytkowników).
+
+Może być nadany w przypadku zakończenia współpracy, likwidacji firmy kontrahenta i tym podobne.
+
+Nie ma możliwości dodawania innych użytkowników do danego klienta przez aplikacje dla użytkowników wewnętrznych.
+
+Wszyscy użytkownicy danego kontrahenta mają możliwość logowania do systemu.
+
+Nie jest przewidziana zmiana tego statusu na inny. Akcja nieodwracalna.
+
+Lista krajów, używana do określania kraju kontrahenta lub adresu.
+
+Waluta rozliczeń (WalutaRozliczen). Lista walut wykorzystywanych do rozliczeń z kontrahentami.
+
+Język dla rozliczeń (JezykDlaRozliczen). Lista języków, w których prowadzone są rozliczenia.
+
+Jest to najważniejszy typ użytkownika dla kontrahenta. Posiada pełne uprawnienia administracyjne w ramach konta kontrahenta.
+
+W przeciwnym razie klient nie otrzymuje pozytywnej weryfikacji i musi poczekąc na weryfikacje manualną.

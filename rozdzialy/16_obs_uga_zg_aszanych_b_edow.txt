@@ -1,0 +1,9 @@
+Obsługa zgłaszanych błędów.
+
+Jak nie jest błędem - ustawić status In Review, przypisać autora błędu.
+
+Jak więcej informacji potrzebne - w komentarzach do danej osoby pisać i przypisać tą osobę, zostawić status New (jeśli nie będzie odpowiedzi to zmienić na In Review).
+
+Jak to jest nowe wymaganie - do analityków. Sprint 13 w Boardzie Analityka. Przypisać Krzysztof Dziubek. Jak faktycznie wygląda na problem:
+
+Wycenić wg szacowanej trudności: (do dopracowania, uzupełniać, chcemy mieć szablon wyceny żeby robić to szybko).

@@ -1,0 +1,172 @@
+High level design modułu handlowego, część 4.
+
+Blokada na koncie Klienta została automatycznie zdjęta po uregulowaniu wszystkich zaległości lub utrzymana, jeśli wpłaty nie pokrywają zaległości.
+
+Klient ma przywróconą możliwość korzystania z usług i składania nowych zamówień. Wymagania specjalne:
+
+System musi być wyposażony w zaawansowane funkcje automatycznego monitorowania wpłat i zarządzania blokadami, zapewniając codzienną reakcję na zmiany stanu konta Klienta. Częstotliwość występowania:
+
+Proces automatycznego zdjęcia blokady jest procesem ciągłym i zależy od dynamiki wpłat od Klientów. Uszczegółowienia Opis: Proces obsługi blokad ręcznych i automacznych wymaga dodatkowych uprawnień i specjalnych widoków Pytania.
+
+Wersja końcowa Aktor główny: System Aktorzy wspierający: System enova, Klient Warunki wstępne:
+
+Na koncie Klienta została nałożona blokada z powodu nieuregulowanych płatności.
+
+System jest skonfigurowany do monitorowania wpłat i automatycznego zarządzania statusami blokad.
+
+System jest zintegrowany z systemem enova w celu zachowania spójności danych. Główny przepływ wydarzeń:
+
+Gdy system wykryje wpłatę pokrywającą całość zaległości od Klienta z nałożoną blokadą, automatycznie przeprowadza proces weryfikacji, aby upewnić się, że wszystkie zobowiązania zostały uregulowane.
+
+Po pozytywnej weryfikacji wpłaty i pokryciu zaległości, system automatycznie zdejmuje blokadę z konta Klienta, przywracając mu pełną funkcjonalność dostępu do usług i możliwość składania nowych zamówień. Alternatywne przepływy:
+
+System utrzymuje blokadę i informuje Klienta o pozostałej kwocie do uregulowania. Warunki końcowe:
+
+Blokada na koncie Klienta została automatycznie zdjęta po uregulowaniu wszystkich zaległości lub utrzymana, jeśli wpłaty nie pokrywają zaległości.
+
+Klient ma przywróconą możliwość korzystania z usług i składania nowych zamówień. Wymagania specjalne:
+
+System musi być wyposażony w zaawansowane funkcje automatycznego monitorowania wpłat i zarządzania blokadami, zapewniając codzienną reakcję na zmiany stanu konta Klienta. Częstotliwość występowania:
+
+Proces automatycznego zdjęcia blokady jest procesem ciągłym i zależy od dynamiki wpłat od Klientów. H U-C 37: Ręczne zdjęcie blokady Pierwotna wersja Aktor główny: Pracownik D-O-K Aktorzy wspierający: Klient, System enova, Automat P-C-C-I Warunki wstępne:
+
+Na koncie Klienta została nałożona automatyczna blokada z powodu nieuregulowanych płatności.
+
+Klient dostarczył dowody uregulowania zaległości, które nie zostały jeszcze zaksięgowane w systemie enova.
+
+Pracownik posiadający wymagane uprawnienia (od stanowiska Manager w górę), chcąc zdjąć blokadę Klienta przed mechanizmem automatycznym. Główny przepływ wydarzeń:
+
+Klient kontaktuje się z Pracownikiem D-O-K, dostarczając dowody wpłaty lub uregulowania zaległości.
+
+Jeśli dowody są zadowalające, D-O-K manualnie aktualizuje status płatności w systemie, odnotowując uregulowanie zaległości.
+
+Po zaktualizowaniu statusu płatności, Pracownik D-O-K ręcznie usuwa blokadę nałożoną na konto Klienta w systemie.
+
+Blokada ręcznie może zostać zdjęta tylko raz na 1 okres przekroczenia limitu zadłużenia - po uregulowania przy kolejnym zadłużeniu znowu możliwe będzie jednokrotne zdjęcie blokady ręcznie.
+
+Automat P-C-C-I wysyła powiadomienie mailowe i lub lub przez Strefę Klienta o zdjęciu blokady i przywróceniu pełnej funkcjonalności konta. Warunki końcowe:
+
+Blokada na koncie Klienta została zdjęta. Klient ma przywróconą pełną funkcjonalność dostępu do usług.
+
+Wszystkie związane z procesem informacje są dokładnie zarejestrowane w systemie. Wymagania specjalne:
+
+Pracownicy D-O-K (manager w górę) muszą mieć dostęp do narzędzi i uprawnień w systemie umożliwiających ręczne zarządzanie blokadami.
+
+System powinien zapewniać funkcje audytu i śledzenia zmian, aby utrzymać transparentność i odpowiedzialność za procesy finansowe. Częstotliwość występowania:
+
+Ręczne zdjęcie blokady występuje sporadycznie, głównie w wyjątkowych sytuacjach, gdy Klient szybko reaguje na powiadomienia o zaległościach lub gdy występują opóźnienia w systemach bankowych niezależne od Klienta. Uszczegółowienia.
+
+USZ.10.Z.1 Zmiana H U-C 37 polega na zastąpieniu procesu opisanego w H-L-D następującym procesem:
+
+system otrzymuje maila na skrzynkę funkcyjna dotycząca zwolnień kontenerów;.
+
+mail jest zamieniany na zadanie i dystrybuowany do odpowiedniej osoby w P-C-C-I.
+
+osoba po otrzymaniu zadania wykonuje czynności opisane w H U-C 37 w punktach 2 - 4.
+
+USZ.12.Z.2 H U-C 37 jest zbędny i nie trzeba go implementować, ponieważ mechanizm zawieszania blokady który jest opisany w H U-C 49 jest bardziej elastycznym i logicznym sposobem na zdejmowanie blokady. Pytania.
+
+Czy skoro USZ.12.Z.2 sugeruje, aby nie implementować tego U-C czy powinniśmy go rozpisywać i rozważać?
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Starszy specjalista) Aktorzy wspierający: Klient, System enova, Automat P-C-C-I Warunki wstępne:
+
+Na koncie Klienta została nałożona automatyczna blokada z powodu nieuregulowanych płatności.
+
+Klient dostarczył dowody uregulowania zaległości, które nie zostały jeszcze zaksięgowane w systemie enova.
+
+Pracownik posiadający wymagane uprawnienia (od stanowiska Manager w górę), chcąc zdjąć blokadę Klienta przed mechanizmem automatycznym.
+
+Klient kontaktuje się z Pracownika P-C-C-I D-O-K (Starszy specjalista) dostarczając dowody wpłaty lub uregulowania zaległości.
+
+Pracownika P-C-C-I D-O-K (Starszy specjalista) weryfikuje przedstawione przez Klienta dowody płatności.
+
+System otrzymuje maila na skrzynkę funkcyjną dotyczącą zwolnień kontenerów. (USZ.10.Z.1).
+
+Mail jest zamieniany na zadanie i dystrybuowany do Pracownika P-C-C-I D-O-K (Starszy specjalista)(USZ.10.Z.1).
+
+Osoba po otrzymaniu zadania wykonuje czynności opisane w H U-C 37 w punktach 2 - 4. (USZ.10.Z.1).
+
+Jeśli dowody są zadowalające, Pracownik P-C-C-I D-O-K (Starszy specjalista) manualnie aktualizuje status płatności w systemie, odnotowując uregulowanie zaległości.
+
+Po zaktualizowaniu statusu płatności, Pracownik P-C-C-I D-O-K (Starszy specjalista), ręcznie usuwa blokadę nałożoną na konto Klienta w systemie.
+
+Blokada ręcznie może zostać zdjęta tylko raz na 1 okres przekroczenia limitu zadłużenia - po uregulowania przy kolejnym zadłużeniu znowu możliwe będzie jednokrotne zdjęcie blokady ręcznie.
+
+System wysyła powiadomienie mailowe i lub lub przez Strefę Klienta o zdjęciu blokady i przywróceniu pełnej funkcjonalności konta.
+
+Blokada na koncie Klienta została zdjęta. Klient ma przywróconą pełną funkcjonalność dostępu do usług.
+
+Wszystkie związane z procesem informacje są dokładnie zarejestrowane w systemie. Wymagania specjalne:
+
+Pracownik P-C-C-I D-O-K (Starszy specjalista) muszą mieć dostęp do narzędzi i uprawnień w systemie umożliwiających ręczne zarządzanie blokadami.
+
+System powinien zapewniać funkcje audytu i śledzenia zmian, aby utrzymać transparentność i odpowiedzialność za procesy finansowe. Częstotliwość występowania:
+
+Ręczne zdjęcie blokady występuje sporadycznie, głównie w wyjątkowych sytuacjach, gdy Klient szybko reaguje na powiadomienia o zaległościach lub gdy występują opóźnienia w systemach bankowych niezależne od Klienta. H U-C 47: Edycja dekretacji dla faktur zaliczkowych Pierwotna wersja Aktor główny: Pracownik P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Użytkownik P-C-C-I z uprawnieniami do edycji dekretacji Główny przepływ wydarzeń: Użytkownika P-C-C-I loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie funkcjami księgowymi i dekretacja. Po wyszukaniu odpowiedniego produktu pracownik wchodzi w edycje dekretacji dla zaliczki i może dodać jedno lub wiele kont, na które dany produkt ma być zaksięgowany. W przypadku gdy zostanie dodanych wiele kont pracownik musi wpisać, jak rozbija się kwota dla danego produktu między konta. Może do zrobić wpisując bezwzględne liczby lub %. Aby usprawnić prace pracownik może szybko wyszukać produkty, dla których nie ma podanej dekretacji lub dla których dekretacja zawiera konkretny numer konta. Alternatywne przepływy:
+
+Produkty, dla których zostały ustawione dekretacja automatycznie się dekretują w systemie finansowym Wymagania specjalne:
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Specjalista) Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Pracownik P-C-C-I D-O-K (Specjalista) z uprawnieniami do edycji dekretacji Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Specjalista) loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie funkcjami księgowymi i dekretacja.
+
+Po wyszukaniu odpowiedniego produktu Pracownik P-C-C-I D-O-K (Specjalista) wchodzi w edycje dekretacji dla zaliczki i może dodać jedno lub wiele kont, na które dany produkt ma być zaksięgowany. W przypadku gdy zostanie dodanych wiele kont Pracownik P-C-C-I D-O-K (Specjalista) musi wpisać, jak rozbija się kwota dla danego produktu między konta. Może do zrobić wpisując bezwzględne liczby lub %.
+
+Aby usprawnić prace Pracownik P-C-C-I D-O-K (Specjalista) może szybko wyszukać produkty, dla których nie ma podanej dekretacji lub dla których dekretacja zawiera konkretny numer konta. Alternatywne przepływy:
+
+Produkty, dla których zostały ustawione dekretacja automatycznie się dekretują w systemie finansowym Wymagania specjalne:
+
+Brak H U-C 48: Edycja dekretacji dla faktur Pierwotna wersja Aktor główny: Pracownik P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Użytkownik P-C-C-I z uprawnieniami do edycji dekretacji Główny przepływ wydarzeń: Użytkownika P-C-C-I loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie funkcjami księgowymi i dekretacja. Po wyszukaniu odpowiedniego produktu pracownik wchodzi w edycje dekretacji dla faktur głównych i może dodać jedno lub wiele kont, na które dany produkt ma być zaksięgowany. W przypadku gdy zostanie dodanych wiele kont pracownik musi wpisać, jak rozbija się kwota dla danego produktu między konta. Może do zrobić wpisując bezwzględne liczby lub %. Aby usprawnić prace pracownik może szybko wyszukać produkty, dla których nie ma podanej dekretacji lub dla których dekretacja zawiera konkretny numer konta. Alternatywne przepływy:
+
+Produkty, dla których zostały ustawione dekretacja automatycznie się dekretują w systemie finansowym Wymagania specjalne:
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Specjalista) Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Pracownik P-C-C-I D-O-K (Specjalista) z uprawnieniami do edycji dekretacji Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Specjalista) loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie funkcjami księgowymi i dekretacja.
+
+Po wyszukaniu odpowiedniego produktu Pracownik P-C-C-I D-O-K (Specjalista) wchodzi w edycje dekretacji dla faktur głównych i może dodać jedno lub wiele kont, na które dany produkt ma być zaksięgowany. W przypadku gdy zostanie dodanych wiele kont Pracownik P-C-C-I D-O-K (Specjalista) musi wpisać, jak rozbija się kwota dla danego produktu między konta. Może do zrobić wpisując bezwzględne liczby lub %.
+
+Aby usprawnić prace Pracownik P-C-C-I D-O-K (Specjalista) może szybko wyszukać produkty, dla których nie ma podanej dekretacji lub dla których dekretacja zawiera konkretny numer konta. Alternatywne przepływy:
+
+Produkty, dla których zostały ustawione dekretacja automatycznie się dekretują w systemie finansowym Wymagania specjalne:
+
+Brak H U-C 49: Widok Windykatora Pierwotna wersja Aktor główny: Pracownik P-C-C-I z uprawnieniami Windykatora Aktorzy wspierający: Nie dotyczy Warunki wstępne: Użytkownik P-C-C-I z uprawnieniami Windykatora Główny przepływ wydarzeń: Użytkownik P-C-C-I loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie Windykacjami. Na widoku wyświetleni są klienci, którzy mają przekroczone płatności - jest łatwo dostępna informacja o ilości i kwocie przekroczonych płatność. Dodatkowo oznaczeni są klienci, którzy mają założone blokady. Z poziomu widoku Windykator może wykonać następujące akcje w zależność od okoliczności.
+
+zawiesić istniejąca lub przyszłą blokada wprowadzając na określony czas ochronę przed blokada.
+
+założyć blokadę dla klienta, który nie jest objęty procesem automatycznych blokad Alternatywne przepływy:
+
+Klienci z zawieszona blokada mogą pracować w systemie tak jakby nie było blokady Wymagania specjalne:
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Windykator) Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Pracownik P-C-C-I D-O-K (Windykator) z uprawnieniami Windykatora Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Windykator) loguje się do systemu i wchodzi w obszar pozwalający na zarządzanie Windykacjami.
+
+Na widoku wyświetleni są klienci, którzy mają przekroczone płatności - jest łatwo dostępna informacja o ilości i kwocie przekroczonych płatność. Dodatkowo oznaczeni są klienci, którzy mają założone blokady. Z poziomu widoku Pracownik P-C-C-I D-O-K (Windykator) może wykonać następujące akcje w zależność od okoliczności.
+
+zawiesić istniejąca lub przyszłą blokada wprowadzając na określony czas ochronę przed blokada.
+
+założyć blokadę dla klienta, który nie jest objęty procesem automatycznych blokad Alternatywne przepływy:
+
+Klienci z zawieszona blokada mogą pracować w systemie tak jakby nie było blokady Wymagania specjalne:
+
+Pierwotna wersja Uszczegółowienia Pytania Wersja końcowa Dodatkowe informacje dla kontekstu Obiekty: Pytania: Linki do plików: Weryfikacja gotowości kontenerów - do dodania dodatkowy U-C - pracownik weryfikuje dostępność kontenera i ustanawia finalny znacznik gotowości realizacji zlecenia.
+
+do diagramów H U-C 45 46 - na pewnie nie starszy specjalista będzoe decydował o cenach w katalogu produktów. Będzie to albo Karolina albo dedykowany pracownik - należy poprawić.
+
+to samo do 47 48 - za dekretacje bedzie odpowiadac Karolina.
+
+brakuje mi jeszcze jednej rzeczy ktora nie została ujęta - w ramach EDI lub A-P-I z klientem, poza przyjmowaniem zlecenia jest tez komunikacja z nim - potwierdzanie, przesyłanie informacji o statusach - tego nie ma rozpisanego a nie mozemy tego pominąć w efekcie koncowym.
+
+
+CZĘŚĆ TRZECIA. ETAP PIERWSZY — DOKUMENTACJA ARCHITEKTONICZNA I ODBIOROWA.

@@ -1,0 +1,769 @@
+High level design modułu handlowego, część 3.
+
+Opcja 2: Pracownik P-C-C-I D-O-K (Specjalista) konsultuje się z Działem Operacyjnym i dopytuje o możliwość zorganizowania dodatkowego przewozu - możliwe, że taka opcja zostanie w przyszłości wyłączona Warunki końcowe:
+
+Zlecenie jest albo dostosowane i kontynuowane, albo anulowane, w zależności od decyzji Klienta i możliwości operacyjnych firmy.
+
+Klient jest w pełni poinformowany o statusie i rozwiązaniu swojego zlecenia. Wymagania specjalne:
+
+Komunikacja z Klientem musi być jasna, profesjonalna i skoncentrowana na znalezieniu rozwiązania.
+
+Wszystkie interakcje i zmiany muszą być dokładnie dokumentowane w systemach firmy. Częstotliwość występowania:
+
+Konsultacje z Klientem odnośnie zmian w zleceniach mogą być częste, szczególnie w przypadkach trudnych lub niestandardowych zleceń. H U-C 20: Modyfikacja zlecenia w Strefie Klienta Pierwotna wersja Aktor główny: Automat P-C-C-I Aktorzy wspierający: Pracownik D-O-K Warunki wstępne:
+
+Modyfikacje zleceń są dopuszczalne do 48 godzin przed datą dostępności kontenera oraz wyłącznie w ramach warunków danego kontraktu. Główny przepływ wydarzeń:
+
+Klient nawiguje do zakładki Moje zlecenia i wyszukuje zlecenie do modyfikacji.
+
+Klient dokonuje zmian w zleceniu, takich jak data dostawy, adres dostawy, ilość towaru i tym podobne.
+
+System automatycznie weryfikuje zmiany pod kątem zgodności z warunkami kontraktu i możliwą obsługą logistyczną zlecenia.
+
+Jeżeli zmiany są zgodne z warunkami, system akceptuje modyfikację i aktualizuje zlecenie.
+
+Klient otrzymuje potwierdzenie zmiany zlecenia w systemie. Alternatywne przepływy:
+
+A3a. Anulowanie kontraktu: Klient poprzez modyfikację rezygnuje ze zlecenia.
+
+Wariant ten może skutkować nałożeniem na klienta kosztów obsługi, zgodnie z umową lub regulaminem.
+
+Jeśli Klient chce wprowadzić zmiany, które wymagają indywidualnej analizy (na przykład specjalne wymogi transportowe), system prosi o kontakt z Pracownikiem D-O-K.
+
+Jeśli zlecenie nie kwalifikuje się do modyfikacji ze względu na zbliżający się termin realizacji, system informuje Klienta o niemożności zmiany i sugeruje bezpośredni kontakt z Działem Obsługi Klienta.
+
+Zlecenie jest zaktualizowane zgodnie z żądanymi zmianami Klienta lub pozostaje bez zmian w przypadku odrzucenia modyfikacji.
+
+Klient jest informowany o każdym etapie przetwarzania zmiany zlecenia. Wymagania specjalne:
+
+System musi zapewniać intuicyjny interfejs umożliwiający Klientowi samodzielne modyfikacje zleceń.
+
+System powinien automatycznie weryfikować zmiany i natychmiast informować Klienta o wyniku weryfikacji. Częstotliwość występowania:
+
+Częstotliwość modyfikacji zleceń zależy od aktywności Klientów i dynamiki zmian w ich potrzebach logistycznych. Uszczegółowienia.
+
+Wersja końcowa Aktor główny: SystemKlient Aktorzy wspierający: Pracownik P-C-C-I D-O-K (Specjalista) Warunki wstępne:
+
+Modyfikacje zleceń są dopuszczalne do 48 godzin przed datą dostępności kontenera oraz wyłącznie w ramach warunków danego kontraktu. Główny przepływ wydarzeń:
+
+Klient nawiguje do zakładki Moje zlecenia i wyszukuje zlecenie do modyfikacji.
+
+Klient dokonuje zmian w zleceniu, takich jak data dostawy, adres dostawy, ilość towaru i tym podobne.
+
+System automatycznie weryfikuje zmiany pod kątem zgodności z warunkami kontraktu i możliwą obsługą logistyczną zlecenia.
+
+Jeżeli zmiany są zgodne z warunkami, system akceptuje modyfikację i aktualizuje zlecenie.
+
+Klient otrzymuje potwierdzenie zmiany zlecenia w systemie. Alternatywne przepływy:
+
+A3a. Anulowanie kontraktu: Klient poprzez modyfikację rezygnuje ze zlecenia.
+
+Wariant ten może skutkować nałożeniem na klienta kosztów obsługi, zgodnie z umową lub regulaminem.
+
+Jeśli Klient chce wprowadzić zmiany, które wymagają indywidualnej analizy (na przykład specjalne wymogi transportowe), system prosi o kontakt z Pracownikiem P-C-C-I D-O-K (Specjalista).
+
+Jeśli zlecenie nie kwalifikuje się do modyfikacji ze względu na zbliżający się termin realizacji, system informuje Klienta o niemożności zmiany i sugeruje bezpośredni kontakt z Pracownikiem P-C-C-I D-O-K (Specjalista). Warunki końcowe:
+
+Zlecenie jest zaktualizowane zgodnie z żądanymi zmianami Klienta lub pozostaje bez zmian w przypadku odrzucenia modyfikacji.
+
+Klient jest informowany o każdym etapie przetwarzania zmiany zlecenia. Wymagania specjalne:
+
+System musi zapewniać intuicyjny interfejs umożliwiający Klientowi samodzielne modyfikacje zleceń.
+
+System powinien automatycznie weryfikować zmiany i natychmiast informować Klienta o wyniku weryfikacji. Częstotliwość występowania:
+
+Częstotliwość modyfikacji zleceń zależy od aktywności Klientów i dynamiki zmian w ich potrzebach logistycznych. H U-C 21: Modyfikacja zlecenia przez zapytanie mailowe Pierwotna wersja Aktor główny: Pracownik D-O-K Aktorzy wspierający: Klient, System P-C-C-I Warunki wstępne:
+
+Pracownik D-O-K identyfikuje wiadomość mailową zawierającą zgłoszenie Klienta, która dotyczy zapytania o możliwość modyfikacji warunków zlecenia. Główny przepływ wydarzeń:
+
+Pracownik D-O-K odbiera zapytanie mailowe od Klienta dotyczące modyfikacji zlecenia.
+
+Pracownik D-O-K analizuje zapytanie Klienta i weryfikuje możliwość dokonania zmiany zlecenia.
+
+Pracownik D-O-K zweryfikował, że modyfikacja zlecenia jest możliwa. Pracownik D-O-K przyjmuje zmodyfikowane zlecenie do realizacji. Pracownik D-O-K informuje mailowo Klienta o możliwej zmianie. Pracownik D-O-K zapisuje zmiany w systemie. Alternatywne przepływy:
+
+A3a. Jeżeli zlecenie nie kwalifikuje się do modyfikacji: Zlecenie zostaje odrzucone.
+
+Klient zostaje poinformowany mailowo o braku możliwości wprowadzenia takiej zmiany w zleceniu wraz z przyczyną. Warunki końcowe:
+
+Zlecenie zostało zmodyfikowane zgodnie z życzeniem Klienta lub pozostaje niezmienione, jeśli modyfikacja nie jest możliwa.
+
+Klient jest na bieżąco informowany o statusie zlecenia i wszelkich zmianach, które nastąpiły. Wymagania specjalne:
+
+Pracownik D-O-K musi posiadać umiejętności negocjacyjne i komunikacyjne, aby efektywnie współpracować z Klientem i innymi działami.
+
+Strefa Klienta musi umożliwiać wprowadzanie zmian w zleceniach w sposób elastyczny i kontrolowany. Częstotliwość występowania:
+
+Zależna od częstości pojawiania się błędów w procesie automatycznego przetwarzania zleceń oraz od specyficznych potrzeb Klientów dotyczących modyfikacji zleceń. Uszczegółowienia.
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Specjalista) Aktorzy wspierający: Klient, System Warunki wstępne:
+
+Pracownik P-C-C-I D-O-K (Specjalista) identyfikuje wiadomość mailową zawierającą zgłoszenie Klienta, która dotyczy zapytania o możliwość modyfikacji warunków zlecenia. Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Specjalista) odbiera zapytanie mailowe od Klienta dotyczące modyfikacji zlecenia.
+
+Pracownik P-C-C-I D-O-K (Specjalista) analizuje zapytanie Klienta i weryfikuje możliwość dokonania zmiany zlecenia.
+
+Pracownik P-C-C-I D-O-K (Specjalista) zweryfikował, że modyfikacja zlecenia jest możliwa.
+
+Pracownik P-C-C-I D-O-K (Specjalista) przyjmuje zmodyfikowane zlecenie do realizacji.
+
+Pracownik P-C-C-I D-O-K (Specjalista) informuje mailowo Klienta o możliwej zmianie.
+
+Pracownik P-C-C-I D-O-K (Specjalista) zapisuje zmiany w systemie. Alternatywne przepływy:
+
+A3a. Jeżeli zlecenie nie kwalifikuje się do modyfikacji: Zlecenie zostaje odrzucone.
+
+Klient zostaje poinformowany mailowo o braku możliwości wprowadzenia takiej zmiany w zleceniu wraz z przyczyną. Warunki końcowe:
+
+Zlecenie zostało zmodyfikowane zgodnie z życzeniem Klienta lub pozostaje niezmienione, jeśli modyfikacja nie jest możliwa.
+
+Klient jest na bieżąco informowany o statusie zlecenia i wszelkich zmianach, które nastąpiły. Wymagania specjalne:
+
+Pracownik P-C-C-I D-O-K (Specjalista) musi posiadać umiejętności negocjacyjne i komunikacyjne, aby efektywnie współpracować z Klientem i innymi działami.
+
+Strefa Klienta musi umożliwiać wprowadzanie zmian w zleceniach w sposób elastyczny i kontrolowany. Częstotliwość występowania:
+
+Zależna od częstości pojawiania się błędów w procesie automatycznego przetwarzania zleceń oraz od specyficznych potrzeb Klientów dotyczących modyfikacji zleceń.
+
+H U-C 22: Konsultacja z klientem na temat modyfikacji warunków zlecenia Pierwotna wersja Aktor główny: Pracownik Działu Obsługi Klienta (D-O-K) Aktorzy wspierający: Klient Warunki wstępne:
+
+Pracownik D-O-K identyfikuje w systemie informację o zagrożonym podstawieniu lub braku możliwości realizacji podstawienia.
+
+Konieczne jest wprowadzenie modyfikacji zlecenia z winy P-C-C-I. Główny przepływ wydarzeń:
+
+Pracownik D-O-K przegląda szczegóły zlecenia i analizuje możliwość obsługi zlecenia.
+
+Pracownik D-O-K kontaktuje się z Klientem mailowo i lub lub telefonicznie i proponuje zmianę parametrów zlecenia.
+
+Klient zgadza się na nowe warunki Pracownik D-O-K dokonuje zmiany zlecenia w systemie branżowym i przyjmuje zlecenie do realizacji. Alternatywne przepływy:
+
+A4a. W przypadku, gdy Klient nie akceptuje zaproponowanych zmian warunków:
+
+Pracownik D-O-K konsultuje możliwość realizacji zlecenia z Zespołami Operacyjnymi (na przykład szukanie innego kanału realizacji zlecenia).
+
+Pracownik D-O-K informuje Klienta poprzez maila i Strefę Klienta, że zlecenie nie będzie zrealizowane (jeżeli dzieje się to w trakcie obsługi zlecenia klient de facto musi się zgodzić na jakiś proponowany wariant realizacji). Warunki końcowe:
+
+Zlecenie zostało zmodyfikowane i zaakceptowane przez Klienta, lub proces modyfikacji został zakończony bez wprowadzenia zmian.
+
+Klient jest w pełni poinformowany o ostatecznym statusie zlecenia.
+
+Zlecenie może zostać niezrealizowane, a Klient odpowiednio poinformowany. Wymagania specjalne:
+
+Pracownik D-O-K powinien posiadać umiejętności negocjacyjne, empatię oraz wiedzę techniczną, aby skutecznie prowadzić dialog z Klientem i dopasować warunki zlecenia do możliwości firmy. Częstotliwość występowania:
+
+Zależy od liczby zleceń o wysokim stopniu skomplikowania lub wystąpienia nieoczekiwanych problemów w procesie realizacji. Uszczegółowienia.
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Specjalista) Aktorzy wspierający: Klient.
+
+Pracownik P-C-C-I D-O-K (Specjalista) identyfikuje w systemie informację o zagrożonym podstawieniu lub braku możliwości realizacji podstawienia.
+
+Konieczne jest wprowadzenie modyfikacji zlecenia z winy P-C-C-I. Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Specjalista) przegląda szczegóły zlecenia i analizuje możliwość obsługi zlecenia.
+
+Pracownik P-C-C-I D-O-K (Specjalista) kontaktuje się z Klientem mailowo i lub lub telefonicznie i proponuje zmianę parametrów zlecenia.
+
+Klient zgadza się na nowe warunki, Pracownik P-C-C-I D-O-K (Specjalista) dokonuje zmiany zlecenia w systemie branżowym i przyjmuje zlecenie do realizacji. Alternatywne przepływy:
+
+A4a. W przypadku, gdy Klient nie akceptuje zaproponowanych zmian warunków:
+
+Pracownik P-C-C-I D-O-K (Specjalista) konsultuje możliwość realizacji zlecenia z Działem Operacyjnym (na przykład szukanie innego kanału realizacji zlecenia).
+
+Pracownik P-C-C-I D-O-K (Specjalista) informuje Klienta poprzez maila i Strefę Klienta, że zlecenie nie będzie zrealizowane (jeżeli dzieje się to w trakcie obsługi zlecenia klient de facto musi się zgodzić na jakiś proponowany wariant realizacji). Warunki końcowe:
+
+Zlecenie zostało zmodyfikowane i zaakceptowane przez Klienta, lub proces modyfikacji został zakończony bez wprowadzenia zmian.
+
+Klient jest w pełni poinformowany o ostatecznym statusie zlecenia.
+
+Zlecenie może zostać niezrealizowane, a Klient odpowiednio poinformowany. Wymagania specjalne:
+
+Pracownik P-C-C-I D-O-K (Specjalista) powinien posiadać umiejętności negocjacyjne, empatię oraz wiedzę techniczną, aby skutecznie prowadzić dialog z Klientem i dopasować warunki zlecenia do możliwości firmy. Częstotliwość występowania:
+
+Zależy od liczby zleceń o wysokim stopniu skomplikowania lub wystąpienia nieoczekiwanych problemów w procesie realizacji. H U-C 23: Obsługa zapytań klienta w Strefie Klienta Pierwotna wersja Aktor główny: Chat bot Aktorzy wspierający: Klient, Pracownik D-O-K, Handlowcy Warunki wstępne:
+
+Klient ma aktywne konto w Strefie Klienta i potrzebuje wsparcia lub informacji.
+
+Pracownik D-O-K ma dostęp do narzędzi niezbędnych do obsługi zapytań klientów. Główny przepływ wydarzeń:
+
+Chat bot analizuje zapytanie i identyfikuje rodzaj potrzebnej pomocy lub informacji.
+
+Chat bot udziela odpowiedzi na zapytanie, wykorzystując dostępną wiedzę i zasoby systemu:
+
+Przykładowo Klient pyta o szczegóły zlecenia. ii. Chat bot sprawdza status zlecenia w Strefie Klienta i informuje Klienta. Alternatywne przepływy:
+
+A4a.: w przypadku bardziej skomplikowanych zapytań, Chat bot może eskalować sprawę do Pracownika D-O-K.
+
+Po udzieleniu odpowiedzi lub rozwiązaniu problemu, Pracownik D-O-K dokumentuje interakcję w systemie zarządzania zleceniami.
+
+A4b.: w przypadku zapytań handlowych, chat bot przekazuje sprawę do Handlowców. Warunki końcowe:
+
+Klient otrzymuje potrzebne wsparcie lub informacje dotyczące swojego zlecenia lub zapytania.
+
+Wszystkie interakcje z Klientem są właściwie zarejestrowane w systemie dla celów śledzenia i jakości obsługi. Wymagania specjalne:
+
+System musi umożliwiać efektywną dokumentację interakcji i udostępnianie jej w celach raportowania i analizy. Częstotliwość występowania:
+
+Obsługa zapytań klienta w Strefie Klienta jest działaniem codziennym i częstym, zależnym od aktywności Klientów i ich potrzeb. Uszczegółowienia Opis: Bot ma być asystentem, który pomaga klientowi w trakcie korzystania ze strefy klienta w systemie Logistyka 4.0. Jako asystent bot nie powinien mieć możliwości eskalacji do pracownika D-O-K. Ze względu na brak wybranego interfejsu dla bot'a należy przeprowadzić rozeznanie rynku który model będzie najlepszy.
+
+USZ.7.Z.1 Zmiana H U-C 23 polega na usunięciu przekazywania ścieżki eskalacji czatbot'a do pracownika D-O-K. Bot w momencie, kiedy nie może już dalej udzielić odpowiedzi powinien zakończyć konwersacje.
+
+Czy nadał występuję przekazanie sprawy do Handlowców w przypadku zapytań handlowych?
+
+Wersja końcowa Aktor główny: Chat bot Aktorzy wspierający: Klient, Handlowiec Warunki wstępne:
+
+Klient ma aktywne konto w Strefie Klienta i potrzebuje wsparcia lub informacji. Główny przepływ wydarzeń:
+
+Chat bot analizuje zapytanie i identyfikuje rodzaj potrzebnej pomocy lub informacji.
+
+Chat bot udziela odpowiedzi na zapytanie, wykorzystując dostępną wiedzę i zasoby systemu:
+
+ii. Chat bot sprawdza status zlecenia w Strefie Klienta i informuje Klienta. Alternatywne przepływy:
+
+A4a.: W przypadku bardziej skomplikowanych zapytań, które wykraczają poza możliwości chat bota, bot kończy konwersację, informując klienta, że nie może udzielić dalszej pomocy.
+
+A4b.: w przypadku zapytań handlowych, chat bot przekazuje sprawę do Handlowca. Warunki końcowe:
+
+Klient otrzymuje potrzebne wsparcie lub informacje dotyczące swojego zlecenia lub zapytania.
+
+Wszystkie interakcje z Klientem są właściwie zarejestrowane w systemie dla celów śledzenia i jakości obsługi. Wymagania specjalne:
+
+System musi umożliwiać efektywną dokumentację interakcji i udostępnianie jej w celach raportowania i analizy. Częstotliwość występowania:
+
+Obsługa zapytań klienta w Strefie Klienta jest działaniem codziennym i częstym, zależnym od aktywności Klientów i ich potrzeb. H U-C 24: Obsługa zapytań mailowych Pierwotna wersja Aktor główny: Pracownik D-O-K Aktorzy wspierający: Klient, Dział Handlowy Warunki wstępne:
+
+Klient wysłał zapytanie mailowe do firmy. Główny przepływ wydarzeń:
+
+Pracownik D-O-K analizuje treść zapytania, aby określić rodzaj potrzebnej odpowiedzi lub działania.
+
+Pracownik D-O-K obsługuje zapytanie i udziela informacji Klientowi. Alternatywne przepływy:
+
+A3a. Kwestie sprzedażowe przekazywane będą do Handlowców. Warunki końcowe:
+
+Klient otrzymuje kompletną i satysfakcjonującą odpowiedź na swoje zapytanie.
+
+Interakcje z Klientem są udokumentowane w systemie. Wymagania specjalne:
+
+Pracownik D-O-K musi wykazać się umiejętnością zarządzania wieloma zapytaniami jednocześnie i zachować wysoką jakość obsługi.
+
+Zapytania mailowe od Klientów są codziennym elementem pracy Pracownika D-O-K i mogą pojawiać się z różną częstotliwością w zależności od sezonowości, promocji czy aktualnych wydarzeń w firmie. Uszczegółowienia.
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Specjalista) Aktorzy wspierający: Klient, Handlowiec Warunki wstępne:
+
+Klient wysłał zapytanie mailowe do firmy. Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Specjalista) odbiera zapytanie mailowe od Klienta.
+
+Pracownik P-C-C-I D-O-K (Specjalista) analizuje treść zapytania, aby określić rodzaj potrzebnej odpowiedzi lub działania.
+
+Pracownik P-C-C-I D-O-K (Specjalista) obsługuje zapytanie i udziela informacji Klientowi. Alternatywne przepływy:
+
+A3a. Kwestie sprzedażowe przekazywane będą do Handlowca. Warunki końcowe:
+
+Klient otrzymuje kompletną i satysfakcjonującą odpowiedź na swoje zapytanie.
+
+Interakcje z Klientem są udokumentowane w systemie. Wymagania specjalne:
+
+Pracownik P-C-C-I D-O-K (Specjalista) musi wykazać się umiejętnością zarządzania wieloma zapytaniami jednocześnie i zachować wysoką jakość obsługi.
+
+Zapytania mailowe od Klientów są codziennym elementem pracy Pracownik P-C-C-I D-O-K (Specjalista) i mogą pojawiać się z różną częstotliwością w zależności od sezonowości, promocji czy aktualnych wydarzeń w firmie. Dodatkowe informacje dla kontekstu Obiekty:
+
+Serwis zwolnień kontenerów H U-C 38: Wprowadzenie danych o zwolnieniu kontenera Pierwotna wersja Aktor główny: Armator (Klient depotowy) Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Armator posiada kontenery, które mają być zwolnione do użytku przez Klientów transportowych.
+
+System jest używany do zarządzania informacjami o kontenerach i ich dostępności.
+
+Zwolnienie klientów odbywa poprzez ręczne przypisanie numerów kontenerów do konkretnego numeru bookingu lub ilości zwolnionych kontenerów do konkretnego numeru bookingu, albo poprzez zaciąganie dedykowanej formatki. Możliwa jest integracja w tym zakresie Strefy Klienta z systemem Klienta poprzez A-P-I. Główny przepływ wydarzeń:
+
+Armator przechodzi do sekcji zarządzania kontenerami i wybiera opcję Zwolnienie kontenera.
+
+Armator wprowadza dane dotyczące kontenerów przeznaczonych do zwolnienia, w tym numery identyfikacyjne kontenerów, daty zwolnienia oraz wszelkie dodatkowe wymagania lub ograniczenia dotyczące ich użytkowania.
+
+System automatycznie aktualizuje bazę danych, oznaczając wybrane kontenery jako dostępne do wypożyczenia lub transportu przez Klientów transportowych. Warunki końcowe:
+
+Dane o zwolnieniu kontenerów zostały pomyślnie wprowadzone do systemu.
+
+Kontenery są dostępne dla Klientów transportowych do rezerwacji i użytkowania. Wymagania specjalne:
+
+System musi posiadać funkcjonalność umożliwiającą wprowadzanie i zarządzanie danymi.
+
+Interfejs użytkownika dla armatorów powinien być intuicyjny i zapewniać łatwe wprowadzanie danych. Częstotliwość występowania:
+
+Częstość wprowadzania danych o zwolnieniu kontenerów zależy od operacji logistycznych armatora i fluktuacji w zapotrzebowaniu na kontenery w danym okresie. Uszczegółowienia Opis: Zwalnianie kontenerów przez armatorów zawsze odbywa się mailem i nie ma szans, aby przekierować armatorów do interfejsu Logistyki 4.0.
+
+USZ.10.Z.2 Rozszerzenie H U-C 38 o automatyczna próbę odczytania maila i wykonania operacji zwolnienia. W systemie będzie zdefiniowana lista maili które będą poddawane automatycznej analizie pod kontem zwolnienia. Jeżeli pojawi się mail z podanego adresu na skrzynce do zwolnień system w pierwszej kolejności wykona analizę maila i spróbuje zwolnic kontenery które rozpozna w mailu. Po automatycznym zwolnieniu wyśle zadanie zgodnie z USZ.10.Z.1 ale w zadaniu będzie informacja które kontenery zostały zwolnione automatycznie. Człowiek będzie musiał przejrzeć maila i jeżeli się okaże ze system zwolnił wszystkie kontenery to zadanie zostanie zamknięte a w przypadku błędu systemu człowiek będzie mógł zwolnic dodatkowe kontenery albo cofnąć zwolnienia wykonane przez automat.
+
+Aktorzy wspierający: Pracownik P-C-C-I D-O-K (Specjalista), Armator Warunki wstępne:
+
+Armator posiada kontenery, które mają być zwolnione do użytku przez Klientów transportowych lub zlożone.
+
+System jest używany do zarządzania informacjami o kontenerach i ich dostępności.
+
+Zwolnienie klientów odbywa poprzez ręczne przypisanie numerów kontenerów do konkretnego numeru bookingu lub ilości zwolnionych kontenerów do konkretnego numeru bookingu, albo poprzez zaciąganie dedykowanej formatki. Możliwa jest integracja w tym zakresie Strefy Klienta z systemem Klienta poprzez A-P-I. Główny przepływ wydarzeń:
+
+Armator wysyła powiadomienie mailowe o zwolnieniu lub zlozeniu kontenerów.
+
+System sprawdza skrzynkę mailową do zwolnień lub zlozen, w oparciu o listę zdefiniowanych maili armatorów, pod kątem mailowych zwolnień lub zlozen kontenerów. 3. Jeżeli pojawi się mail z podanego adresu na skrzynce do zwolnień lub zlozen, System w pierwszej kolejności wykona analizę maila i spróbuje przypisac numer zwolnienia lub zlozeniazwolnić kontenerowy, które rozpozna w mailu. 4. Po automatycznym przypisaniu zwolnienia lub zlozeniau, System wyśle zadanie do Pracownika P-C-C-I D-O-K (Specjalista) z informacją, które dla ktorych kontenerowy zostały przypisane zwolnienia lub zlozenianione automatycznie. 5. Pracownik P-C-C-I D-O-K (Specjalista) będzie musiał przejrzeć maila i jeżeli okaże się, że System zwolnił wszystkie kontenery,przypisal wszystkie kontenery do operacji to zadanie zostanie zamknięte. W przypadku błędu Systemu, Pracownik P-C-C-I D-O-K (Specjalista) będzie mógł zwolnić dopisac lub cofnac operacje na dodatkowyche kontenerachy albo cofnąć zwolnienia wykonane przez system. Warunki końcowe:
+
+Dane o zwolnieniu lub podstawieniu kontenerów zostały pomyślnie wprowadzone do systemu.
+
+Kontenery są dostępne dla Klientów transportowych do rezerwacji i użytkowania. Wymagania specjalne:
+
+System musi posiadać funkcjonalność umożliwiającą wprowadzanie i zarządzanie danymi.
+
+Brak informacji o częstotliwości automatycznego przegłądu skrzynki Dodatkowe informacje dla kontekstu Obiekty:
+
+Specyfikacja warunków faktury i wystawienie faktury H U-C 27: Weryfikacja przez klienta przesłanej specyfikacji do faktury Pierwotna wersja Aktor główny: Klient Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Klient otrzymał specyfikację do faktury automatycznie wygenerowaną przez system.
+
+Klient ma dostęp do Strefy Klienta, gdzie może przeglądać i weryfikować przesłane dokumenty. Główny przepływ wydarzeń:
+
+Klient loguje się do Strefy Klienta i odbiera przesłaną specyfikację do faktury.
+
+Klient dokładnie weryfikuje specyfikację pod kątem zgodności z wykonanymi usługami lub dostarczonymi towarami.
+
+W przypadku zgodności specyfikacji, Klient zatwierdza ją w Strefie Klienta lub poprzez odpowiedź mailową. Alternatywne przepływy:
+
+Jeśli Klient znajduje niezgodności, może je zgłosić poprzez funkcjonalności dostępne w Strefie Klienta lub drogą mailową. Warunki końcowe:
+
+Klient zweryfikował specyfikację do faktury. Wymagania specjalne: Nie dotyczy Częstotliwość występowania:
+
+Weryfikacja specyfikacji do faktury przez Klienta ma miejsce każdorazowo po przesłaniu dokumentu, przed jego ostatecznym wystawieniem. Uszczegółowienia.
+
+Wersja końcowa Aktor główny: Klient Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Klient otrzymał specyfikację do faktury automatycznie wygenerowaną przez System.
+
+Klient ma dostęp do Strefy Klienta, gdzie może przeglądać i weryfikować przesłane dokumenty. Główny przepływ wydarzeń:
+
+Klient loguje się do Strefy Klienta i odbiera przesłaną specyfikację do faktury.
+
+Klient dokładnie weryfikuje specyfikację pod kątem zgodności z wykonanymi usługami lub dostarczonymi towarami.
+
+W przypadku zgodności specyfikacji, Klient zatwierdza ją w Strefie Klienta lub poprzez odpowiedź mailową. Alternatywne przepływy:
+
+Jeśli Klient znajduje niezgodności, może je zgłosić poprzez funkcjonalności dostępne w Strefie Klienta lub drogą mailową. Warunki końcowe:
+
+Klient zweryfikował specyfikację do faktury. Wymagania specjalne: Nie dotyczy Częstotliwość występowania:
+
+Weryfikacja specyfikacji do faktury przez Klienta ma miejsce każdorazowo po przesłaniu dokumentu, przed jego ostatecznym wystawieniem. H U-C 28: Identyfikacja odpowiedzi po dokonanej weryfikacji przez klienta Pierwotna wersja Aktor główny: Automat P-C-C-I Aktorzy wspierający: Klient, Pracownik D-O-K Warunki wstępne:
+
+System jest przygotowany do odbioru i przetworzenia odpowiedzi od Klienta. Główny przepływ wydarzeń:
+
+System monitoruje odpowiedzi od Klientów dotyczące przesłanych specyfikacji do faktur.
+
+Po otrzymaniu odpowiedzi od Klienta, system klasyfikuje ją jako pozytywną (akceptacja specyfikacji) lub negatywną (uwagi do specyfikacji).
+
+W przypadku pozytywnej odpowiedzi, system kontynuuje proces fakturowania na podstawie zaakceptowanej specyfikacji. Alternatywne przepływy:
+
+A3a. W przypadku negatywnej odpowiedzi, system automatycznie przekazuje informacje do Pracownika D-O-K w celu dalszej analizy i korekty. Warunki końcowe:
+
+Specyfikacja do faktury jest ostatecznie zaakceptowana przez Klienta i proces fakturowania może być kontynuowany.
+
+Przekazanie negatywnej weryfikacji do Pracownika D-O-K w celu dalszej analizy. Wymagania specjalne:
+
+System musi efektywnie zarządzać i dokumentować wszystkie interakcje związane z procesem weryfikacji i korekty specyfikacji do faktury. Częstotliwość występowania:
+
+Częstotliwość występowania tego przypadku użycia zależy od liczby transakcji wymagających fakturowania oraz od stopnia dokładności i zadowolenia Klientów z początkowo przesłanych specyfikacji. Uszczegółowienia.
+
+Wersja końcowa Aktor główny: System Aktorzy wspierający: Klient, Pracownik P-C-C-I D-O-K (Specjalista) Warunki wstępne:
+
+System jest przygotowany do odbioru i przetworzenia odpowiedzi od Klienta. Główny przepływ wydarzeń:
+
+System monitoruje odpowiedzi od Klientów dotyczące przesłanych specyfikacji do faktur.
+
+Po otrzymaniu odpowiedzi od Klienta, System klasyfikuje ją jako pozytywną (akceptacja specyfikacji) lub negatywną (uwagi do specyfikacji).
+
+W przypadku pozytywnej odpowiedzi, system kontynuuje proces fakturowania na podstawie zaakceptowanej specyfikacji. Alternatywne przepływy:
+
+A3a. W przypadku negatywnej odpowiedzi, system automatycznie przekazuje informacje do Pracownik P-C-C-I D-O-K (Specjalista) w celu dalszej analizy i korekty. Warunki końcowe:
+
+Specyfikacja do faktury jest ostatecznie zaakceptowana przez Klienta i proces fakturowania może być kontynuowany.
+
+Przekazanie negatywnej weryfikacji do Pracownik P-C-C-I D-O-K (Specjalista) w celu dalszej analizy. Wymagania specjalne:
+
+System musi efektywnie zarządzać i dokumentować wszystkie interakcje związane z procesem weryfikacji i korekty specyfikacji do faktury. Częstotliwość występowania:
+
+Częstotliwość występowania tego przypadku użycia zależy od liczby transakcji wymagających fakturowania oraz od stopnia dokładności i zadowolenia Klientów z początkowo przesłanych specyfikacji. H U-C 29: Weryfikacja powodu braku akceptacji przez klienta wysłanej specyfikacji Pierwotna wersja Aktor główny: Pracownik D-O-K Warunki wstępne:
+
+Klient przesłał odpowiedź negatywną dotyczącą specyfikacji do faktury, wskazując na niezgodności lub błędy. Główny przepływ wydarzeń:
+
+Pracownik D-O-K otrzymuje powiadomienie o negatywnej odpowiedzi Klienta z systemu fakturowania.
+
+Pracownik analizuje przesłaną przez Klienta informację zwrotną, aby zrozumieć powód braku akceptacji specyfikacji.
+
+Jeśli potrzebne są dodatkowe informacje lub wyjaśnienia od Klienta, Pracownik D-O-K inicjuje kontakt z Klientem drogą mailową lub telefoniczną.
+
+Na podstawie informacji od Klienta, Pracownik D-O-K dokonuje korekty specyfikacji lub wyjaśnia wszelkie nieporozumienia.
+
+Zmodyfikowana specyfikacja jest ponownie wysyłana do Klienta w celu akceptacji.
+
+Proces jest kontynuowany, aż do osiągnięcia pełnej akceptacji specyfikacji przez Klienta, co umożliwia finalizację faktury. Warunki końcowe:
+
+Specyfikacja do faktury jest zatwierdzona przez Klienta. Proces fakturowania może być kontynuowany. Wymagania specjalne:
+
+Pracownik D-O-K musi posiadać umiejętności negocjacyjne oraz zdolność do szybkiego rozwiązywania problemów.
+
+System musi umożliwiać łatwe modyfikowanie i aktualizowanie specyfikacji do faktury. Częstotliwość występowania:
+
+Częstotliwość zależy od liczby transakcji oraz od precyzji i spójności procesu generowania specyfikacji do faktur Uszczegółowienia.
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Specjalista) Warunki wstępne:
+
+Klient przesłał odpowiedź negatywną dotyczącą specyfikacji do faktury, wskazując na niezgodności lub błędy. Główny przepływ wydarzeń:
+
+Pracownik P-C-C-I D-O-K (Specjalista) otrzymuje powiadomienie o negatywnej odpowiedzi Klienta z systemu fakturowania.
+
+Pracownik P-C-C-I D-O-K (Specjalista) analizuje przesłaną przez Klienta informację zwrotną, aby zrozumieć powód braku akceptacji specyfikacji.
+
+Jeśli potrzebne są dodatkowe informacje lub wyjaśnienia od Klienta, Pracownik P-C-C-I D-O-K (Specjalista) inicjuje kontakt z Klientem drogą mailową lub telefoniczną.
+
+Na podstawie informacji od Klienta, Pracownik P-C-C-I D-O-K (Specjalista) dokonuje korekty specyfikacji lub wyjaśnia wszelkie nieporozumienia.
+
+Zmodyfikowana specyfikacja jest ponownie wysyłana do Klienta w celu akceptacji.
+
+Pracownik P-C-C-I D-O-K (Specjalista) monitoruje odpowiedź Klienta na zmodyfikowaną specyfikację.
+
+Proces jest kontynuowany, aż do osiągnięcia pełnej akceptacji specyfikacji przez Klienta, co umożliwia finalizację faktury. Warunki końcowe:
+
+Specyfikacja do faktury jest zatwierdzona przez Klienta. Proces fakturowania może być kontynuowany.
+
+Pracownik P-C-C-I D-O-K (Specjalista) musi posiadać umiejętności negocjacyjne oraz zdolność do szybkiego rozwiązywania problemów.
+
+System musi umożliwiać łatwe modyfikowanie i aktualizowanie specyfikacji do faktury. Częstotliwość występowania:
+
+Częstotliwość zależy od liczby transakcji oraz od precyzji i spójności procesu generowania specyfikacji do faktur H U-C 30: Weryfikacja otrzymanej specyfikacji do faktury od określonych klientów Pierwotna wersja Aktor główny: Pracownik D-O-K Aktorzy wspierający: Określeni Klienci Warunki wstępne:
+
+Klient, zgodnie z wcześniejszymi ustaleniami lub specyficznymi wymogami, przesłał specyfikację do faktury bezpośrednio do Pracownika D-O-K.
+
+Specyfikacja została przesłana drogą mailową lub poprzez Strefę Klienta.
+
+Możliwe jest stopniowe uczenie systemu formatek dla poszczególnych klientów (opcjonalnie), w takiej sytuacji system automatycznie weryfikowałby specyfikację z listą pozycji do zafakturowania.
+
+Automat rozdziela maile z przesłaną specyfikacją per opiekun danego Klienta (Pracownik D-O-K obsługujący danego Klienta lub osoba go zastępująca w czasie nieobecności). Główny przepływ wydarzeń:
+
+Pracownik przegląda i analizuje przesłaną specyfikację pod kątem kompletności oraz zgodności z wykonanymi usługami lub dostarczonymi towarami.
+
+Weryfikacja pozytywna, Pracownik D-O-K zatwierdza w systemie branżowym zakres (zlecenia danego klienta) podlegający fakturowaniu. Alternatywne przepływy:
+
+A3a. Weryfikacja negatywna - Pracownik D-O-K nie zatwierdza przesłanej specyfikacji przez Klienta:
+
+Pracownik D-O-K kontaktuje się mailowo lub telefonicznie z Klientem w celu wyjaśnień.
+
+Po ustaleniach Klient wysyła raz jeszcze specyfikacje do faktury do Pracownika D-O-K drogą mailową lub lub i przesyła przez Strefę Klienta.
+
+Proces weryfikacji jest kontynuowany do momentu weryfikacji pozytywnej. Warunki końcowe:
+
+Specyfikacja do faktury została zatwierdzona przez obie strony. Proces fakturowania może być kontynuowany. Wymagania specjalne:
+
+Pracownik D-O-K musi posiadać szczegółową wiedzę, aby skutecznie weryfikować specyfikacje.
+
+System powinien być elastyczny, umożliwiając łatwe wprowadzanie zmian i aktualizacje specyfikacji na życzenie Klienta.
+
+Weryfikacja specyfikacji od określonych Klientów może występować regularnie, w zależności od charakteru współpracy i indywidualnych ustaleń z Klientami. Uszczegółowienia.
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Specjalista) Aktorzy wspierający: Określeni Klienci Warunki wstępne:
+
+Klient, zgodnie z wcześniejszymi ustaleniami lub specyficznymi wymogami, przesłał specyfikację do faktury bezpośrednio do Pracownika P-C-C-I D-O-K (Specjalista).
+
+Specyfikacja została przesłana drogą mailową lub poprzez Strefę Klienta.
+
+Możliwe jest stopniowe uczenie systemu formatek dla poszczególnych klientów (opcjonalnierozwój), w takiej sytuacji system automatycznie weryfikowałby specyfikację z listą pozycji do zafakturowania.
+
+System rozdziela maile z przesłaną specyfikacją per opiekun danego Klienta, na przykład Pracownika P-C-C-I D-O-K (Specjalista) obsługujący danego Klienta lub innego Pracownik P-C-C-I D-O-K (Specjalista), zastępującego go w czasie nieobecności). Główny przepływ wydarzeń:
+
+Pracownika P-C-C-I D-O-K (Specjalista) otrzymuje specyfikację do faktury od Klienta.
+
+Pracownika P-C-C-I D-O-K (Specjalista) przegląda i analizuje przesłaną specyfikację pod kątem kompletności oraz zgodności z wykonanymi usługami lub dostarczonymi towarami.
+
+Weryfikacja pozytywna, Pracownika P-C-C-I D-O-K (Specjalista) zatwierdza w systemie branżowym zakres (zlecenia danego klienta) podlegający fakturowaniu. Alternatywne przepływy:
+
+A3a. Weryfikacja negatywna - Pracownika P-C-C-I D-O-K (Specjalista) nie zatwierdza przesłanej specyfikacji przez Klienta:
+
+Pracownika P-C-C-I D-O-K (Specjalista) kontaktuje się mailowo lub telefonicznie z Klientem w celu wyjaśnień.
+
+Po ustaleniach Klient wysyła raz jeszcze specyfikacje do faktury do Pracownika P-C-C-I D-O-K (Specjalista) drogą mailową lub lub i przesyła przez Strefę Klienta.
+
+Proces weryfikacji jest kontynuowany do momentu weryfikacji pozytywnej. Warunki końcowe:
+
+Specyfikacja do faktury została zatwierdzona przez obie strony. Proces fakturowania może być kontynuowany. Wymagania specjalne:
+
+Pracownika P-C-C-I D-O-K (Specjalista) musi posiadać szczegółową wiedzę, aby skutecznie weryfikować specyfikacje.
+
+System powinien być elastyczny, umożliwiając łatwe wprowadzanie zmian i aktualizacje specyfikacji na życzenie Klienta. Częstotliwość występowania:
+
+Weryfikacja specyfikacji od określonych Klientów może występować regularnie, w zależności od charakteru współpracy i indywidualnych ustaleń z Klientami. H U-C 31: Wystawienie faktury automatycznie Pierwotna wersja Aktor główny: Automat P-C-C-I Aktorzy wspierający: Klient, System enova Warunki wstępne:
+
+Zlecenie zostało zrealizowane, a specyfikacja do faktury została zatwierdzona przez Klienta.
+
+System jest skonfigurowany do automatycznego generowania faktur na podstawie zatwierdzonych specyfikacji. Główny przepływ wydarzeń:
+
+System identyfikuje zlecenia gotowe do wystawienia faktury na podstawie zatwierdzonych specyfikacji.
+
+System automatycznie generuje faktury w systemie enova, wykorzystując dane ze specyfikacji oraz informacje o stawkach, podatkach i innych wymaganych elementach.
+
+Wygenerowane faktury są automatycznie wysyłane do Klientów poprzez Strefę Klienta i lub lub drogą mailową, zgodnie z preferencjami komunikacyjnymi Klienta.
+
+Wraz z fakturą dostępne lub wysyłane są wybrane dokumenty, jeżeli tylko Klient ma takie ustawienia konta. Brak tych dokumentów nie wstrzymuje fakturowania.
+
+System aktualizuje status zlecenia i rejestruje informacje o wystawieniu faktury w historii zlecenia. Warunki końcowe:
+
+Faktury są poprawnie wystawione i przesłane do Klientów. Wymagania specjalne:
+
+System enova musi być zintegrowany z Systemem P-C-C-I w celu zapewnienia spójności danych. Częstotliwość występowania:
+
+Proces automatycznego wystawiania faktur odbywa się regularnie, zależnie od liczby zrealizowanych zleceń i zatwierdzonych specyfikacji do faktur. Uszczegółowienia Opis: System Logistyka 4.0 powinien obsługiwać w pełni funkcjonalność fakturowania wraz z dekretacją na konta poszczególnych faktur przychodowych. Dekretacja będzie przypisana do produktów z katalogu produktów.
+
+USZ.8.Z.2 Przy wystawianiu faktury końcowej system powinien sprawdzać, czy istnieje faktura zaliczkowa związana z danych zleceniem i odpowiednio zmodyfikować dekretacje w systemie FK.
+
+USZ.9.Z.1 Zmiana H U-C 31 polega na rozszerzeniu integracji z systemem księgowym o wysyłanie pełnej informacji o tym jak ma być dekretowany dana faktura. Na podstawie produktów które klient ma przypisane do konkretnego zlecenia system będzie dekretował kwotę faktury na poszczególne konta.
+
+USZ.9.Z.2 Zmiana H U-C 31 polega na rozszerzeniu integracji z systemem księgowym o wysyłanie pełnej informacji o tym jak ma być dekretowany dana faktura. Na podstawie produktów które klient ma przypisane do konkretnego zlecenia system będzie dekretował kwotę faktury na poszczególne konta.
+
+Wersja końcowa Aktor główny: System Aktorzy wspierający: Klient, System enova Warunki wstępne:
+
+Zlecenie zostało zrealizowane, a specyfikacja do faktury została zatwierdzona przez Klienta.
+
+System jest skonfigurowany do automatycznego generowania faktur na podstawie zatwierdzonych specyfikacji. Główny przepływ wydarzeń:
+
+System identyfikuje zlecenia gotowe do wystawienia faktury na podstawie zatwierdzonych specyfikacji.
+
+System sprawdza czy istnieje faktura zaliczkowa związana z danym zleceniem i odpowiednio modyfikuje dekretacje w systemie FK (USZ.8.Z.2).
+
+System automatycznie generuje faktury w systemie enova, wykorzystując dane ze specyfikacji oraz informacje o stawkach, podatkach i innych wymaganych elementach.
+
+System wysyła pełną informację o tym, jak ma być dekretowana dana faktura do systemu księgowego. Na podstawie produktów, które klient ma przypisane do konkretnego zlecenia, system dekretuje kwotę faktury na poszczególne konta (USZ.9.Z.1 i USZ.9.Z.2).
+
+Wygenerowane faktury są automatycznie wysyłane do Klientów poprzez Strefę Klienta i lub lub drogą mailową, zgodnie z preferencjami komunikacyjnymi Klienta.
+
+Wraz z fakturą dostępne lub wysyłane są wybrane dokumenty, jeżeli tylko Klient ma takie ustawienia konta. Brak tych dokumentów nie wstrzymuje fakturowania.
+
+System aktualizuje status zlecenia i rejestruje informacje o wystawieniu faktury w historii zlecenia.
+
+System enova musi być zintegrowany z Systemem P-C-C-I w celu zapewnienia spójności danych.
+
+System Logistyka 4.0 powinien obsługiwać w pełni funkcjonalność fakturowania wraz z dekretacją na konta poszczególnych faktur przychodowych. Dekretacja będzie przypisana do produktów z katalogu produktów (Opis).
+
+Proces automatycznego wystawiania faktur odbywa się regularnie, zależnie od liczby zrealizowanych zleceń i zatwierdzonych specyfikacji do faktur. H U-C 32: Ręczne wystawienie faktury dla określonych typów klientów przez system enova Pierwotna wersja Aktor główny: Pracownik D-O-K Aktorzy wspierający: Klient, System enova Warunki wstępne:
+
+Klient spełnia kryteria wymagające ręcznego wystawienia faktury (na przykład specjalne warunki umowy, wymagania dotyczące szczegółowej specyfikacji).
+
+Zlecenie zostało zrealizowane, a specyfikacja do faktury została zatwierdzona przez Klienta. Główny przepływ wydarzeń:
+
+System identyfikuje zlecenie lub transakcję kwalifikującą się do ręcznego wystawienia faktury na podstawie wcześniej ustalonych kryteriów i informuje o tym Pracownik D-O-K.
+
+Pracownik loguje się do systemu i lokalizuje odpowiednie zlecenie lub transakcję w systemie.
+
+Pracownik dla każdej faktury może wykonać jedno lub wiele z dostępnych czynności. Jednym typem operacji może być polecenie rozbij fakturę - w efekcie na usługi dodatkowe wystawiana jest osobna faktura niż na transportowe.
+
+Przed finalizacją, Pracownik dokonuje weryfikacji poprawności danych i zgodności faktury z wymogami Klienta.
+
+Pracownik klika zatwierdź fakturę do wystawienia. Fakturowanie kontynuowane jest zgodnie z UC31. Warunki końcowe:
+
+Ręczne rozbicie faktury zostało zatwierdzone przez Pracownika D-O-K. Wymagania specjalne:
+
+Pracownicy D-O-K muszą być dokładnie przeszkoleni w obsłudze systemu, szczególnie w zakresie ręcznego wystawiania faktur.
+
+System enova musi być zintegrowany z Systemem P-C-C-I w celu zapewnienia spójności danych. Częstotliwość występowania:
+
+Ręczne wystawianie faktur może mieć miejsce w zależności od indywidualnych umów z określonymi typami Klientów lub w specyficznych sytuacjach wymagających szczegółowej kontroli faktury.
+
+Uszczegółowienia Opis: System Logistyka 4.0 powinien obsługiwać w pełni funkcjonalność fakturowania wraz z dekretacją na konta poszczególnych faktur przychodowych. Dekretacja będzie przypisana do produktów z katalogu produktów.
+
+USZ.8.Z.3 Przy wystawianiu faktury końcowej system powinien sprawdzać, czy istnieje faktura zaliczkowa związana z danym zleceniem i odpowiednio zmodyfikować dekretacje w systemie FK.
+
+USZ.9.Z.2 Zmiana H U-C 32 polega na rozszerzeniu integracji z systemem księgowym o wysyłanie pełnej informacji o tym jak ma być dekretowany dana faktura. Na podstawie produktów które klient ma przypisane do konkretnego zlecenia system będzie dekretował kwotę faktury na poszczególne konta.
+
+Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Specjalista) Aktorzy wspierający: Klient, System enova Warunki wstępne:
+
+Klient spełnia kryteria wymagające ręcznego wystawienia faktury (na przykład specjalne warunki umowy, wymagania dotyczące szczegółowej specyfikacji, została wykonana dodatkowa usługa nie ujęta w pierwotnym planie).
+
+Zlecenie zostało zrealizowane, a specyfikacja do faktury została zatwierdzona przez Klienta.
+
+System identyfikuje zlecenie lub transakcję kwalifikującą się do ręcznego wystawienia faktury na podstawie wcześniej ustalonych kryteriów i informuje o tym Pracownika P-C-C-I D-O-K (Specjalista).
+
+System sprawdza czy istnieje faktura zaliczkowa związana z danym zleceniem i odpowiednio modyfikuje dekretacje w systemie FK (USZ.8.Z.3).
+
+System wysyła pełną informację o tym, jak ma być dekretowana dana faktura do systemu księgowego. Na podstawie produktów, które klient ma przypisane do konkretnego zlecenia, system dekretuje kwotę faktury na poszczególne konta (USZ.9.Z.2).
+
+Pracownik P-C-C-I D-O-K (Specjalista) weryfikuje powiadomienie o konieczności ręcznego fakturowania.
+
+Pracownik P-C-C-I D-O-K (Specjalista) loguje się do systemu i lokalizuje odpowiednie zlecenie lub transakcję w systemie.
+
+Pracownik P-C-C-I D-O-K (Specjalista) dla każdej faktury może wykonać jedno lub wiele z dostępnych czynności. Jednym typem operacji może być polecenie rozbij fakturę - w efekcie na usługi dodatkowe wystawiana jest osobna faktura niż na transportowe.
+
+Przed finalizacją, Pracownik P-C-C-I D-O-K (Specjalista) dokonuje weryfikacji poprawności danych i zgodności faktury z wymogami Klienta.
+
+Pracownik P-C-C-I D-O-K (Specjalista) klika zatwierdź fakturę do wystawienia.
+
+Ręczne rozbicie faktury zostało zatwierdzone przez Pracownika P-C-C-I D-O-K (Specjalista). Wymagania specjalne:
+
+Pracownik P-C-C-I D-O-K (Specjalista) musi być dokładnie przeszkolony w obsłudze systemu, szczególnie w zakresie ręcznego wystawiania faktur.
+
+System enova musi być zintegrowany z Systemem P-C-C-I w celu zapewnienia spójności danych.
+
+System Logistyka 4.0 powinien obsługiwać w pełni funkcjonalność fakturowania wraz z dekretacją na konta poszczególnych faktur przychodowych. Dekretacja będzie przypisana do produktów z katalogu produktów (Opis).
+
+Ręczne wystawianie faktur może mieć miejsce w zależności od indywidualnych umów z określonymi typami Klientów lub w specyficznych sytuacjach wymagających szczegółowej kontroli faktury. Dodatkowe informacje dla kontekstu Obiekty:
+
+Serwis płatności H U-C 33: Przesłanie powiadomienia do klienta 3 Dni przed terminem płatności Pierwotna wersja Aktor główny: Automat P-C-C-I Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Faktura została wystawiona w systemie enova i przekazana Klientowi.
+
+Termin płatności faktury zbliża się i wynosi mniej niż 3 dni. Główny przepływ wydarzeń:
+
+System enova codziennie przegląda bazę danych faktur w poszukiwaniu tych, których termin płatności wynosi 3 dni.
+
+Po identyfikacji faktur spełniających kryterium, system automatycznie generuje powiadomienie o zbliżającym się terminie płatności.
+
+Jedno powiadomienie jest wysyłane do Klienta drogą elektroniczną (e-mail) oraz przez Strefę Klienta.
+
+W powiadomieniu zawarte są szczegóły wszystkich niezapłaconych faktur, w tym kwota do zapłaty, numer faktury oraz przypomnienie o terminie płatności, a także informacja.
+
+dacie nałożenia blokady w przypadku braku płatności w terminie zapłaty faktury. Warunki końcowe:
+
+Klient otrzymuje powiadomienie o zbliżającym się terminie płatności. Wymagania specjalne:
+
+System enova musi być zintegrowany z Systemem P-C-C-I w celu zapewnienia spójności danych. Częstotliwość występowania:
+
+Proces wysyłania powiadomień o zbliżającym się terminie płatności jest codzienną praktyką systemu enova, zależną od liczby wystawionych i obowiązujących faktur. Uszczegółowienia Opis: Proces notyfikacji o płatnościach powinien wysyłać wiele powiadomień według założonego schematu zarówno do klienta jak i opiekuna, handlowca i windykatora. Proces powinien moc być włączany i wyłączany dla poszczególnych jednostek organizacyjnych w ramach podmiotów gospodarczych.
+
+USZ.11.Z.1 Zmiana w H U-C 33 polega na zmianie procesu powiadomienia. Po pierwsze proces będzie uruchamiany tylko dla faktur związanych z jednostkami organizacyjnymi dla których proces powiadamiania nie jest włączony (zakładamy ze dla wszystkich jest włączony i można zdefiniować kogo pomijamy). Następnie na podstawie reguł ogólnych (dla wszystkich) lub szczegółowych (dla wskazanych podmiotow) system będzie generował powiadomienie na X dni przed terminem płatność o z informacja do kiedy należy opłacić fakturę (powiadomienie tylko do klienta). Kolejne powiadomienie będzie generowane w dniu wpłaty i będzie wysylane do klienta i handlowaca lub opiekuna przypominający ze w danym dniu upływa termin płatność faktury. Ostatnie powiadomienie będzie generowane na Y dni po terminie platnosc żeby potwierdzić, iż wplata za fakturę nie została odnotowana. To ostatnie powiadomienie będzie również generowane do pracownika z rola Windykatora. Treści wszystkich 3 powiadomień będzie można edytować w systemie w tym samym miejscu w którym ustawia się X i Y dni.
+
+Wersja końcowa Aktor główny: System Aktorzy wspierający: Nie dotyczy Warunki wstępne:
+
+Faktura została wystawiona w systemie enova i przekazana Klientowi.
+
+Termin płatności faktury zbliża się i wynosi mniej niż 3 dni. Główny przepływ wydarzeń:
+
+System enova codziennie przegląda bazę danych faktur w poszukiwaniu tych, których termin płatności wynosi 3 dni.
+
+Po identyfikacji faktur spełniających kryterium, system sprawdza, czy proces powiadamiania jest włączony dla jednostki organizacyjnej związanej z fakturą. Jeśli nie, proces powiadamiania jest pomijany dla tej jednostki. (USZ.11.Z.1).
+
+Na podstawie reguł ogólnych (dla wszystkich) lub szczegółowych (dla wskazanych podmiotów), system generuje powiadomienie na X dni przed terminem płatności z informacją, do kiedy należy opłacić fakturę (powiadomienie tylko do klienta). (USZ.11.Z.1).
+
+Kolejne powiadomienie jest generowane w dniu płatności i wysyłane do klienta oraz handlowca lub opiekuna, przypominając, że w danym dniu upływa termin płatności faktury. (USZ.11.Z.1).
+
+Ostatnie powiadomienie jest generowane na Y dni po terminie płatności, aby potwierdzić, że wpłata za fakturę nie została odnotowana. To ostatnie powiadomienie jest również generowane do pracownika z rolą Windykatora. (USZ.11.Z.1).
+
+Powiadomienia są wysyłane do Klienta drogą elektroniczną (e-mail) oraz przez Strefę Klienta.
+
+W powiadomieniach zawarte są szczegóły wszystkich niezapłaconych faktur, w tym kwota do zapłaty, numer faktury oraz przypomnienie o terminie płatności, a także informacja o dacie nałożenia blokady w przypadku braku płatności w terminie zapłaty faktury.
+
+Treści wszystkich 3 powiadomień można edytować w systemie w tym samym miejscu, w którym ustawia się X i Y dni. (USZ.11.Z.1) Warunki końcowe:
+
+Klient otrzymuje powiadomienie o zbliżającym się terminie płatności. Wymagania specjalne:
+
+System enova musi być zintegrowany z Systemem P-C-C-I w celu zapewnienia spójności danych. Częstotliwość występowania:
+
+Proces wysyłania powiadomień o zbliżającym się terminie płatności jest codzienną praktyką systemu enova, zależną od liczby wystawionych i obowiązujących faktur. H U-C 34: Założenie automatycznej blokady na klienta Pierwotna wersja Aktor główny: Automat P-C-C-I Aktorzy wspierający: Klient Warunki wstępne:
+
+Faktura wystawiona dla Klienta nie została opłacona w wyznaczonym terminie. Główny przepływ wydarzeń:
+
+System codziennie analizuje bazę danych faktur w poszukiwaniu tych, które przekroczyły termin płatności.
+
+Po identyfikacji faktur z przeterminowaną płatnością, system sprawdza, czy suma zaległości Klienta przekracza ustalony próg dopuszczalnego zadłużenia.
+
+Jeśli suma zaległości jest wyższa niż ustalony próg, system automatycznie nakłada blokadę na konto Klienta, ograniczając jego możliwości składania nowych zamówień lub korzystania z usług.
+
+Klient otrzymuje automatyczne powiadomienie o nałożonej blokadzie oraz instrukcje dotyczące uregulowania zaległości, aby przywrócić pełną funkcjonalność konta. Alternatywne przepływy:
+
+A2a. Jeśli suma zaległości nie przekracza ustalonego progu system nie nakłada blokady.
+
+A3b. W przypadku wybranych Klientów opcja automatycznej blokady jest nieaktywna na rzecz UC35. Warunki końcowe:
+
+Konto Klienta zostaje zablokowane do momentu uregulowania zaległości lub Klient mieści się w limicie zadłużenia. Wymagania specjalne:
+
+System musi mieć możliwość elastycznego ustawiania progów zadłużenia, które inicjują nakładanie lub zdejmowanie blokady. Częstotliwość występowania:
+
+Proces automatycznego nakładania i zdejmowania blokad jest procesem ciągłym, aktywowanym w przypadku wystąpienia przeterminowanych płatności. Uszczegółowienia Opis: Proces obsługi blokad ręcznych i automacznych wymaga dodatkowych uprawnień i specjalnych widoków.
+
+USZ.12.Z.3 W H U-C 34 i w H U-C 11 mechanizm odraczania blokad powoduje ze dla klientów, dla których zostało ustawione odroczenie dla wskazanego zakresu dat, system pomimo założenia blokady ręcznej lub automatycznej zachowuje się tak jakby blokady nie było.
+
+Wersja końcowa Aktor główny: System Aktorzy wspierający: Klient Warunki wstępne:
+
+Faktura wystawiona dla Klienta nie została opłacona w wyznaczonym terminie. Główny przepływ wydarzeń:
+
+System codziennie analizuje bazę danych faktur w poszukiwaniu tych, które przekroczyły termin płatności.
+
+Po identyfikacji faktur z przeterminowaną płatnością, system sprawdza, czy suma zaległości Klienta przekracza ustalony próg dopuszczalnego zadłużenia.
+
+System sprawdza, czy dla Klienta zostało ustawione odroczenie blokady dla wskazanego zakresu dat. Jeśli tak, system pomimo założenia blokady ręcznej lub automatycznej zachowuje się tak, jakby blokady nie było. (USZ.12.Z.3).
+
+Jeśli suma zaległości jest wyższa niż ustalony próg, system automatycznie nakłada blokadę na konto Klienta, ograniczając jego możliwości składania nowych zamówień lub korzystania z usług.
+
+Klient otrzymuje automatyczne powiadomienie o nałożonej blokadzie oraz instrukcje dotyczące uregulowania zaległości, aby przywrócić pełną funkcjonalność konta. Alternatywne przepływy:
+
+A2a. Jeśli suma zaległości nie przekracza ustalonego progu, system nie nakłada blokady.
+
+A3b. W przypadku wybranych Klientów opcja automatycznej blokady jest nieaktywna na rzecz UC35. Warunki końcowe:
+
+Konto Klienta zostaje zablokowane do momentu uregulowania zaległości lub Klient mieści się w limicie zadłużenia. Wymagania specjalne:
+
+System musi mieć możliwość elastycznego ustawiania progów zadłużenia, które inicjują nakładanie lub zdejmowanie blokady. Częstotliwość występowania:
+
+Proces automatycznego nakładania i zdejmowania blokad jest procesem ciągłym, aktywowanym w przypadku wystąpienia przeterminowanych płatności.
+
+H U-C 35: Założenie ręcznej blokady na klientów strategicznych Pierwotna wersja Aktor główny: Pracownik D-O-K Aktorzy wspierający: Klient Strategiczny, Automat P-C-C-I Warunki wstępne:
+
+Istnieją indywidualne procedury postępowania z Klientami Strategicznymi, które wymagają ręcznej interwencji zamiast automatycznej blokady. Główny przepływ wydarzeń:
+
+Automat P-C-C-I identyfikuje przeterminowaną płatność od Klienta Strategicznego i powiadamia o tym Pracownika D-O-K.
+
+Automat P-C-C-I generuje zadanie dla Upoważnionego Pracownika D-O-K: Termin płatności dla Klienta minął i należy podjąć decyzje o nałożeniu blokady.
+
+Pracownik D-O-K analizuje sytuację, biorąc pod uwagę historię współpracy z Klientem.
+
+Upoważniony Pracownik D-O-K nie zakłada blokady na Klienta Strategicznego.
+
+Pracownik D-O-K kontaktuje się z Klientem Strategicznym mailowo lub telefonicznie w celu przypomnienia o konieczności dokonania zapłaty, informacja trafia także na Strefę Klienta. Alternatywne przepływy:
+
+A4a. Pracownik decyduje o założeniu ręcznej blokady na konto Klienta Strategicznego.
+
+Po założeniu blokady Automat wysyła odpowiednią wiadomość mailową, informacja trafia też na Strefę Klienta. Warunki końcowe:
+
+Pracownik D-O-K podjął decyzję o założeniu blokady lub nie założył blokady i skontaktował się z klientem w celu przypomnienia dokonania zapłaty. Wymagania specjalne:
+
+System powinien umożliwiać ręczne zarządzanie blokadami na kontach Klientów, z dostępem ograniczonym do uprawnionych pracowników.
+
+Sytuacje wymagające ręcznego założenia blokady na Klientach Strategicznych są rzadkie i zależą od indywidualnych okoliczności oraz polityki firmy wobec Klientów Strategicznych. Uszczegółowienia Opis: Proces obsługi blokad ręcznych i automacznych wymaga dodatkowych uprawnień i specjalnych widoków.
+
+Pytania Wersja końcowa Aktor główny: Pracownik P-C-C-I D-O-K (Specjalista) Aktorzy wspierający: Klient Strategiczny, System Warunki wstępne:
+
+Istnieją indywidualne procedury postępowania z Klientami Strategicznymi, które wymagają ręcznej interwencji zamiast automatycznej blokady. Główny przepływ wydarzeń:
+
+System identyfikuje przeterminowaną płatność od Klienta Strategicznego i powiadamia o tym Pracownika P-C-C-I D-O-K (Specjalista).
+
+System generuje zadanie dla Upoważnionego Pracownika P-C-C-I D-O-K (Specjalista) Termin płatności dla Klienta minął i należy podjąć decyzje o nałożeniu blokady.
+
+Pracownik P-C-C-I D-O-K (Specjalista) analizuje sytuację, biorąc pod uwagę historię współpracy z Klientem.
+
+Upoważniony Pracownik P-C-C-I D-O-K (Specjalista) nie zakłada blokady na Klienta Strategicznego.
+
+Pracownik P-C-C-I D-O-K (Specjalista) kontaktuje się z Klientem Strategicznym mailowo lub telefonicznie w celu przypomnienia o konieczności dokonania zapłaty, informacja trafia także na Strefę Klienta. Alternatywne przepływy:
+
+A4a. Pracownik P-C-C-I D-O-K (Specjalista) decyduje o założeniu ręcznej blokady na konto Klienta Strategicznego.
+
+Po założeniu blokady System wysyła odpowiednią wiadomość mailową, informacja trafia też na Strefę Klienta. Warunki końcowe:
+
+Pracownik P-C-C-I D-O-K (Specjalista) podjął decyzję o założeniu blokady lub nie założył blokady i skontaktował się z klientem w celu przypomnienia dokonania zapłaty. Wymagania specjalne:
+
+System powinien umożliwiać ręczne zarządzanie blokadami na kontach Klientów, z dostępem ograniczonym do uprawnionych pracowników. Częstotliwość występowania:
+
+Sytuacje wymagające ręcznego założenia blokady na Klientach Strategicznych są rzadkie i zależą od indywidualnych okoliczności oraz polityki firmy wobec Klientów Strategicznych.
+
+H U-C 36: Automatyczne zdjęcie blokady Pierwotna wersja Aktor główny: Automat P-C-C-I Aktorzy wspierający: System enova, Klient Warunki wstępne:
+
+Na koncie Klienta została nałożona blokada z powodu nieuregulowanych płatności.
+
+System jest skonfigurowany do monitorowania wpłat i automatycznego zarządzania statusami blokad.
+
+System P-C-C-I jest zintegrowany z systemem enova w celu zachowania spójności danych. Główny przepływ wydarzeń:
+
+Gdy system wykryje wpłatę pokrywającą całość zaległości od Klienta z nałożoną blokadą, automatycznie przeprowadza proces weryfikacji, aby upewnić się, że wszystkie zobowiązania zostały uregulowane.
+
+Po pozytywnej weryfikacji wpłaty i pokryciu zaległości, system automatycznie zdejmuje blokadę z konta Klienta, przywracając mu pełną funkcjonalność dostępu do usług i możliwość składania nowych zamówień. Alternatywne przepływy:
+
+System utrzymuje blokadę i informuje Klienta o pozostałej kwocie do uregulowania. Warunki końcowe:

@@ -1,0 +1,331 @@
+High level design — dokument główny, część 2.
+
+Wsparcie dla snapshotów i backupów - Longhorn oferuje rozbudowane możliwości tworzenia snapshotów i backupów, umożliwiając łatwe tworzenie kopii zapasowych danych oraz ich przywracanie. Backupy mogą być przechowywane lokalnie lub w zdalnych lokalizacjach, co umożliwia elastyczne strategie ochrony danych.
+
+Elastyczne skalowanie - Longhorn umożliwia łatwe skalowanie pamięci masowej w górę lub w dół, dostosowując się do zmieniających się wymagań aplikacji. Zarządzanie przestrzenią dyskową jest dynamiczne i może być dostosowywane w locie, co znacząco ułatwia administrację.
+
+Integracja z Kubernetes - Longhorn jest głęboko zintegrowany z Kubernetes, oferując natywne wsparcie dla Persistent Volumes (PV) i Persistent Volume Claims (PVC), co umożliwia aplikacjom korzystanie z pamięci masowej w sposób transparentny i efektywny.
+
+Odporność na rozdział strefowy i katastrofy - dzięki możliwości konfiguracji replikacji między różnymi strefami i regionami, Longhorn zwiększa odporność systemu na rozległe awarie i katastrofy, zapewniając ciągłość działania usług krytycznych.
+
+Otwarty kod źródłowy i aktywna społeczność - jako projekt open source, Longhorn ma aktywną społeczność deweloperów i użytkowników, którzy ciągle pracują nad jego rozwojem i ulepszaniem. Dostęp do bogatej dokumentacji, szybka reakcja na zgłaszane problemy oraz regularne aktualizacje są kluczowe dla utrzymania bezpieczeństwa i stabilności systemu.
+
+Wsparcie dla wielu typów woluminów - Longhorn obsługuje różnorodne typy woluminów, w tym woluminy blokowe, co pozwala na ich wykorzystanie w szerokim zakresie aplikacji i usług działających w klastrze Kubernetes.
+
+Zarzadzania certyfikatami Cert-manager jest wysoce rekomendowanym narzędziem do automatyzacji zarządzania certyfikatami Let's Encrypt w środowisku Kubernetes. Jest to otwartoźródłowy projekt, który ułatwia uzyskanie, odnowienie i wykorzystanie certyfikatów SSL lub TLS dla usług działających w klastrze.
+
+Kluczowe zalety wykorzystania cert-managera do zarządzania certyfikatami Let's Encrypt w Kubernetes:
+
+Automatyzacja procesu certyfikacji - Cert-manager automatyzuje proces uzyskiwania, odnawiania i stosowania certyfikatów SSL lub TLS, eliminując konieczność ręcznego interweniowania. Dzięki temu, proces zarządzania certyfikatami staje się bezproblemowy i nie wymaga ciągłej uwagi.
+
+Łatwa integracja z Let's Encrypt - Cert-manager został zaprojektowany z myślą o łatwej integracji z Let's Encrypt, umożliwiając szybkie i bezproblemowe uzyskanie certyfikatów. Konfiguracja dla Let's Encrypt jest prosta i może być wykonana za pomocą kilku linii YAML w konfiguracji Kubernetes.
+
+Wsparcie dla wielu źródeł certyfikatów - oprócz Let's Encrypt, cert-manager wspiera szereg innych dostawców certyfikatów, co daje użytkownikom elastyczność w wyborze najlepszego rozwiązania dla swoich potrzeb, jednocześnie utrzymując jednolity sposób zarządzania nimi.
+
+Zarządzanie politykami certyfikacji - Cert-manager pozwala na definiowanie polityk wydawania certyfikatów, co ułatwia stosowanie najlepszych praktyk bezpieczeństwa i zapewnia spójność w całym klastrze. Użytkownicy mogą określać, jak często certyfikaty powinny być odnawiane, jakie algorytmy kryptograficzne powinny być używane i tym podobne.
+
+Obsługa wildcard certificates - Cert-manager umożliwia łatwe uzyskanie certyfikatów typu wildcard z Let's Encrypt, co jest szczególnie przydatne dla organizacji zarządzających wieloma poddomenami pod jedną główną domeną.
+
+Automatyczne odnawianie certyfikatów - jedną z największych zalet cert-managera jest jego zdolność do automatycznego odnawiania certyfikatów przed ich wygaśnięciem, co zapewnia ciągłe bezpieczeństwo i ochronę danych przesyłanych przez Internet.
+
+Zgodność z Kubernetes - Cert-manager jest zaprojektowany specjalnie dla Kubernetes, co oznacza, że doskonale integruje się z tym środowiskiem i wykorzystuje jego możliwości do zarządzania certyfikatami.
+
+Zarządzanie DNS'ami na zewnątrz klastra ExternalDNS to nieocenione narzędzie dla administratorów klastrów Kubernetes, które automatycznie zarządza rekordami DNS w zewnętrznych systemach DNS na podstawie zasobów znajdujących się w klastrze. Jego wykorzystanie sprawia, że proces synchronizacji usług eksponowanych przez Kubernetes z zewnętrznymi systemami DNS staje się niemal bezobsługowy.
+
+Kluczowe powody, dla których ExternalDNS jest polecane do aktualizacji wpisów w zewnętrznym DNS:
+
+Automatyzacja zarządzania rekordami DNS - ExternalDNS automatycznie tworzy, aktualizuje i usuwa rekordy DNS odpowiadające usługom lub ingressom w klastrze Kubernetes, co znacząco redukuje potrzebę ręcznego zarządzania tymi rekordami.
+
+Łatwa integracja z wieloma dostawcami DNS - ExternalDNS wspiera szeroki zakres dostawców usług DNS, w tym AWS Route 53, Google Cloud DNS, Microsoft Azure DNS,.
+
+Cloudflare i wiele innych. To zapewnia elastyczność i pozwala na łatwą integrację z istniejącą infrastrukturą.
+
+Dynamiczne zarządzanie środowiskiem - w środowiskach, gdzie serwisy są często dodawane, aktualizowane lub usuwane, ExternalDNS zapewnia, że zmiany te są automatycznie odzwierciedlane w konfiguracji DNS, co jest kluczowe dla utrzymania dostępności usług i aplikacji.
+
+Prostota konfiguracji i użyteczność - konfiguracja ExternalDNS jest prosta i może być szybko wdrożona jako część klastra Kubernetes. Możliwość kontroli nad zachowaniem ExternalDNS przez standardowe zasoby Kubernetes, takie jak annotacje w usługach i ingressach, dodatkowo podnosi jego użyteczność.
+
+Poprawa bezpieczeństwa - automatyzacja zarządzania rekordami DNS przy pomocy ExternalDNS może przyczynić się do poprawy bezpieczeństwa, zapobiegając ludzkim błędom, takim jak nieaktualne rekordy DNS, które mogą prowadzić do problemów z dostępnością lub potencjalnych luk w zabezpieczeniach.
+
+Wsparcie dla polityk zarządzania rekordami - ExternalDNS oferuje różne polityki zarządzania rekordami, umożliwiające administratorom precyzyjne kontrolowanie, jakie rekordy są tworzone lub aktualizowane. Daje to dodatkową warstwę kontroli nad zmianami wprowadzanymi w zewnętrznym DNS.
+
+Zarządzanie klastrami Kubernetes Rancher jest zaawansowaną platformą do zarządzania kontenerami, która ułatwia wdrażanie, zarządzanie i skalowanie środowisk Kubernetes w różnych infrastrukturach, od lokalnych centrów danych po publiczne i prywatne chmury.
+
+Kluczowe argumenty przemawiające za wyborem Ranchera jako aplikacji do zarządzania wieloma środowiskami Kubernetes:
+
+Centralne zarządzanie - Rancher oferuje jednolity interfejs do zarządzania wieloma klastrami Kubernetes, niezależnie od ich lokalizacji czy dostawcy infrastruktury. Umożliwia to administratorom łatwe zarządzanie dostępem, politykami bezpieczeństwa i konfiguracją na poziomie centralnym, znacznie upraszczając administrację wielu środowisk.
+
+Wsparcie dla wielu dostawców chmury - Rancher jest zbudowany z myślą.
+
+agnostyczności wobec infrastruktury, co oznacza, że wspiera zarówno klastry Kubernetes uruchomione na własnym sprzęcie (on-premises), jak i te wdrożone u głównych dostawców chmury, takich jak AWS, Google Cloud Platform i Microsoft Azure. Ta elastyczność pozwala na łatwe przenoszenie aplikacji między różnymi środowiskami.
+
+Automatyzacja wdrażania klastrów - Rancher upraszcza i automatyzuje proces tworzenia nowych klastrów Kubernetes, pozwalając na szybkie skalowanie operacji i wdrażanie nowych środowisk zgodnie z potrzebami biznesowymi. Użytkownicy mogą korzystać z gotowych szablonów, co jeszcze bardziej przyspiesza proces wdrażania.
+
+Zintegrowane narzędzia do monitoringu i zarządzania wydajnością - Rancher dostarcza wbudowane narzędzia do monitoringu i zarządzania wydajnością klastrów i aplikacji, umożliwiając użytkownikom szybkie identyfikowanie i rozwiązywanie problemów. Zaawansowane dashboardy oferują wgląd w zużycie zasobów, stan zdrowia klastrów i statystyki ruchu sieciowego.
+
+Zaawansowane zarządzanie politykami bezpieczeństwa - Platforma oferuje kompleksowe możliwości zarządzania bezpieczeństwem, w tym zarządzanie tożsamościami i dostępem (IAM), integrację z zewnętrznymi usługami uwierzytelniania oraz możliwość definiowania i egzekwowania polityk bezpieczeństwa na poziomie klastra i aplikacji.
+
+Wsparcie dla strategii GitOps - Rancher wspiera praktyki GitOps, umożliwiając zarządzanie konfiguracją i wersjonowanie infrastruktury przy użyciu repozytoriów Git. To ułatwia automatyzację procesów wdrażania i zapewnia większą kontrolę nad zmianami w infrastrukturze.
+
+Bezpieczeństwo klastra Kubernetes NeuVector stanowi kompleksowe rozwiązanie do zarządzania bezpieczeństwem kontenerów i klastrów Kubernetes, oferując zaawansowane funkcje ochrony, automatyzację polityk bezpieczeństwa, głębokie skanowanie podatności oraz wsparcie dla różnorodnych środowisk. Dzięki swojej elastyczności, skalowalności i skuteczności, NeuVector jest doskonałym wyborem dla organizacji, które chcą zabezpieczyć swoje aplikacje kontenerowe i infrastrukturę.
+
+Kluczowe powody, dla których NeuVector jest rekomendowany do ochrony środowiska Kubernetes:
+
+Zaawansowana ochrona w czasie rzeczywistym - NeuVector automatycznie wykrywa i blokuje ataki w czasie rzeczywistym, wykorzystując zaawansowane technologie takie jak behawioralne analizy sieci, skanowanie podatności i inspekcja ruchu. Zapewnia to skuteczną ochronę przed zagrożeniami wewnętrznymi i zewnętrznymi.
+
+Kompleksowa analiza podatności - rozwiązanie oferuje głębokie skanowanie kontenerów, obrazów i klastrów pod kątem znanych podatności, dostarczając szczegółowych informacji o potencjalnych zagrożeniach. Dzięki temu, zespoły mogą szybko identyfikować i naprawiać słabe punkty bezpieczeństwa w swoich aplikacjach.
+
+Automatyczne tworzenie polityk bezpieczeństwa - NeuVector automatycznie generuje polityki bezpieczeństwa oparte na zachowaniu aplikacji, co znacząco upraszcza proces i przechowywanie danych metrycznych.
+
+Eksporterzy: Zewnętrzne aplikacje dostarczające metryk z różnych źródeł, takich jak bazy danych czy systemy operacyjne.
+
+Grafana: Narzędzie do wizualizacji danych, często wykorzystywane w tandemie z Prometheusem.
+
+Prometheus pobiera metryki z konfigurowalnych endpointów w regularnych odstępach czasu, przechowuje je i umożliwia ich analizę za pomocą specjalistycznego języka zapytań, PromQL.
+
+PostgreSQL, znany również jako Postgres, jest obiektowo-relacyjnym systemem zarządzania bazą danych (ORDBMS), cenionym za swoją niezawodność, zaawansowane funkcje obsługi danych i wsparcie dla standardów S-Q-L. Z drugiej strony, MariaDB, będąca forkiem MySQL, oferuje wysoką wydajność, bogaty zestaw funkcji oraz silne wsparcie dla operacji na dużych zbiorach danych, co czyni ją atrakcyjną alternatywą dla wielu zastosowań.
+
+Na etapie LLD każdego z modułów zespół może wybrać jedną z dwóch przedstawionych poniżej baz danych, a rozdział ten ma na celu dokładne przedstawienie możliwości oferowanych przez PostgreSQL i MariaDB.
+
+PostgreSQL PostgreSQL to zaawansowany, obiektowo-relacyjny system zarządzania bazą danych (ORDBMS), który jest doceniany za swoją niezawodność, trwałość danych oraz wsparcie dla zaawansowanych funkcji, które nie są dostępne w większości innych systemów bazodanowych. Dzięki licencji OSS, PostgreSQL oferuje elastyczne i ekonomiczne rozwiązanie dla firm i organizacji wszelkich rozmiarów. Jego zastosowanie jest różnorodne, co pozwala na efektywne wykorzystanie w różnych branżach i aplikacjach.
+
+Niezawodność i trwałość danych - jednym z kluczowych aspektów, które wyróżniają PostgreSQL spośród innych systemów baz danych, jest jego niezawodność i mechanizmy zapewniające trwałość danych. System wykorzystuje technikę zwaną Write-Ahead Logging (WAL), która gwarantuje, że wszystkie transakcje zostaną zapisane przed potwierdzeniem ich wykonania. Dzięki temu, nawet w przypadku awarii systemu, możliwe jest odtworzenie bazy danych do ostatniego spójnego stanu bez utraty danych. Mechanizmy takie jak punkty kontrolne (checkpointing), replikacja danych (zarówno asynchroniczna, jak i synchroniczna) oraz zaawansowane zarządzanie transakcjami ACID (Atomicity, Consistency, Isolation, Durability) dodatkowo wzmacniają trwałość i niezawodność danych przechowywanych w PostgreSQL.
+
+Zaawansowane funkcje S-Q-L - PostgreSQL oferuje pełne wsparcie dla standardu S-Q-L, włączając w to zaawansowane funkcje, które są rzadkość w innych systemach baz danych. Obsługuje on kompleksowe zapytania S-Q-L, podzapytania, wyrażenia tabelaryczne, widoki materializowane, a także zaawansowane funkcje takie jak okienne funkcje S-Q-L, które umożliwiają bardziej złożone operacje analityczne i statystyczne bezpośrednio w bazie danych. Dodatkowo, PostgreSQL obsługuje typy danych dżejson lub JSONB, co pozwala na efektywne przechowywanie i zapytania na danych nierelacyjnych, oraz oferuje indeksy GIN i GiST, które są optymalizowane dla wyszukiwania pełnotekstowego i danych przestrzennych.
+
+Rozszerzalność - PostgreSQL jest systemem wysoce rozszerzalnym, co oznacza, że użytkownicy mogą dostosować go do własnych potrzeb, tworząc własne typy danych, funkcje, operatory, a nawet języki procedur. Ta rozszerzalność jest możliwa dzięki naturze projektu open-source, co zachęca społeczność do aktywnego udziału w jego rozwijaniu i dostosowywaniu do nowych wymagań. Dostępne są także liczne rozszerzenia, takie jak PostGIS, które dodaje obsługę danych przestrzennych, co czyni PostgreSQL jeszcze bardziej wszechstronnym narzędziem.
+
+Wysoka wydajność - PostgreSQL jest znany z wysokiej wydajności w obszarze przetwarzania dużych wolumenów danych. Dzięki zaawansowanym algorytmom optymalizacji zapytań i technikom indeksowania, takim jak indeksy częściowe, indeksy ekspresyjne i indeksy bitmapowe, jest w stanie szybko przetwarzać złożone zapytania. Optymalizator zapytań (query planner) automatycznie wybiera najbardziej efektywną ścieżkę wykonania zapytań, co minimalizuje czas odpowiedzi i zasoby potrzebne do przetworzenia danych. Ponadto, PostgreSQL oferuje zaawansowane mechanizmy zarządzania pamięcią i konkurencją, co dodatkowo zwiększa jego wydajność.
+
+Bezpieczeństwo - bezpieczeństwo danych jest kluczowym aspektem każdego systemu baz danych, a PostgreSQL oferuje szereg funkcji zapewniających wysoki poziom bezpieczeństwa. Wśród nich znajdują się mechanizmy kontroli dostępu, takie jak rozbudowany system ról i uprawnień, szyfrowanie danych w spoczynku (TDE) oraz w trakcie transmisji (SSL lub TLS), a także wsparcie dla polityk bezpieczeństwa i audytu. Te mechanizmy umożliwiają administratorom bazy danych szczegółowe zarządzanie dostępem i monitorowanie aktywności w celu zapobiegania nieautoryzowanemu dostępowi i potencjalnym zagrożeniom.
+
+Wsparcie dla wielu języków programowania - PostgreSQL oferuje wsparcie dla wielu języków programowania, w tym Python, Java, C, Ruby, PHP, i wiele innych, co pozwala na łatwą integrację z różnorodnymi aplikacjami i środowiskami programistycznymi. Dostępne są liczne sterowniki i biblioteki, które ułatwiają komunikację między aplikacjami a bazą danych, co czyni PostgreSQL atrakcyjnym wyborem dla programistów.
+
+Skalowalność i elastyczność - PostgreSQL jest skalowalnym systemem baz danych, który może być efektywnie używany zarówno w małych, jak i dużych projektach. Dzięki możliwościom replikacji danych i partycjonowania tabel, PostgreSQL pozwala na budowanie rozproszonych systemów baz danych, które mogą obsługiwać rosnące wolumeny danych i zwiększone wymagania dotyczące wydajności. Elastyczność w konfiguracji i zarządzaniu pozwala na dostosowanie systemu do specyficznych potrzeb i optymalizację pod kątem konkretnych zastosowań.
+
+Wsparcie społeczności i dokumentacja - jako projekt open-source, PostgreSQL cieszy się silnym wsparciem społeczności programistów i administratorów baz danych. Dostępne są bogate zasoby dokumentacji, poradniki, fora dyskusyjne i grupy użytkowników, gdzie można znaleźć pomoc i wymieniać się doświadczeniami. Regularne aktualizacje i rozwój nowych funkcji są napędzane przez aktywną społeczność, co zapewnia, że PostgreSQL jest zawsze na bieżąco z najnowszymi trendami i najlepszymi praktykami w dziedzinie baz danych.
+
+MariaDB MariaDB to popularny, OSS system zarządzania relacyjnymi bazami danych (RDBMS), który powstał jako fork MySQL. Został stworzony przez oryginalnych twórców MySQL po przejęciu przez firmę Oracle, aby zapewnić społeczności wolny i otwarty dostęp do wysokiej jakości systemu zarządzania bazami danych. MariaDB jest kompatybilna z MySQL, co oznacza, że aplikacje stworzone dla MySQL mogą zazwyczaj działać na MariaDB bez konieczności dokonywania zmian w kodzie. System ten zyskał szerokie uznanie za swoją wydajność, bogate funkcje i zaangażowanie w społeczność open-source.
+
+Wydajność i skalowalność - MariaDB charakteryzuje się imponującą wydajnością i skalowalnością, która może sprostać wymaganiom zarówno małych, jak i dużych przedsiębiorstw. Zawiera szereg ulepszeń wydajnościowych, które nie są dostępne w standardowym MySQL, w tym zaawansowane mechanizmy przechowywania jak Aria i TokuDB, które oferują lepszą wydajność dla operacji odczytu i zapisu oraz efektywniejsze zarządzanie dużymi zbiorami danych. MariaDB również wprowadza funkcje, takie jak równoległe replikacje i partycjonowanie tabel, co ułatwia skalowanie poziome i zapewnia większą dostępność oraz szybsze przetwarzanie zapytań w rozproszonych środowiskach baz danych.
+
+Bezpieczeństwo - MariaDB przykłada dużą wagę do bezpieczeństwa danych, oferując szereg funkcji i mechanizmów zapewniających ochronę przed nieautoryzowanym dostępem i potencjalnymi zagrożeniami. Zawiera wbudowane mechanizmy szyfrowania danych, które pozwalają na bezpieczne przechowywanie wrażliwych informacji zarówno w bazie danych, jak i podczas transmisji. MariaDB również oferuje wsparcie dla uwierzytelniania dwuskładnikowego i rozszerzone opcje kontroli dostępu, co umożliwia administratorom precyzyjne zarządzanie uprawnieniami użytkowników i zabezpieczenie dostępu do danych.
+
+Kompatybilność z MySQL - jedną z kluczowych zalet MariaDB jest jej wysoka kompatybilność z MySQL, co pozwala na łatwą migrację istniejących aplikacji i baz danych. MariaDB zachowuje większość składni S-Q-L i interfejsów programistycznych MySQL, co oznacza, że w wielu przypadkach aplikacje mogą przejść na MariaDB bez potrzeby dokonywania zmian w kodzie. Dodatkowo, MariaDB kontynuuje rozwój i wprowadza nowe funkcje oraz ulepszenia, które są często wstecznie kompatybilne z MySQL, zapewniając użytkownikom dostęp do najnowszych technologii bez rezygnacji z istniejących rozwiązań.
+
+Otwartość i społeczność - MariaDB jest rozwijana i wspierana przez aktywną społeczność programistów i użytkowników, którzy kontrybuują do projektu, oferując swoje umiejętności, wiedzę i czas. Społeczność ta jest fundamentem dla ciągłego rozwoju i innowacji w projekcie MariaDB. Dzięki licencji open-source, użytkownicy mają pełny dostęp do kodu źródłowego, co umożliwia dostosowanie systemu do indywidualnych potrzeb oraz współpracę przy tworzeniu nowych funkcji i rozwiązywaniu problemów. Otwartość projektu MariaDB zachęca do transparentności i współpracy, co przekłada się na szybki rozwój i stabilność systemu.
+
+Bogaty zestaw funkcji - MariaDB oferuje bogaty zestaw funkcji, które spełniają potrzeby różnorodnych zastosowań, od prostych aplikacji webowych po złożone systemy korporacyjne. Obsługuje zaawansowane funkcje S-Q-L, takie jak procedury składowane, wyzwalacze, widoki, transakcje z zatwierdzeniem ACID, a także oferuje wsparcie dla nowoczesnych typów danych, w tym dżejson i danych przestrzennych. MariaDB wprowadza również unikalne funkcje, takie jak dynamiczne kolumny, które pozwalają na bardziej elastyczne modelowanie danych w aplikacjach wymagających dużej adaptacyjności.
+
+Elastyczność i adaptacyjność - MariaDB jest zaprojektowana z myślą o elastyczności i adaptacyjności, co pozwala na łatwą konfigurację i dostosowanie systemu do specyficznych wymagań projektowych i operacyjnych. Dostępne są różne silniki przechowywania, takie jak InnoDB, Aria, MyRocks, TokuDB i inne, które można wybrać w zależności od wymagań dotyczących wydajności, trwałości danych lub specyficznych funkcji. Takie podejście umożliwia optymalizację działania baz danych pod kątem konkretnych zastosowań i obciążeń, co jest szczególnie ważne w złożonych lub wysoce dynamicznych środowiskach.
+
+Wysoka dostępność i odporność na awarii - MariaDB oferuje zaawansowane mechanizmy zapewniające wysoką dostępność i odporność na awarie, co jest kluczowe dla krytycznych aplikacji biznesowych. Funkcje takie jak MariaDB Galera Cluster umożliwiają łatwe wdrożenie rozproszonych klastrów baz danych z automatyczną synchronizacją danych i bezprzerwowym failoverem, co minimalizuje ryzyko przestojów i utraty danych. Ponadto, system replikacji MariaDB umożliwia efektywne rozpowszechnianie danych między różnymi serwerami i lokalizacjami, co zwiększa odporność systemu na awarie i zapewnia ciągłość działania usług.
+
+Przyjazne dla deweloperów - MariaDB jest zaprojektowana z myślą o deweloperach, oferując łatwe w użyciu interfejsy programistyczne (A-P-I) oraz szerokie wsparcie dla różnych języków programowania, w tym PHP, Python, Java, C, Ruby i wielu innych. Dostępne są bogate biblioteki sterowników i ORM (Object-Relational Mapping), które ułatwiają integrację aplikacji z bazą danych i pozwalają na efektywny rozwój oprogramowania. Ponadto, MariaDB zapewnia wsparcie dla najnowszych standardów i technologii webowych, co umożliwia tworzenie nowoczesnych, responsywnych aplikacji internetowych i mobilnych.
+
+Ekosystem i integracja - MariaDB jest częścią szerszego ekosystemu technologii open source, co ułatwia integrację z innymi narzędziami i platformami, takimi jak serwery aplikacji, systemy zarządzania treścią, narzędzia do monitorowania i analizy danych. Dzięki szerokiej kompatybilności i dostępności wstępnie skonfigurowanych pakietów, MariaDB może być łatwo włączona do istniejących środowisk IT, co umożliwia szybką realizację projektów i optymalizację zasobów.
+
+Kontenery kontra dedykowane wirtualne maszyny dla baz danych Porównanie Kubernetes i wirtualnych maszyn (maszyna wirtualna) jako platform dla baz danych, takich jak PostgreSQL lub MariaDB, wymaga uwzględnienia różnych aspektów technicznych i operacyjnych. Na wybór odpowiedniej platformy mają wymagania dotyczące wydajności, skalowalności, dostępności, bezpieczeństwa oraz łatwości zarządzania.
+
+Poniżej przedstawiono krótkie podsumowanie obu strategii i rekomendacje dla projektu.
+
+Skalowalność i elastyczność - Kubernetes zapewnia wyjątkową skalowalność i elastyczność, umożliwiając łatwe skalowanie w górę i w dół baz danych w zależności od obciążenia. Longhorn dodatkowo ułatwia zarządzanie persistent storage, oferując dynamiczne provisioning i skalowalność storage z poziomu Kubernetes.
+
+Wysoka dostępność - Kubernetes zapewnia mechanizmy zapewniające wysoką dostępność, takie jak automatyczne restarty kontenerów, replikacje podów oraz usługi load balancing. Longhorn wspiera te mechanizmy przez replikację danych na poziomie storage, co minimalizuje ryzyko utraty danych.
+
+Odzyskiwanie po awarii i backup - Longhorn oferuje wbudowane funkcje snapshotów i backupów, co ułatwia zarządzanie kopiami zapasowymi i odzyskiwanie danych w przypadku awarii.
+
+Portowalność i niezależność od dostawcy - Kubernetes może działać na różnych infrastrukturach, od lokalnych centrów danych po publiczne chmury, zapewniając jednolite środowisko zarządzania bazami danych.
+
+Złożoność - wdrożenie i zarządzanie bazami danych w Kubernetes może być bardziej złożone niż w tradycyjnych środowiskach maszyna wirtualna, wymagając dodatkowych umiejętności i narzędzi.
+
+Narzut - Kubernetes wprowadzają dodatkowy narzut zarządzania, który może wpłynąć na wydajność w porównaniu do bardziej bezpośrednich rozwiązań, takich jak maszyna wirtualna.
+
+Prostota - maszyna wirtualna są tradycyjnym i dobrze znanym środowiskiem dla uruchamiania baz danych, oferując prostotę konfiguracji i zarządzania bez dodatkowej warstwy abstrakcji, jaką wprowadza Kubernetes.
+
+Optymalizacja wydajności - wirtualne maszyny mogą być optymalizowane pod kątem konkretnych wymagań baz danych, oferując możliwość bezpośredniej alokacji zasobów i dostosowania konfiguracji do specyficznych obciążeń.
+
+Skalowalność i elastyczność - chociaż wirtualne maszyny umożliwiają skalowanie, robią to zazwyczaj z mniejszą elastycznością i szybkością niż kontenery zarządzane przez Kubernetes.
+
+Zarządzanie storage - tradycyjne środowiska maszyna wirtualna mogą nie oferować tak zaawansowanych funkcji zarządzania storage, jak Longhorn, co może utrudniać efektywne zarządzanie przestrzenią dyskową, backupami i odzyskiwaniem danych.
+
+Wybór między Kubernetes, a wirtualnymi maszynami dla baz danych PostgreSQL lub MariaDB zależy od wielu czynników. Kubernetes oferuje zaawansowane możliwości skalowania, automatyzacji i zarządzania danymi, które są idealne dla dynamicznych i rozproszonych środowisk. Jest to szczególnie korzystne w przypadku aplikacji wymagających wysokiej dostępności, elastyczności i automatycznego skalowania. Jednakże, złożoność konfiguracji i zarządzania może stanowić wyzwanie.
+
+Z drugiej strony, wirtualne maszyny oferują prostszą, bardziej bezpośrednią kontrolę nad środowiskiem baz danych z możliwością optymalizacji pod kątem specyficznych wymagań wydajnościowych. Mogą być one bardziej odpowiednie dla środowisk, które wymagają stabilności, przewidywalności i mniejszej złożoności operacyjnej.
+
+W kontekście projektu na pierwszym etapie rekomendowane jest zastosowanie wirtualnych maszyn w środowisku produkcyjnym z możliwością późniejszej migracji do Kubernetes. Dla środowisk testowych i developerski zalecane jest stosowanie Kubernetes od samego początku.
+
+Wsparcie dla różnorodnych struktur danych - Redis oferuje szeroką gamę struktur danych, takich jak listy, zestawy (sets), posortowane zestawy (sorted sets), mapy (hashes), bitmaps, hyperloglogs oraz strumienie (streams), co umożliwia adaptację do różnorodnych scenariuszy cacheowania i przetwarzania danych. Ta różnorodność pozwala na implementację zaawansowanych funkcjonalności, takich jak systemy kolejkowania zadań, tablice rankingowe, czy śledzenie unikatowych elementów, bez potrzeby wprowadzania zewnętrznych zależności czy komplikowania architektury systemu.
+
+Trwałość danych - mimo swojej natury in-memory, Redis umożliwia zapis stanu pamięci do dysku za pomocą dwóch mechanizmów: snapshotów (RDB) oraz dziennika appendonly (AOF). Pozwala to na odtworzenie stanu bazy danych po awarii lub restarcie, zapewniając równowagę między wydajnością, a trwałością danych. Mechanizmy te mogą być konfigurowane w celu dostosowania poziomu trwałości do specyficznych wymagań projektu, z możliwością wyboru między szybszym odzyskiwaniem, a minimalizacją ryzyka utraty danych.
+
+Skalowalność i dostępność - Redis umożliwia łatwą skalowalność poziomą dzięki replikacji danych i wsparciu dla klastrów. Replikacja master-slave zapewnia szybkie rozprzestrzenianie danych i zwiększa dostępność, umożliwiając aplikacjom odczyt z wielu węzłów. Redis Cluster rozdziela dane na wiele węzłów, co pozwala na skalowanie przepustowości zapisu i pojemności pamięci poza możliwości pojedynczej maszyny, jednocześnie zapewniając odporność na awarie poszczególnych węzłów.
+
+Prostota wdrożenia i zarządzania - instalacja i konfiguracja Redis są niezwykle proste, co pozwala na szybkie uruchomienie i integrację z aplikacjami. Redis posiada także bogate wsparcie w postaci gotowych klientów dla większości popularnych języków programowania, co ułatwia implementację i minimalizuje potrzebę pisania skomplikowanego kodu do zarządzania połączeniami czy operacjami na danych. Dodatkowo, prostota Redis sprzyja łatwości zarządzania i monitorowania, z dostępnymi narzędziami i interfejsami do inspekcji i optymalizacji działania cache.
+
+Aktywna społeczność i wsparcie - Redis cieszy się wsparciem jednej z najbardziej aktywnych i zaangażowanych społeczności w świecie open source, co oznacza dostęp do obszernej dokumentacji, licznych poradników, gotowych bibliotek i narzędzi oraz regularnych aktualizacji bezpieczeństwa i funkcjonalności. Aktywna społeczność to także szybkie wsparcie w rozwiązywaniu problemów i implementacji nowych funkcji, co jest kluczowe dla utrzymania i rozwoju naszego projektu.
+
+Bezpieczeństwo - Redis oferuje zaawansowane funkcje bezpieczeństwa, w tym autentykację haseł, wsparcie dla szyfrowania TLS lub SSL zapewniające bezpieczne połączenia między klientami a serwerami oraz możliwość szczegółowej kontroli dostępu. Możliwość konfiguracji sieciowych i logicznych zabezpieczeń pozwala na dopasowanie.
+
+Mikroserwisy i usługi w chmurze - bazy dokumentowe łatwo skalują się wertykalnie i horyzontalnie, co czyni je idealnym rozwiązaniem dla architektury opartej na mikroserwisach i aplikacji działających w środowiskach chmurowych.
+
+Projekty wymagające dużej elastyczności i skalowalności - w środowiskach, gdzie obciążenie systemu może dynamicznie się zmieniać, bazy dokumentowe oferują możliwości szybkiego skalowania, zarówno w chmurze, jak i na serwerach lokalnych.
+
+MongoDB W projekcie zdecydowano się na stosowanie MongoDB, gdy będzie uzasadnione użycie baz dokumentowych.
+
+MongoDB przechowuje dane w elastycznych dokumentach BSON, co umożliwia tworzenie złożonych struktur danych z minimalnym wysiłkiem. Ta elastyczność pozwala na dynamiczne dostosowanie modelu danych bez potrzeby modyfikacji całej bazy danych, co jest szczególnie przydatne w projektach, które ewoluują wraz z rozwojem aplikacji. Kolekcje w MongoDB mogą zawierać różnorodne dokumenty, co eliminuje potrzebę sztywnego schematu i ułatwia modelowanie złożonych relacji danych.
+
+Indeksy są kluczowe dla optymalizacji wydajności zapytań w MongoDB. Dzięki możliwości tworzenia indeksów na różnych polach dokumentów, użytkownicy mogą znacząco przyspieszyć czas odpowiedzi zapytań, zwłaszcza w dużych zbiorach danych. MongoDB umożliwia tworzenie różnorodnych typów indeksów, w tym indeksów tekstowych i geoprzestrzennych, co dodatkowo rozszerza możliwości analizy i wyszukiwania danych.
+
+Wsparcie dla transakcji na poziomie wielu dokumentów, wprowadzone w MongoDB 4.0, umożliwia atomowe aktualizacje danych rozproszonych po wielu kolekcjach. To ważna cecha dla aplikacji, które wymagają spójności danych między operacjami, zapewniając integralność danych nawet w złożonych scenariuszach przetwarzania.
+
+Zestawy replik w MongoDB zapewniają nie tylko redundancję danych, ale także umożliwiają ciągłe działanie aplikacji w przypadku awarii jednego z serwerów. Mechanizm replikacji automatycznie synchronizuje dane między serwerami, co zapewnia wysoką dostępność i odporność na awarie.
+
+Sharding, czyli podział danych na różne serwery, pozwala na skalowanie poziome bazy danych. Dzięki temu MongoDB może obsługiwać aplikacje generujące ogromne wolumeny danych i wymagające wysokiej przepustowości. Mechanizm sharding'u jest transparentny dla aplikacji, co ułatwia zarządzanie i rozwój systemów bez konieczności głębokiej wiedzy o strukturze bazy danych.
+
+Bezpieczeństwo dostępu do danych jest kluczowym aspektem każdej bazy danych. MongoDB oferuje zaawansowane mechanizmy uwierzytelniania i autoryzacji, w tym wsparcie dla zewnętrznych systemów uwierzytelniania. Dzięki temu deweloperzy mogą precyzyjnie kontrolować dostęp do danych, zapewniając, że tylko upoważnieni użytkownicy mogą wykonywać określone operacje.
+
+Ochrona wrażliwych danych przechowywanych w bazie danych jest niezbędna dla zachowania prywatności i bezpieczeństwa informacji. MongoDB zapewnia szyfrowanie danych w spoczynku, co uniemożliwia nieautoryzowany dostęp do danych zapisanych na dyskach. Ponadto, szyfrowanie połączeń sieciowych za pomocą TLS lub SSL chroni dane przesyłane między klientem a serwerem, zapobiegając przechwyceniu i manipulacji informacji.
+
+Kontenery kontra dedykowane wirtualne maszyny dla baz dokumentowych Decyzja między uruchomieniem bazy danych dokumentowej na Kubernetes, a na wirtualnych maszynach (maszyna wirtualna) zależy od wielu czynników, w tym od wymagań dotyczących wydajności, niezawodności, skalowalności, zarządzania oraz zasobów i umiejętności zespołu. Oba podejścia mają swoje zalety i wady.
+
+Skalowalność - Kubernetes ułatwia skalowanie poziome bazy danych, automatycznie dostosowując liczbę replik do aktualnego obciążenia.
+
+Automatyzacja - automatyzacja wdrażania, skalowania i operacji zarządzania, takich jak aktualizacje i rollbacki.
+
+Samonaprawialność - Kubernetes może automatycznie restartować kontenery, które przestaną działać, zastępować i re-schedule'ować kontenery, gdy nody przestaną działać oraz zabijać kontenery, które nie odpowiadają na sprawdzanie stanu zdrowia.
+
+Nieprzerwana dostępność - możliwość konfiguracji dla wysokiej dostępności i odporności na awarie.
+
+Złożoność - Kubernetes jest złożonym systemem i może wymagać specjalistycznej wiedzy do efektywnego zarządzania.
+
+Nadmiarowość i koszty - zapewnienie wysokiej dostępności i redundancji może prowadzić do większego zużycia zasobów i zwiększenia kosztów.
+
+Wydajność- może występować lekkie opóźnienie w działaniu bazy danych z powodu abstrakcji sieciowej i innych czynników związanych z konteneryzacją.
+
+dostępnością danych, a także wsparciem dla różnorodnych środowisk operacyjnych, MinIO zapewnia solidną platformę do zarządzania danymi w skali przedsiębiorstwa. Dodatkowo, będąc oprogramowaniem open-source wspieranym przez aktywną społeczność, oferuje ciągłe innowacje i ulepszenia, czyniąc je przyszłościowym rozwiązaniem do przechowywania danych.
+
+Wysoka wydajność i skalowalność - MinIO oferuje wyjątkową wydajność przy jednoczesnej skalowalności, co czyni je idealnym wyborem dla organizacji, które muszą przechowywać i zarządzać dużymi ilościami danych binarnych. Jego architektura oparta na chmurze pozwala na łatwe skalowanie od pojedynczych serwerów do setek węzłów, zapewniając elastyczność potrzebną do obsługi rosnących wolumenów danych.
+
+Kompatybilność z A-P-I S3 - MinIO jest w pełni kompatybilne z Amazon S3 A-P-I, co oznacza, że można je bezproblemowo integrować z istniejącymi aplikacjami i ekosystemami, które już korzystają z S3. Ta kompatybilność ułatwia migrację i adaptację, jednocześnie otwierając dostęp do szerokiej gamy narzędzi i bibliotek.
+
+Zaawansowane funkcje bezpieczeństwa - oferując zaawansowane mechanizmy szyfrowania danych w spoczynku i w transmisji, a także wsparcie dla szczegółowych polityk dostępu i uwierzytelniania, MinIO stawia bezpieczeństwo na pierwszym miejscu. Te funkcje pozwalają zapewnić, że dane są bezpieczne na każdym etapie ich cyklu życia.
+
+Wysoka dostępność danych - MinIO zapewnia wysoką dostępność danych dzięki replikacji i mechanizmom zapewniania trwałości, takim jak erasure coding. Nawet w przypadku awarii pojedynczych węzłów czy całych segmentów infrastruktury, dane pozostają dostępne i spójne.
+
+Elastyczność i wsparcie dla różnorodnych środowisk - MinIO można uruchomić na serwerach bare-metal, wirtualnych, w kontenerach oraz na platformach orkiestracji takich jak Kubernetes. Ta wszechstronność umożliwia dopasowanie do niemal każdego środowiska operacyjnego, od lokalnych data center po chmury publiczne i prywatne.
+
+Otwarte oprogramowanie z aktywną społecznością - jako projekt open-source, MinIO posiada silną i aktywną społeczność użytkowników i programistów. Dostęp do najnowszych aktualizacji, bogatej dokumentacji i wsparcia społeczności jest nieoceniony dla utrzymania i rozwoju złożonych systemów przechowywania danych.
+
+Uproszczone zarządzanie danymi - zaawansowane funkcje zarządzania danymi, takie jak lifecycle management, pozwalają na automatyczne zarządzanie cyklem życia danych, w tym ich przenoszeniem, archiwizacją i usuwaniem. To nie tylko upraszcza operacje na dużych zbiorach danych, ale także pomaga optymalizować koszty przechowywania.
+
+dostrajanie modeli AI do konkretnych problemów logistycznych, co może znacząco poprawić ich wydajność i dokładność w rzeczywistych zastosowaniach.
+
+Wykorzystanie tych zaawansowanych bibliotek w projekcie Logistyka 4.0 pozwoli na eksplorację nowych możliwości optymalizacyjnych i stworzenie efektywnych, zautomatyzowanych systemów zarządzania logistyką.
+
+w całym systemie oraz zapewnienie odpowiedniej infrastruktury do monitorowania i zarządzania mikrousługami.
+
+Oprócz podstawowych założeń i cech architektury mikrousług, istnieje wiele dodatkowych aspektów, które są istotne dla pełnego zrozumienia tego podejścia:
+
+Elastyczność i skalowalność - architektura mikrousług umożliwia łatwe skalowanie poszczególnych usług w zależności od obciążenia. Dzięki temu system może dynamicznie dostosowywać się do zmieniających się potrzeb użytkowników.
+
+Nieprzerywalność usług - w architekturze mikrousług istnieje dążenie do zapewnienia ciągłości działania systemu nawet w przypadku awarii pojedynczych usług. Dzięki odpowiednim strategiom zarządzania awariami, inne usługi mogą kontynuować pracę, minimalizując wpływ na działanie całego systemu.
+
+Samodzielne wdrożenia - każda mikrousługa może być wdrażana niezależnie od pozostałych, co umożliwia częstsze aktualizacje i wprowadzanie zmian bez konieczności zatrzymywania całego systemu.
+
+Monitoring i zarządzanie - ze względu na rozproszenie systemu na wiele usług, konieczne jest zapewnienie odpowiedniej infrastruktury do monitorowania i zarządzania nimi. Narzędzia do monitorowania, logowania i śledzenia wydajności są kluczowe dla utrzymania systemu w dobrej kondycji.
+
+Bezpieczeństwo - w miarę jak mikrousługi komunikują się ze sobą poprzez sieć, konieczne jest odpowiednie zabezpieczenie komunikacji oraz autoryzacja i uwierzytelnianie użytkowników. Dostęp do usług powinien być kontrolowany i ograniczony tylko do uprawnionych użytkowników.
+
+Zarządzanie transakcjami - w przypadku operacji, które obejmują wiele usług, konieczne jest zapewnienie spójności danych poprzez zarządzanie transakcjami.
+
+Modelowanie domeny - kluczowym elementem projektowania mikrousług jest odpowiednie zdefiniowanie granic pomiędzy usługami poprzez modelowanie domeny. Wykorzystanie podejść takich jak D-D-D (Domain-Driven Design) może pomóc w identyfikacji granic między usługami i zrozumieniu ich relacji.
+
+Mikroserwisy, a D-D-D (Domain Driven Design) Architektura mikrousług (MSA) to strategia projektowania aplikacji, która ma na celu rozbicie systemu na mniejsze, autonomiczne komponenty, zwane mikrousługami. Ta metoda doskonale współgra z podejściem Domain-Driven Design (D-D-D), które kładzie nacisk na modelowanie dziedziny biznesowej w sposób reprezentatywny dla potrzeb biznesowych.
+
+W ramach architektury mikrousług, każda mikrousługa może reprezentować konkretne fragmenty dziedziny biznesowej, tworząc luźno powiązane, ale wysoko spójne komponenty systemu. Te mikrousługi, w sensie D-D-D, mogą odpowiadać granicom Bounded Context, co oznacza, że każda usługa ma swoje własne, jednoznaczne zdefiniowane pojęcia i reguły biznesowe.
+
+Modelowanie domeny w kontekście architektury mikrousług jest kluczowe dla zapewnienia spójności i elastyczności systemu. Poprzez odpowiednie zastosowanie D-D-D, zespoły projektowe mogą tworzyć mikrousługi, które są wysoce specjalizowane w realizacji określonych funkcji biznesowych, jednocześnie zachowując spójność w ramach swojego kontekstu.
+
+Dodatkowo, D-D-D dostarcza narzędzi i wzorców, które mogą być stosowane w architekturze mikrousług, takich jak agregaty, repozytoria czy serwisy aplikacyjne. Te konceptualne wzorce pomagają w projektowaniu i implementacji mikrousług, zapewniając spójność danych, kontrolę nad transakcjami oraz elastyczność w dostępie do danych.
+
+W rezultacie, połączenie architektury mikrousług z Domain-Driven Design pozwala na stworzenie aplikacji, która nie tylko skupia się na potrzebach biznesowych, ale także jest łatwa w skalowaniu, utrzymaniu i rozwijaniu, co stanowi klucz do sukcesu w dzisiejszym dynamicznym środowisku technologicznym.
+
+Domain-Driven Design (D-D-D) to podejście projektowe wytwarzania oprogramowania, które skupia się na rozwiązywaniu złożonych problemów biznesowych poprzez modelowanie i rozumienie dziedziny biznesowej, czyli domeny. Centralnym założeniem D-D-D jest to, że język używany przez zespół programistów do opisu struktury i zachowania oprogramowania powinien być jak najbardziej zbliżony do języka używanego przez ekspertów dziedzinowych w danej branży.
+
+Model domenowy - model domenowy to centralny punkt w D-D-D. Jest to reprezentacja struktury i zachowania dziedziny biznesowej, która jest używana do projektowania oprogramowania. Model domenowy składa się z encji, wartości, agregatów, fabryk, repozytoriów i serwisów, które są używane do reprezentacji elementów dziedziny biznesowej oraz ich wzajemnych relacji.
+
+Granice ograniczone kontekstu (Bounded Context) - D-D-D zakłada podział dziedziny biznesowej na logicznie spójne fragmenty, zwane granicami ograniczonymi kontekstu. W ramach danego kontekstu istnieje jednoznaczna interpretacja pojęć i reguł biznesowych. Granice te pomagają w unikaniu konfliktów terminologicznych i konceptualnych pomiędzy różnymi częściami systemu.
+
+Agregaty - agregaty to kluczowa koncepcja w D-D-D, reprezentująca grupę powiązanych obiektów, które są traktowane jako jedność podczas wykonywania operacji. Każdy agregat ma korzeń (korzeń agregatu) i reguły integralności, które definiują spójność danych w obrębie tego agregatu.
+
+Repozytoria - repozytoria są interfejsami dostępu do danych w ramach modelu domenowego. Służą do odseparowania logiki biznesowej od sposobu przechowywania danych. Repozytoria zapewniają mechanizm dostępu do danych, ukrywając szczegóły implementacyjne dostępu do bazy danych.
+
+Fabryki - fabryki są używane do tworzenia obiektów złożonych, które wymagają specjalnej logiki tworzenia. Pomagają one w abstrakcji procesu tworzenia obiektów i pozwalają na elastyczne zarządzanie tworzeniem obiektów w systemie.
+
+Architektura logiczna a architektura fizyczna W tym miejscu warto zatrzymać się i przyjrzeć różnicom między architekturą logiczną, a architekturą fizyczną oraz ich zastosowaniem w projektowaniu aplikacji Logistyka 4.0.
+
+Zacznijmy od tego, że rozwój mikrousług nie jest związany z koniecznością stosowania jakiejkolwiek specyficznej technologii. Na przykład, choć kontenery Docker znacząco ułatwiają budowę architektury opartej na mikrousługach, ich użycie nie jest wymagane. Mikrousługi można uruchamiać jako standardowe procesy, co podkreśla ich naturę jako architektury logicznej.
+
+Ponadto, mimo że mikrousługę można fizycznie zaimplementować jako pojedynczą usługę, proces lub kontener, takie bezpośrednie odwzorowanie pomiędzy mikrousługą biznesową, a jej fizyczną realizacją nie jest zawsze konieczne.
+
+Tutaj pojawia się kluczowa różnica między architekturą logiczną aplikacji, a jej architekturą fizyczną. Architektura logiczna i logiczne granice systemu nie muszą pokrywać się z jego fizyczną, czyli wdrożeniową architekturą.
+
+Nie zawsze optymalnym rozwiązaniem dla implementacji Bounded Context, czy usługi biznesowej, jest stworzenie pojedynczej usługi (na przykład ASP.NET Web A-P-I) lub jednego kontenera Docker. W kontekście projektu Logistyka 4.0 nie przyjmuje się reguły, że każda mikrousługa biznesowa musi być wdrożona jako pojedyncza usługa lub kontener, co mogłoby być zbyt restrykcyjne.
+
+Dlatego właśnie mikrousługa biznesowa lub Bounded Context jest postrzegana jako architektura logiczna, która może, ale nie musi, pokrywać się z architekturą fizyczną. Istotne jest, by mikrousługa biznesowa lub Bounded Context była autonomiczna, co pozwala na niezależne wersjonowanie, wdrażanie i skalowanie jej kodu i stanu.
+
+Jak ilustruje przykład, mikrousługa biznesowa obsługująca katalog może składać się z wielu usług lub procesów. Może to obejmować liczne usługi ASP.NET Web A-P-I lub inne typy usług korzystających z H-T-T-P lub innego protokołu. Co więcej, te usługi mogą współdzielić te same dane, pod warunkiem, że są spójne w kontekście tej samej domeny biznesowej.
+
+Usługi w przytoczonym przykładzie korzystają z tego samego modelu danych, co pozwala na skalowanie każdej z nich niezależnie w zależności od potrzeb. Na przykład usługa Web A-P-I może wymagać większej liczby instancji niż usługa wyszukiwania, lub na odwrót.
+
+Podsumowując, architektura logiczna mikrousług nie musi zawsze odpowiadać fizycznej architekturze wdrożeniowej. Gdy mówimy o mikrousługach, odnosimy się do mikrousługi biznesowej lub logicznej, którą można mapować na jedną lub więcej usług fizycznych. Chociaż w większości przypadków będzie to pojedyncza usługa, możliwe jest, że będzie ich więcej.
+
+Zastosowanie kontenerów Kontenery są rodzajem technologii wirtualizacji, która umożliwia izolację aplikacji oraz ich zależności od środowiska, w którym są uruchamiane. W przeciwieństwie do tradycyjnych maszyn wirtualnych (VMs), kontenery nie wymagają osobnego systemu operacyjnego dla każdej instancji aplikacji. Zamiast tego, kontenery wykorzystują funkcje izolacji dostępne w jądrze systemu operacyjnego, aby stworzyć wirtualne środowisko, w którym mogą działać aplikacje.
+
+Kontenery wykorzystują funkcje izolacji przestrzeni nazw (namespace isolation) oraz kontrolę grup procesów (cgroups) dostępne w jądrze systemu Linux. Przestrzenie nazw pozwalają na izolację zasobów, takich jak system plików, sieć czy procesy, co oznacza, że aplikacje uruchomione w jednym kontenerze są odizolowane od tych działających w innych kontenerach. Kontrola grup procesów natomiast pozwala na kontrolę i ograniczanie zasobów, takich jak CPU, pamięć czy przepustowość sieci, które są dostępne dla kontenerów.
+
+i danymi, tak każda mikrousługa musi mieć kontrolę nad swoją logiką i danymi, działając w ramach autonomicznego cyklu życia i umożliwiając niezależne wdrożenia.
+
+Oznacza to, że konceptualny model domeny będzie się różnił między poszczególnymi podsystemami lub mikrousługami. W korporacyjnej aplikacji do zarządzania relacjami z klientami (CRM), transakcyjnych podsystemach zakupów i podsystemach obsługi klienta, każdy z nich odnosi się do unikatowych atrybutów i danych klienta, przy czym każdy wykorzystuje odrębny Bounded Context (BC). To podejście, znane z Domain-Driven Design (D-D-D), wymaga, aby każdy autonomiczny podsystem lub usługa posiadały swój własny model domeny - dane, logikę i zachowanie. Każdy Bounded Context w D-D-D jest powiązany z jedną mikrousługą biznesową, która może obejmować jedną lub więcej usług.
+
+Różne podejście do danych - model monolityczny kontra mikrousługi.
+
+Tradycyjne podejście, często spotykane w aplikacjach, polega na wykorzystaniu jednej scentralizowanej bazy danych lub niewielu baz danych, zwykle znormalizowanej bazy danych S-Q-L wspólnej dla całej aplikacji i jej wewnętrznych podsystemów. W kontraście, w architekturze mikrousług każda mikrousługa zarządza własnym modelem danych. Choć podejście oparte na centralnej bazie danych może wydawać się prostsze i sugerować łatwość ponownego wykorzystania danych w różnych podsystemach dla zachowania spójności, w rzeczywistości prowadzi to do tworzenia ogromnych tabel obsługujących różnorodne podsystemy i zawierających atrybuty oraz kolumny, które w wielu przypadkach są zbędne.
+
+Aplikacje monolityczne z typowo pojedynczą relacyjną bazą danych mają pewne zalety, takie jak transakcje ACID i język S-Q-L, umożliwiające łatwe tworzenie zapytań łączących dane z wielu tabel. Jednak przejście na model mikrousług komplikuje dostęp do danych. Nawet jeśli transakcje ACID są możliwe w ramach pojedynczej mikrousługi lub Bounded Context, należy pamiętać, że dane należące do każdej mikrousługi są dla niej prywatne i dostęp do nich możliwy jest tylko synchronicznie przez specjalnie przygotowane A-P-I (REST, gRPC, SOAP i tym podobne) lub asynchronicznie poprzez mechanizmy przesyłania wiadomości (AMQP lub podobne).
+
+Oddzielenie danych zapewnia, że mikrousługi są luźno powiązane i mogą ewoluować niezależnie. Wspólny dostęp do danych przez wiele usług wymagałby koordynacji aktualizacji schematu, co naruszałoby niezależność cykli życia mikrousług. Rozproszone struktury danych oznaczają jednak, że nie można przeprowadzić pojedynczej transakcji ACID między mikrousługami, co implikuje opóźnioną spójność danych, gdy proces biznesowy angażuje wiele mikrousług. Jest to wyzwanie trudniejsze do zrealizowania niż proste zapytanie S-Q-L, ponieważ nie można tworzyć ograniczeń integralności ani używać transakcji rozproszonych między oddzielnymi bazami danych, podobnie jak wiele innych funkcji relacyjnej bazy danych nie jest dostępnych w modelu mikrousług.
+
+Definiowanie granic mikrousługi Efektywne zdefiniowanie granic mikrousług wymaga głębokiego zrozumienia domeny aplikacji oraz jej podziału na logiczne, funkcjonalne bloki. Ten proces ma kluczowe znaczenie dla osiągnięcia modułowości, skalowalności i elastyczności w projektowaniu systemów informatycznych. Poniżej przedstawiono bardziej szczegółowe wytyczne dotyczące tego procesu.
+
+Zrozumienie i podział domeny biznesowej na mniejsze, zarządzalne części jest pierwszym krokiem w kierunku wyznaczania granic mikrousług. To wymaga bliskiej współpracy między zespołem technicznym a ekspertami domeny, aby zapewnić, że każda mikrousługa odpowiada za wyraźnie zdefiniowaną funkcjonalność biznesową. Takie podejście jest znane jako DomainDriven Design (D-D-D) i kładzie nacisk na modelowanie oparte na zrozumieniu procesów biznesowych.
+
+D-D-D używa pojęcia Bounded Contexts do opisania wyraźnych granic w systemie, w których określone modele domenowe mają zastosowanie. Rozpoznanie tych granic jest kluczowe, gdyż każdy kontekst może być obsługiwany przez oddzielną mikrousługę. Zrozumienie relacji między kontekstami pozwala na projektowanie interfejsów i protokołów komunikacji między mikrousługami, minimalizując przy tym ich wzajemne zależności.
+
+Autonomia mikrousług jest fundamentem ich wartości. Mikrousługi powinny być w stanie działać niezależnie, co umożliwia ich rozwijanie, wdrażanie i skalowanie w izolacji od reszty systemu. Autonomia ta wspiera również odporność systemu, ponieważ awaria jednej mikrousługi nie musi bezpośrednio wpływać na pozostałe elementy systemu.
+
+Minimalizowanie zależności między mikrousługami jest kluczowe dla utrzymania ich autonomii. To obejmuje zarówno zależności techniczne, jak i biznesowe. Idealnie, komunikacja między mikrousługami powinna odbywać się przez dobrze zdefiniowane interfejsy, z minimalnym udostępnianiem danych wewnętrznych. Takie podejście wspiera także skalowalność, ponieważ mikrousługi można łatwiej rozmieścić na różnych serwerach czy nawet w różnych centrach danych.
+
+W kontekście rzeczywistych aplikacji, proces wyznaczania granic mikrousług może obejmować identyfikację funkcji takich jak zarządzanie użytkownikami, zarządzanie zamówieniami, przetwarzanie płatności, i tak dalej, jako oddzielne mikrousługi. Każda z tych mikrousług będzie odpowiadać za konkretny aspekt funkcjonowania aplikacji, z własną bazą danych i logiką biznesową, co pozwala na niezależne od siebie wdrażanie i skalowanie.
+
+Pobieranie danych z kilku mikroserwisów Kolejne wyzwanie dotyczy implementacji zapytań, które pobierają dane z wielu mikrousług. Przykładem może być pojedynczy ekran aplikacji mobilnej wymagający informacji o kierowcy, zleceniu i zawartości kontenera lub złożony raport korzystający z danych rozproszonych po wielu mikrousługach. Odpowiednie rozwiązanie zależy od złożoności zapytań, ale w każdym przypadku konieczna jest metoda agregacji informacji w celu zwiększenia efektywności komunikacji w systemie.
+
+A-P-I Gateway - w przypadku prostszej agregacji danych z różnych mikrousług, które posiadają odrębne bazy danych, zalecanym podejściem jest implementacja mikrousługi agregującej za pomocą A-P-I Gateway. Warto jednak pamiętać, by zachować ostrożność przy wdrażaniu tego wzorca, ponieważ może on stać się wąskim gardłem systemu i potencjalnie naruszyć zasadę autonomii mikrousług. Problem ten można ograniczyć, stosując wiele wyspecjalizowanych bramek A-P-I, z których każda koncentruje się na konkretnym segmencie lub obszarze biznesowym systemu.
+
+CQRS z tabelami zapytań - innym rozwiązaniem do agregowania danych z różnych mikrousług jest wzorzec Materialized View. W tym podejściu z góry przygotowuje się zdenormalizowane dane w tabeli tylko do odczytu, która agreguje dane należące do wielu mikrousług. Tabela ta jest dostosowana do potrzeb aplikacji klienckiej. Jeśli system korzysta z pojedynczej bazy danych, możliwe jest zebranie potrzebnych danych za pomocą zapytania S-Q-L łączącego wiele tabel. W przypadku posiadania wielu baz danych, z których każda jest własnością innej mikrousługi, zastosowanie znajdzie podejście CQRS poprzez stworzenie zdenormalizowanej tabeli zapytań w osobnej bazie danych, używanej wyłącznie do odczytu. Tabela ta może być zaprojektowana specjalnie pod kątem danych potrzebnych do realizacji złożonych zapytań, oferując jednoznaczną relację pomiędzy wymaganymi danymi, a kolumnami w tabeli zapytań.
+
+Cold Data w centralnej bazie danych - dla złożonych raportów i zapytań, które nie wymagają danych w czasie rzeczywistym, stosuje się często eksport gorących danych (transakcyjnych danych z mikrousług) jako zimnych danych do dużych baz danych przeznaczonych wyłącznie do celów raportowania. Ta scentralizowana baza danych jest używana jedynie do zapytań i raportów niepotrzebujących aktualnych danych. Aktualizacje i transakcje jako źródło prawdy muszą znajdować się w danych mikrousług. Synchronizację danych można przeprowadzić albo poprzez komunikację sterowaną zdarzeniami, albo za pomocą narzędzi do importu lub eksportu danych.
+
+Jeśli ciągła potrzeba agregowania informacji z wielu mikrousług dla złożonych zapytań staje się zauważalna, może to wskazywać na problem w projektowaniu - mikrousługi powinny być możliwie najbardziej izolowane. Częste występowanie tego problemu może sugerować potrzebę konsolidacji mikrousług. Ważne jest zatem znalezienie równowagi między autonomią rozwoju i wdrażania poszczególnych mikrousług a potrzebą silnych zależności, spójności i agregacji danych.
+
+Spójność danych w modelu z wieloma mikrousługami Jak wcześniej wspomniano, dane należące do poszczególnych mikrousług są dla nich prywatne i dostępne wyłącznie poprzez ich interfejsy A-P-I. Stąd, wyzwaniem jest realizacja złożonych procesów biznesowych przy zachowaniu spójności danych pomiędzy wieloma mikrousługami.
+
+Rozważmy przykład mikrousługi Cennik, która przechowuje informacje o cenach usług, oraz mikrousługi Zlecenia, zarządzającej tymczasowymi danymi dotyczącymi usług w kontraktach. Gdy cena usługi ulegnie zmianie w Cenniku, powinna być ona zaktualizowana także w otwartych Zleceniach, które tę usługę zawierają, co może pociągnąć za sobą konieczność powiadomienia użytkowników o zmianie ceny.
+
+W klasycznym, monolitycznym podejściu, aktualizacja ceny w tabeli usług mogłaby być wykonana poprzez transakcje ACID, jednocześnie aktualizując ceny w tabeli zlecenia. W architekturze opartej na mikrousługach jednak, tabele Usług i Zlecenia należą do różnych mikrousług, co wyklucza bezpośrednie transakcje między nimi.
+
+Anty-wzorzec korzystania z danych innego mikroserwisu międzyprocesowej, takich jak H-T-T-P, AMQP, lub protokoły binarne jak TCP, w zależności od potrzeb każdej usługi.
+
+Podczas projektowania aplikacji opartych na mikrousługach, zaleca się tworzenie jak najbardziej oddzielonych interfejsów między mikrousługami, przy jednoczesnym dążeniu do spójności wewnętrznej w ramach każdej mikrousługi. Jak wspomniano, każda mikrousługa zarządza własnymi danymi i logiką domeny. Mikrousługi współtworzące złożoną aplikację są zwykle projektowane z wykorzystaniem prostych komunikacji REST i lekkiej asynchronicznej wymiany komunikatów dla aktualizacji między usługami, zamiast stosowania złożonych protokołów czy scentralizowanych koordynatorów procesów biznesowych.
+
+Dwa powszechnie używane protokoły to H-T-T-P dla żądań i odpowiedzi z interfejsami A-P-I zasobów, głównie do zapytań, oraz asynchroniczne przesyłanie komunikatów dla aktualizacji między wieloma mikrousługami. Te podejścia są omówione bardziej szczegółowo w dalszych sekcjach.

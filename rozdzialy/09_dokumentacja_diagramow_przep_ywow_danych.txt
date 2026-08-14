@@ -1,0 +1,109 @@
+Dokumentacja diagramów przepływów danych.
+
+Logistyka 4.0 Diagramy przepływów danych Wersja 1.0. Historia zmian i zatwierdzenia.
+
+Spis treści opracowania podstawowej wersji H-L-D, która następnie została skonsultowana z przedstawicielami biznesu. W trakcie tych konsultacji zidentyfikowano kluczowe wymagania oraz obszary wymagające dalszych analiz i doprecyzowania. Na podstawie uzyskanych sugestii i uwag od strony biznesowej, dokonano niezbędnych modyfikacji i aktualizacji w dokumencie H-L-D. Zmiany te miały na celu lepsze dostosowanie projektu do rzeczywistych potrzeb i oczekiwań użytkowników końcowych.
+
+Uaktualniony dokument H-L-D, zawierający wszystkie wprowadzone zmiany, został zatwierdzony jako nowa wersja projektu. Nowy H-L-D stanowił podstawę do dalszych prac nad szczegółowymi diagramami przepływów danych. Na bazie uaktualnionego H-L-D, sporządzono szczegółowe diagramy przepływów danych dla obszaru handlowego. Diagramy te odzwierciedlają aktualny stan procesów biznesowych oraz przepływ informacji w systemie, zgodnie z najnowszymi wymaganiami i specyfikacjami.
+
+Warto podkreślić, że istnieje pełna spójność pomiędzy uaktualnionym dokumentem H-L-D a sporządzoną dokumentacją diagramów przepływów danych.
+
+Dokumenty znajdują się w dedykowanym folderze na grupie projektowej. Dostęp do nich można uzyskać pod następującym adresem:
+
+obszar handlowy - folder, w którym znajdują się diagramy dla modułu handlowego.
+
+Spis diagramów przepływów danych dotyczących modułu handlowego. Rejestracja i weryfikacja klienta. H U-C 1: Rejestracja klienta w systemie. H U-C 2: Wprowadzenie danych klienta przez pracownika sprzedaży. H U-C 3: Weryfikacja nowo zarejestrowanego klienta.
+
+H U-C 39: Zarządzanie innymi kontami niż master przez użytkownika (klienta).
+
+z uprawnieniami master. H U-C 40: Zarządzanie jednostkami biznesowymi w ramach podmiotu gospodarczego. H U-C 41: Dodawanie konta master do istniejącego podmiotu gospodarczego. H U-C 50: Nowy U-C dla widoku 'read-only' dla gościa.
+
+H U-C 4: Prośba o przygotowanie oferty. H U-C 5: Przygotowanie oferty przez handlowca. H U-C 6: Przekazanie oferty klientowi. H U-C 7: Akceptacja oferty. H U-C 42: Wprowadzanie zapytania ofertowego związanego z przetargiem.
+
+H U-C 44: Udostępnianie aktualnego cennika (zakresu cenowego dla produktów z katalogu).
+
+H U-C 45: Edycja katalogu produktów. H U-C 46: Edycja cen dla produktów w katalogu produktów.
+
+H U-C 8: Złożenie zlecenia przez EDI lub A-P-I. H U-C 9: Złożenie zlecenia przez Strefę Klienta. H U-C 10: Złożenie zlecenia drogą mailową. H U-C 18: Automatyczna weryfikacja zlecenia mailowego. H U-C 19: Ręczna weryfikacja zlecenia mailowego.
+
+H U-C 16: Automatyczne informowanie o konieczności weryfikacji dokumentów. H U-C 13: Dopięcie dokumentów do zlecenia. H U-C 17: Weryfikacja wymaganych dokumentów.
+
+H U-C 11: Weryfikacja stanu zobowiązań klienta. H U-C 12: Weryfikacja zwolnienia kontenera. H U-C 14: Automatyczna weryfikacja zdolności przewozowych. H U-C 25: Weryfikacja czy dane zlecenie wymaga przedpłaty. Trudności w realizacji lub modyfikacja zlecenia.
+
+H U-C 15: Konsultacja parametrów zlecenia z klientem. H U-C 20: Modyfikacja zlecenia w Strefie Klienta. H U-C 21: Modyfikacja zlecenia przez zapytanie mailowe.
+
+H U-C 22: Konsultacja z klientem na temat modyfikacji warunków zlecenia.
+
+H U-C 23: Obsługa zapytań klienta w Strefie Klienta. H U-C 24: Obsługa zapytań mailowych. Spis diagramów przepływów danych dotyczących modułu terminalowego. Serwis reguł przeładunkowych. GZ UC1: Tworzenie reguły składowej. GZ UC2: Edytowanie reguły składowej.
+
+GZ UC3: Zmiana statusy reguły składowej. GZ UC4: Usuwanie reguły składowej. Serwis alokacji zadań. T U-C 4: Automatyczne przypisywanie zadania przeładunkowego. T U-C 5: Manualne przypisywanie zadania przeładunkowego. Serwis optymalizacji reguł.
+
+GZ UC5: Symulacja nowego zestawu reguł składowych. Serwis zleceń przeładunkowych. GZ UC6: Tworzenie zadania przeładunkowego. GZ UC7: Manualne tworzenie zadania przeładunkowego. GZ UC8: Edytowanie zadania przeładunkowego. GZ UC9: Pauzowanie zadania przeładunkowego.
+
+T U-C 6: Manualna realizacja czynności przeładunkowych. T U-C 7: Automatyczna realizacja czynności przeładunkowych. Serwis monitorowania statusu. T U-C 8: Manualne wprowadzanie statusu czynności przeładunkowych. T U-C 9: Automatyczne wprowadzanie statusu czynności przeładunkowych.
+
+T U-C 10: Alarmowe wstrzymywanie realizacji czynności przeładunkowych. Serwis zadań transportu wewnętrznego. T U-C 11: Generowanie zadań transportu wewnętrznego (I-M-V). T U-C 12: Automatyczne zarządzanie zadaniami transportu wewnętrznego.
+
+T U-C 13: Manualne zarządzanie zadaniami transportu wewnętrznego. T U-C 14: Realizacja ruchu wewnętrznego. T U-C 15: Nadanie statusów.
+
+IMV UC1: Logowanie się Operatora I-M-V. IMV UC2: Pobranie naczepy z parkingu. IMV UC3: Realizacja zadania w trybie zestaw. IMV UC4: Realizacja zadania w trybie solol. IMV UC5: Zgłaszanie nieprawidłowości do TrafÏc Plannera.
+
+IMV UC6: Zgłaszanie przerwy w pracy (pauzy). IMV UC7: Brak kolejnego zadania dla danego I-M-V. IMV UC8: Zakończenie pracy przez Operatora I-M-V. Serwis zadań terminalowych. T U-C 16: Generowanie zadań terminalowych. T U-C 17: Automatyczne zarządzanie zadaniami terminalowymi.
+
+T U-C 18: Manualne zarządzanie zadaniami terminalowymi. T U-C 19: Nadanie statusów realizacji zleceń terminalowych.
+
+T U-C 20: Wprowadzanie informacji o stanie kontenera. T U-C 21: Wprowadzenie informacji o zużytych materiałach. T U-C 22: Udokumentowanie zrealizowanej usługi.
+
+T U-C 24: Monitoring zużycia prądu lub czasu ładowania - automatyczny.
+
+T U-C 25: Monitoring zużycia prądu - manualny. T U-C 29: Zarzadzanie procesem realizacji zadań terminalowych. T U-C 26: Wprowadzenie pomiaru z wagi terminalowej.
+
+T U-C 27: Wprowadzenie dat przeglądów do systemu (prowadzenie kalendarza). D U-C 8: Weryfikacja Uprawnień ADR Kierowcy. Serwis rejestracji pojazdów. D U-C 9: Rejestracja Pojazdu przez Przewoźnika. D U-C 10: Weryfikacja nowego pojazdu Przewoźnika.
+
+Serwis dostępności kierowców. D U-C 11: Uzupełnienie informacji o dostępności kierowców.
+
+D U-C 12: Poinformowanie o niedyspozycyjności kierowcy z wyprzedzeniem mniejszym niż 48h.
+
+D U-C 13: Uzupełnienie informacji o dostępności kierowców floty centralnej. D U-C 14: Uzupełnienie informacji o godzinach pracy kierowców. Planowanie przydziału zleceń. D U-C 15: Estymowanie czasu obsługi zlecenia.
+
+D U-C 16: Planowanie podstawień - przypisywanie zleceń transportowych do konkretnych kierowców.
+
+D U-C 17: Weryfikacja nieprzypisanych podstawień, informowanie D-O-K. D U-C 18: Przeplanowanie podstawienia.
+
+D U-C 25: Realizacja podstawienia - Automatyczne wskazywanie kolejnych zadań w ramach zlecenia transportowego.
+
+D U-C 38: Wprowadzanie limitów odwozów. D U-C 39: Automatyczne wyznaczanie dat odwozów na terminale morskie. D U-C 40: Przekazanie zleceń do Podwykonawcy realizującego odwozy portowe. D U-C 41: Automatyczna korekta danych zleceń.
+
+Serwis weryfikacji kontenerów. D U-C 19: Weryfikacja dostępności kontenera. D U-C 20: Weryfikacja dostępności kontenera - manualna.
+
+może ulec zmianie w miarę postępu prac i uzyskiwania nowych informacji zwrotnych od interesariuszy.
+
+obszar transportu kolejowego - folder, w którym znajdują się diagramy dla modułu kolejowego.
+
+Opis Logistyki 4.0.pdf - H-L-D. Spis diagramów przepływów danych dotyczących modułu kolejowego. Serwis rozkładów jazdy. K U-C 1: Planowanie siatki połączeń kolejowych. K U-C 2: Modyfikacja siatki połączeń w okresie przyjętych zleceń.
+
+K U-C 3: Manualne wywołanie przetrasowania. K U-C 4: Optymalizacja siatki połączeń. K U-C 5: Zgłaszanie zmiany w harmonogramie. K U-C 6: Wprowadzanie zasobów przewoźników obcych.
+
+K U-C 7: Wprowadzanie zasobów przewoźników własnych. K U-C 8: Planowanie przeglądów lokomotyw i wagonów. K U-C 9: Zarządzanie czasem pracy Maszynistów. K U-C 12: Planowanie lokomotyw. K U-C 13: Planowanie maszynistów. K U-C 14: Planowanie przepięć wagonów.
+
+K U-C 10: Planowanie przewoźnika. K U-C 11: Manualna zmiana przewoźnika. K U-C 16: Akceptacja składu pociągu po awaryjnym wybiciu wagonu.
+
+K U-C 17: Automatyczna weryfikacja planu załadunkowego po zmianie składu pociągu.
+
+K U-C 19: Planowanie kontenerów (obudowanie składu pociągu). K U-C 20: Manualne planowanie kontenerów (obudowanie składu pociągu). K U-C 21: Zapisanie planu załadunkowego pociągu.
+
+K U-C 18: Automatyczne informowanie Planisty Kolejowego o zdarzeniach w obszarze kolejowym.
+
+K U-C 22: Automatyczne wzywanie Rewidenta. K U-C 23: Przyjęcie lub nieprzyjęcie zgłoszenia przez Rewidenta. K U-C 24: Weryfikacja przyjęcia zgłoszenia przez Rewidenta. K U-C 25: Wezwanie Rewidenta. K U-C 26: Przeprowadzenie próby hamulca.
+
+K U-C 27: Zgłoszenie usterki w składzie w czasie próby hamulca.
+
+K U-C 28: Przekazanie danych do systemu PKP PLK. K U-C 29: Wysyłka planu załadunku do zewnętrznego terminala. K U-C 30: Zatwierdzenie gotowości pociągu do wyjazdu. K U-C 31: Poinformowanie Maszynisty Trakcyjnego o statusie pociągu.
+
+K U-C 32: Zlecenie manewrów. K U-C 33: Automatyczne zarządzanie manewrami. K U-C 34: Manualne zarządzanie manewrami. K U-C 35: Nadanie statusu manewrów.
+
+K U-C 36: Identyfikacja godziny wyjazdu składu z terminala. K U-C 37: Nadanie statusu przewozu kolejowego. K U-C 38: Monitoring pozycji pociągu i szacowanie godziny dojazdu. K U-C 39: Identyfikacja i weryfikacja kontenerów. K U-C 40: Identyfikacja i weryfikacja wagonów (lokomotyw).
+
+K U-C 41: Generowanie zadań w zakresie oględzin składu. K U-C 42: Automatyczne zarządzanie zleceniami oględzin składu. K U-C 43: Manualne zarządzanie zleceniami oględzin składu. K U-C 44: Nadawanie statusów w czasie oględzin składu.
+
+K U-C 45: Wyłączenie wagonu z użycia. K U-C 46: Generowanie zadań w zakresie naprawy wagonu. K U-C 47: Automatyczne zarządzanie zleceniami naprawy wagonu. K U-C 48: Nadanie statusu naprawy wagonu. K U-C 49: Przegląd wagonu przed dopuszczeniem do ruchu.

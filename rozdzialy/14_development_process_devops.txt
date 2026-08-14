@@ -1,0 +1,50 @@
+Development process — devops.
+
+Azure DevOps Development Process Główne etapy workflow. Utworzenie Tasków w User Story (New). Przypisanie US Ownera do User Story.
+
+Development Tasków w User Story: 3.1. Development (In Development) - Task Developer implementuje i testuje kod 3.2. Code Review (In Review) - Code Reviewer weryfikuje kod, następnie merge do DEV przez developera 3.3. Testowanie pojedynczych Tasków (In Testing) - Developer weryfikuje własne rozwiązanie na DEV.
+
+Jeśli istnieją Taski w US w statusie niższym niż In Testing - Oczekiwanie na wszystkie Taski w statusie In Testing.
+
+Testy User Story (US - In Testing) - US Owner testuje i przeprowadza demo dla Analityka całego US na środowisku DEV, w momencie, gdy wszystkie Taski (relacja child) są w statusie In Testing.
+
+Zamknięcie Tasków - Aktualizacja we wszystkich Taskach pod US pola Integrated in Build i zamknięcie (status Closed).
+
+Testy funkcjonalne (Ready for PO Review) - Testerzy testują US (testy funkcjonalne).
+
+Akceptacja User Story przez PO (Approved by PO) - Decyzja o zamknięciu US po zakończeniu testów funkcjonalnych.
+
+Tworzenie Tasków w User Story (konsultowanie z Core Dev lub Głównym Deweloperem).
+
+Weryfikacja spełnienia wymagan z opisu Taska lub User story (nie musi być przez intensywne testy, screenshoty od autora kodu mile widziane w opisie MR).
+
+Informowanie Task Developera o wyniku review. User Story Owner (US Owner - Developer ). Koordynacja User Story - monitorowanie postępu developmentu.
+
+Testowanie na środowisku DEV (gdy całe US - wszystkie taski - dostarczone na DEV).
+
+Zapewnienie kompletności danych testowych. Przetestowanie lub Demo US Analitykowi (na DEV). Zarządzanie i monitorowanie statusów zadań w US.
+
+Akceptacja User Story (po walidacji lub akceptacji demo przez Analityka, następnie US Story release na TEST i status na Ready for PO Approval). Zazwyczaj Frontend Developer.
+
+Core Dev Team (Serhii - Główny Deweloper, Kamil, Monika, Ula).
+
+Release na środowisko TEST - do ustalenia sposób informowania o możliwości release.
+
+Aktualizacja Integrated in Build na poziomie Tasków pod US.
+
+Aktualizacja US na Ready for PO Review (po release na TEST).
+
+Każde rozpoczęte User Story ma właściciela (US Owner) - dewelopera odpowiedzialnego za całe US.
+
+Na system TEST przechodzą tylko w całości ukończone US (wszystkie taski child w statusie Closed) lub taski ad-hoc niepowiązane z żadnym US. Wyjątki są omawiane z Analitykiem przez US Ownera i Dev Leada.
+
+Weryfikacja przez analityka jest wymagana przed release na TEST, spotkanie przed końcem sprintu + indywidualnie w razie potrzeby.
+
+Wersja Integrated in Build jest aktualizowana ręcznie po release na TEST.
+
+Status Ready for PO Review na US oznacza, że dane US jest na systemie TEST gotowe do testów użytkowników.
+
+User Story pozostaje w statusie Ready for PO Review aż do zakończenia testów funkcjonalnych (Pre-U-A-T).
+
+
+CZĘŚĆ CZWARTA. DEWELOPMENT — PROCESY I DOKUMENTACJA APLIKACYJNA.

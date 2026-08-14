@@ -1,0 +1,37 @@
+Przypadek użycia h_uc9 — złożenie zlecenia przez strefę klienta.
+
+H U-C 9: Złożenie zlecenia przez Strefę Klienta. Aktor główny: Klient Aktorzy wspierający: System Warunki wstępne: Klient ma aktywne konto w Strefie Klienta.
+
+Klient jest świadomy warunków i specyfikacji dotyczących zleceń. Główny przepływ wydarzeń:
+
+Klient loguje się do Strefy Klienta. Klient nawiguje do zakładki składania zleceń.
+
+Klient wybiera kontrakt, na podstawie którego chce złożyć zlecenie z listy rozwijanej.
+
+Klient wprowadza szczegółowe dane dla zlecenia, w tym miejsce i datę podjęcia i zdania kontenera, typ kontenera, typ ładunku, miejsce i datę zdania kontenera, datę podstawienia (jeśli dotyczy). Klient wybiera jednostkę organizacyjną, w ramach której składa zamówienie, jeśli posiada więcej niż jedną jednostkę organizacyjną. Ten wybór spowoduje przypisanie odpowiedniego opiekuna do zlecenia. W przypadku gdy do jednostki biznesowej przypisanych jest więcej niz jeden opiekun system wybierze opiekuna na zasadzie rotacyjnej (zlecenie 1 - opiekun 1, zlecenie 2 - opiekun 2, zelecenie 3 - opiekun1, zelecenie 4 - opiekun 2).
+
+System P-C-C-I generuje listę operacji na podstawie parametrów zlecenia oraz listę wymaganych dokumentów i dodatkowych parametrów (na przykład SENT, numer zwolnienia).
+
+Wymagane dokumenty lub parametry są przypisane do specyficznej operacji lub zlecenia. Reguły ich wymagalności są liczone od daty gotowości dla zlecenia lub od planowanej daty rozpoczęcia danej operacji.
+
+System automatycznie weryfikuje zlecenie pod kątem stanu zobowiązań finansowych Klienta (H U-C 11).
+
+W przypadku pozytywnej weryfikacji, zlecenie jest przekazywane do dalszej realizacji.
+
+Klient otrzymuje informację w formie komunikatu push, że zlecenie zostało wstępnie przyjęte do realizacji i weryfikowane są zasoby do jego obsługi.
+
+W Strefie Klienta w zakładce ze zleceniami nowe zlecenie pojawia się ze statusem Zlecenie złożone. Alternatywne przepływy:
+
+Klient w Strefie Klienta otrzymuje informację push, że zlecenie nie może zostać przyjęte z opisanego w komunikacie powodu:
+
+brak potwierdzenia zwolnienia danego kontenera przez armatora. Warunki końcowe:
+
+Zlecenie jest złożone lub odrzucone z powodu negatywnej weryfikacji finansowej.
+
+Klient jest na bieżąco informowany o statusie zlecenia. Wymagania specjalne:
+
+System musi zapewniać wysoki poziom bezpieczeństwa i prywatności danych.
+
+Proces składania zleceń powinien być intuicyjny i prosty dla Klienta, aby zminimalizować ryzyko błędów.
+
+Złożenie zlecenia przez Strefę Klienta może mieć miejsce wielokrotnie w ciągu dnia, w zależności od liczby aktywnych klientów i ich potrzeb biznesowych.

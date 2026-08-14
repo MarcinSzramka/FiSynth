@@ -1,0 +1,47 @@
+Organizacja dewelopmentu.
+
+Logistyka 4.0 Organizacja dewelopmentu Wersja 1.0. Historia zmian i zatwierdzenia.
+
+feature lub issue-id task-name (dla nowych funkcjonalności). bugfix lub bug-id (dla poprawek błędów). hotfix lub issue-id (dla pilnych poprawek w produkcji). Proces commitowania i zarządzania commitami: Dobre praktyki dotyczące commitów obejmują:
+
+Częste i małe commity zamiast dużych i rzadkich. Opisowe wiadomości commitów, które jasno komunikują wprowadzone zmiany.
+
+W przypadku gdzie do jednego issue będzie przypisany jeden commit to zalecane jest użycie dla nazwy commita nazwy issue.
+
+Przykładowa konwencja wiadomości commitów: feat: Dodanie logowania w Keycloak. fix: Rozwiązanie bugu przy migracjach. chore: Zmiany w requirements. Przegląd kodu (code review):
+
+Przed stworzeniem merge requesta muszą być uruchomione testy oraz zmergowanie z aktualną wersja dev. W przypadku konfliktów, muszą zostać rozwiązane.
+
+Przed stworzeniem merge requesta deweloper musi uzupełnić dokumentacje projektową w części funkcjonalności której dotyczył issue.
+
+Przed stworzeniem merge requesta deweloper musi dodać Add time entry - ilość czasu ile spędził nad wykonaniem konkretnego issue.
+
+Przed scaleniem (merge) gałęzi do głównej linii rozwoju dev, kod powinien zostać przeglądnięty przez co najmniej jednego współpracownika.
+
+Proces przeglądu może obejmować następujące kroki: Tworzenie merge requesta. Współpracownicy przeglądają kod, sugerując zmiany lub akceptując go. Po zatwierdzeniu kod jest scalany do gałęzi dev. Proces wydania (release): Przygotowanie i wydanie nowej wersji aplikacji obejmuję:
+
+Przegląd i zamknięcie wszystkich zadań związanych z danym wydaniem.
+
+Tworzenie i oznaczanie (tagowanie) wersji w systemie kontroli wersji.
+
+Aktualizację dokumentacji i notatek wydania (release notes). Wdrażanie wersji na odpowiednie środowiska i bieżące monitorowanie. Komunikacja i spotkania:
+
+Cel: Planowanie pracy na nadchodzący sprint. Kiedy: Na początku każdego sprintu.
+
+Opis: Na początku każdego sprintu zespół i Product Owner spotykają się, aby przeglądnąć backlog produktu. Wybierają zadania, które będą realizowane w nadchodzącym sprincie, określają cel sprintu i dzielą zadania między członków zespołu. Celem tego spotkania jest zapewnienie, że wszyscy rozumieją, co ma być zrobione i jakie są priorytety. Przed sprint Planningem muszę być przygotowana dokumentacji w ramach funkcjonalności dotyczącej danego sprintu oraz muszą być przygotowane issues w Open.
+
+Opis: Codziennie zespół spotyka się na krótkie, 15-minutowe spotkanie, podczas którego każdy członek zespołu odpowiada na trzy pytania: co zrobiłem wczoraj lub dziś, co planuję zrobić dzisiaj lub jutro i jakie przeszkody napotkałem. Celem tego spotkania jest synchronizacja działań zespołu, identyfikacja problemów i szybkie ich rozwiązanie.
+
+Cel: Przegląd wyników sprintu i zebranie informacji zwrotnych. Kiedy: Na koniec każdego sprintu.
+
+Opis: Na koniec każdego sprintu zespół spotyka się na Sprint Review, aby przeglądnąć wyniki sprintu. Zespół prezentuje ukończone zadania interesariuszom, omawia osiągnięcia i zbiera feedback. Celem tego spotkania jest ocena postępów i dostosowanie planów na przyszłość na podstawie zebranych informacji zwrotnych.
+
+Cel: Refleksja nad procesem sprintu i identyfikacja obszarów do poprawy.
+
+Opis: Po Sprint Review zespół spotyka się na Sprint Retrospective, aby reflektować nad procesem sprintu. Dyskutują, co poszło dobrze, co mogło pójść lepiej i jakie działania można podjąć, aby poprawić proces w przyszłości. Celem tego spotkania jest ciągłe doskonalenie procesu pracy zespołu.
+
+Opis: Nie częściej niż raz w tygodniu, zespół spotyka się na Backlog Refinement, aby udoskonalać backlog produktu. Przeglądają, priorytetyzują i szacują zadania w backlogu oraz rozbijają większe elementy na mniejsze, bardziej szczegółowe zadania. Celem tego spotkania jest utrzymanie backlogu w stanie gotowości do realizacji w nadchodzących sprintach lub poprawienie w obecnym.
+
+Cel: Rozwiązywanie bieżących problemów i omawianie pilnych kwestii. Kiedy: W razie potrzeby.
+
+Opis: W razie potrzeby mogą odbywać się spotkania ad-hoc, których celem jest rozwiązywanie bieżących problemów i omawianie pilnych kwestii. Spotkania te są organizowane w zależności od potrzeb, a ich agenda jest ustalana na bieżąco.

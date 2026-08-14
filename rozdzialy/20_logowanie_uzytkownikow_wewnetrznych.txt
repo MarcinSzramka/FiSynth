@@ -1,0 +1,11 @@
+Logowanie użytkowników wewnętrznych.
+
+Logistyka 4.0 Dokumentacja systemu Logowanie użytkowników wewnętrznych. Historia zmian i zatwierdzenia.
+
+Lista i opis wykorzystanych i utworzonych głównych obiektów programistycznych oraz interfejsów A-P-I.3.
+
+Planowanie i dewelopment. Obsługa logowania z loginem i hasłem. Implementacja głównego menu dla różnych typów użytkowników.
+
+Stworzenie użytkownika i nadanie odpowiednich dostępów w aplikacji Keycloak.
+
+Wykorzystane U-C Wszystkie U-C w których użytkownik wewnętrzny loguje do systemu z odpowiednimi dostępami.

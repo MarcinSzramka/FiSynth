@@ -1,0 +1,29 @@
+Dokumentacja modelu danych.
+
+Logistyka 4.0 Model danych Wersja 1.0. Historia zmian i zatwierdzenia.
+
+Encje: Przedstawione jako podstawowe jednostki danych, reprezentują różne obiekty lub pojęcia istotne z punktu widzenia systemu. Każda encja jest oznaczona unikalnym identyfikatorem, co pozwala na jej jednoznaczną identyfikację.
+
+Relacje między encjami: Przedstawione są jako połączenia między encjami, wskazując na zależności i typy powiązań, jakie między nimi występują. Relacje mogą być typu jeden do jednego, jeden do wielu lub wiele do wielu, co określa, jak wiele instancji jednej encji może być powiązanych z instancjami innej encji.
+
+Relacje w diagramach związków encji (E-R-D) mogą przyjmować różne typy (Liczności Relacji):
+
+Jeden do jednego (1:1): Każda instancja jednej encji może być powiązana tylko z jedną instancją innej encji. Przykładem może być relacja między osobą a jej dowodem tożsamości - każda osoba ma jeden unikalny dowód, a każdy dowód przypisany jest do jednej osoby.
+
+Jeden do wielu (1:N): Jedna instancja encji może być powiązana z wieloma instancjami innej encji. Na przykład, jeden autor może napisać wiele książek, ale każda książka jest napisana tylko przez jednego autora.
+
+Wiele do wielu (N:N): Wiele instancji jednej encji może być powiązanych z wieloma instancjami innej encji. Przykładem może być relacja między studentami a kursami - każdy student może zapisać się na wiele kursów, a każdy kurs może być realizowany przez wielu studentów.
+
+Rozumienie tych typów relacji jest kluczowe dla prawidłowego modelowania danych i zapewnienia, że struktura bazy danych będzie odzwierciedlać rzeczywiste zależności między danymi. Dzięki temu można uniknąć problemów z redundancją i zapewnić spójność danych.
+
+Moduł terminalowy: Zbiera informacje na temat operacji terminalowych, w tym zarządzanie magazynami, przeładunkiem towarów oraz kontrolą dostępu.
+
+Aby usprawnić proces zbierania danych, dla każdego z modułów zostaną przygotowane pliki Excel do kolekcji danych, w których dla każdej encji zbierzemy wszystkie istotne atrybuty wraz z ich właściwościami, takimi jak typ danych, wymagania dotyczące unikalności oraz ewentualne wartości domyślne. Dzięki temu będziemy mogli dokładnie określić, jakie informacje są niezbędne do prawidłowego funkcjonowania systemu oraz jak będą one przechowywane i przetwarzane w bazie danych.
+
+Ilustruje on, jak szczegółowe i precyzyjne muszą być zebrane informacje, aby umożliwić prawidłowe modelowanie encji i relacji w systemie.
+
+W pliku Obszar handlowy data request.xlsx można znaleźć pełny zakres zbieranych informacji o atrybutach, które są szczegółowo opisane. Plik ten zawiera dokładne specyfikacje każdego atrybutu, w tym.
+
+Typ pola (liczba, tekst, data, wartość logiczna, lista wartości).
+
+Pozostałe informacji będą modelowana na podstawie potrzeb działania systemu, co oznacza, że każda dodatkowa encja i atrybuty zostaną szczegółowo określone w kontekście ich roli w operacjach biznesowych. To pozwala na elastyczne i precyzyjne dostosowanie modelu danych do specyficznych wymagań oraz na łatwe rozszerzanie systemu w przyszłości. Kluczowym elementem tego procesu jest.

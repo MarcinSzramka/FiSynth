@@ -1,0 +1,33 @@
+Algorytm wyznaczania tras sprzedażowych.
+
+Logistyka 4.0 Dokumentacja systemu Algorytm wyszukiwania tras sprzedażowy. Historia zmian i zatwierdzenia.
+
+Lista i opis wykorzystanych i utworzonych głównych obiektów programistycznych oraz interfejsów A-P-I.2.
+
+Oczekiwany Wynik: System powinien znaleźć warianty trasy, które obejmują zarówno część pełną (flaga ładunku 1), jak i pustą (flaga ładunku 0) po obsłużeniu klienta.
+
+To pokazuje, że algorytm poprawnie śledzi i zmienia stan załadowania kontenera.
+
+Ten test sprawdza, czy system poprawnie obsługuje scenariusz, w którym cała operacja odbywa się w jednym węźle (na przykład sam handling lub mycie).
+
+Oczekiwany Wynik: System powinien zwrócić trasę składającą się z jednej operacji typu self-loop (pętla własna), gdzie węzeł początkowy i końcowy są takie same.
+
+Reprezentuje to usługę wykonaną na miejscu w węźle bd pcc (w tym przypadku węzeł o ID 6, operacja o ID 5).
+
+Poza weryfikacją logiki biznesowej tras, pakiet testów (test graph builder.py) obejmuje również:
+
+Poprawność budowania grafu: Sprawdzanie, czy graf ma oczekiwaną liczbę węzłów i krawędzi.
+
+Tworzenie krawędzi wirtualnych: Weryfikacja, czy węzły operacyjne są poprawnie łączone z nieoperacyjnymi.
+
+Integrację z cachem Redis: Testy zapisu, odczytu i nadpisywania grafu w pamięci podręcznej.
+
+krawędź (połączenie) w grafie, do wezla id, operacja id operacji między dwoma węzłami.
+
+możliwe typy i podtypy operacji podtyp kodu usługa). który koordynuje cały proces: od find routes wyszukania tras.
+
+jedynym zadaniem jest pobranie surowych rekordów potrzebnych do budowy grafu.
+
+surowe dane z bazy w gotowy do użycia obiekt grafu networkx, dodając między innymi logikę krawędzi wirtualnych.
+
+buforem. Odpowiada za zapis i odczyt gotowego obiektu grafu do lub z pamięci podręcznej Redis.
