@@ -28,6 +28,10 @@ FiSynthAudioProcessor::FiSynthAudioProcessor()
     // edytora) pierwszy dotyk fiRatioRow to startNote na wątku audio.
     (void) fiRatioRow (0);
 
+    // I dla tablicy sinusa gorącej pętli — inaczej jej leniwa inicjalizacja
+    // (alokacja + lock strażnika) odpaliłaby się w pierwszym renderNextBlock.
+    (void) fiSineTable();
+
     // Cache surowych wskaźników parametrów — patrz komentarz przy ParamPtrs.
     auto rp = [this] (const juce::String& id) { return apvts.getRawParameterValue (id); };
 
@@ -109,6 +113,13 @@ FiSynthAudioProcessor::FiSynthAudioProcessor()
         // Wypełnij migawki startowe z domyślnych obwiedni.
         commitEnvelope (i);
     }
+
+    // Pickup: pozycje gałek nieznane do pierwszego CC.
+    std::fill (std::begin (ccLastVal), std::end (ccLastVal), -1.0f);
+
+    // Mapa domyślna użytkownika — jeśli host ma zapisany stan z przypisaniami,
+    // setStateInformation zaraz ją nadpisze; świeża instancja gra od ręki.
+    loadDefaultMidiMap();
 
     // MIDI Learn: timer na wątku komunikatów drenuje FIFO eventów CC
     // i mapuje je na parametry (działa też bez otwartego edytora).
@@ -635,6 +646,18 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         }
     }
 
+    // Kropka aktywności MIDI w GUI: licz TYLKO eventy kanałowe (status < 0xF0)
+    // — clock/active sensing sprzęt śle ciągle i świeciłyby na okrągło.
+    // Liczone PRZED dołączeniem nut klawiatury ekranowej = sam zewnętrzny MIDI.
+    {
+        juce::uint32 external = 0;
+        for (const auto meta : midiMessages)
+            if (meta.numBytes > 0 && meta.data[0] < 0xf0)
+                ++external;
+        if (external > 0)
+            midiEventCount.fetch_add (external, std::memory_order_relaxed);
+    }
+
     // Nuty z klawiatury ekranowej dołączają do strumienia MIDI (i odwrotnie:
     // eventy z hosta aktualizują stan klawiszy w GUI).
     keyboardState.processNextMidiBuffer (midiMessages, 0, buffer.getNumSamples(), true);
@@ -822,6 +845,16 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     buffer.applyGainRamp (0, buffer.getNumSamples(), previousGain, gain);
     previousGain = gain;
 
+    // Bezpiecznik NaN/Inf — PRZED wyciszeniem demo i FIFO widma, żeby ani host,
+    // ani analizator nigdy nie zobaczyły śmieci.
+    sanitiseOutput (buffer);
+
+#if FISYNTH_DEMO
+    // Wyciszenie demo na samym końcu łańcucha, PRZED FIFO widma — analizator
+    // ma pokazywać to, co naprawdę słychać (przerwę też).
+    applyDemoMute (buffer);
+#endif
+
     pushAnalyzerSamples (buffer);
 
     // W buforze bywają nasze własne eventy (arp, klawiatura ekranowa), a plugin
@@ -830,6 +863,90 @@ void FiSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // pod hostem zatrzymuje proces, gdy tylko arp doda pierwszą nutę.
     midiMessages.clear();
 }
+
+// === Bezpiecznik NaN/Inf ===
+// Bez tego pojedynczy NaN zostawał w pluginie NA STAŁE: juce::jlimit(-1, 1, NaN)
+// zwraca NaN (każde porównanie z NaN jest fałszywe), więc śmieć wjeżdżał do linii
+// opóźniającej i przez feedback krążył tam do końca sesji — instancja milczała
+// albo szumiała mimo zmiany presetu i nowych nut, a użytkownik nie miał jak
+// zgadnąć, że ratunkiem jest przełączenie Delay i FX.
+//
+// Zerujemy wyjście i czyścimy CAŁY stan z pamięcią (delay, pogłos, filtry głosów),
+// bo inaczej następny blok dostałby ten sam NaN z powrotem z feedbacku.
+void FiSynthAudioProcessor::sanitiseOutput (juce::AudioBuffer<float>& buffer)
+{
+    const int numSamples = buffer.getNumSamples();
+    bool bad = false;
+
+    for (int ch = 0; ch < buffer.getNumChannels(); ++ch)
+    {
+        auto* d = buffer.getWritePointer (ch);
+        for (int i = 0; i < numSamples; ++i)
+        {
+            if (! std::isfinite (d[i]))
+            {
+                d[i] = 0.0f;
+                bad = true;
+            }
+        }
+    }
+
+    if (! bad)
+        return;
+
+    delayBuffer.clear();
+    delayWritePos = 0;
+    fxReverb.reset();
+
+    for (auto* v : fiVoices)
+        v->resetDspState();
+
+    // Licznik dla GUI/diagnostyki — bez logowania na wątku audio.
+    nanResetCount.fetch_add (1, std::memory_order_relaxed);
+}
+
+#if FISYNTH_DEMO
+void FiSynthAudioProcessor::applyDemoMute (juce::AudioBuffer<float>& buffer)
+{
+    // Cykl: kPlay s normalnego grania → kFade s liniowego wyciszania →
+    // kSilence s ciszy → kRise s szybkiego powrotu. Gain liczony tylko na
+    // krańcach bloku + applyGainRamp — blok audio jest o rzędy wielkości
+    // krótszy od każdego segmentu cyklu, więc łamania w środku bloku nie
+    // słychać, a wrap cyklu jest ciągły (koniec powrotu = 1.0 = start grania).
+    constexpr double kPlay = 20.0, kFade = 2.0, kSilence = 3.0, kRise = 0.05;
+
+    const double sr         = getSampleRate();
+    const auto   playLen    = (juce::int64) (kPlay * sr);
+    const auto   fadeLen    = juce::jmax ((juce::int64) 1, (juce::int64) (kFade * sr));
+    const auto   silenceLen = (juce::int64) (kSilence * sr);
+    const auto   riseLen    = juce::jmax ((juce::int64) 1, (juce::int64) (kRise * sr));
+    const auto   cycleLen   = playLen + fadeLen + silenceLen + riseLen;
+
+    const auto gainAt = [=] (juce::int64 p) -> float
+    {
+        if (p < playLen)                 return 1.0f;
+        if ((p -= playLen) < fadeLen)    return 1.0f - (float) p / (float) fadeLen;
+        if ((p -= fadeLen) < silenceLen) return 0.0f;
+        return (float) (p - silenceLen) / (float) riseLen;
+    };
+
+    const int   numSamples = buffer.getNumSamples();
+    const float g0 = gainAt (demoPhase);
+    const float g1 = gainAt ((demoPhase + numSamples) % cycleLen);
+
+    if (g0 < 1.0f || g1 < 1.0f)
+        buffer.applyGainRamp (0, numSamples, g0, g1);
+
+    demoPhase = (demoPhase + numSamples) % cycleLen;
+
+    // Odliczanie dla GUI: czas do końca ciszy (ujemne = normalne granie).
+    const auto muteEnd = playLen + fadeLen + silenceLen;
+    demoMuteSecondsLeft.store (demoPhase >= playLen && demoPhase < muteEnd
+                                   ? (float) ((double) (muteEnd - demoPhase) / sr)
+                                   : -1.0f,
+                               std::memory_order_relaxed);
+}
+#endif
 
 void FiSynthAudioProcessor::applyFibGate (juce::AudioBuffer<float>& buffer,
                                           double blockStartBeat, double beatsPerSample)
@@ -1342,6 +1459,9 @@ void FiSynthAudioProcessor::timerCallback()
                     p = nullptr;
 
             ccMap[ev.num] = learnParam;
+            // Learn = użytkownik właśnie kręci TĄ gałką: przejmij od razu,
+            // bez czekania na przecięcie (pickup zaczyna się od zgody obu stron).
+            ccEngaged[ev.num] = true;
             learnParam    = nullptr;
             updateCcActive();
         }
@@ -1358,6 +1478,22 @@ void FiSynthAudioProcessor::timerCallback()
         if (dirty[cc])
             if (auto* p = ccMap[cc])
             {
+                // Pickup: nieprzejęty CC steruje dopiero po minięciu bieżącej
+                // wartości parametru (przecięcie względem poprzedniego ticka)
+                // albo zrównaniu się z nią — patrz komentarz w nagłówku.
+                if (! ccEngaged[cc])
+                {
+                    const float cur = p->getValue();
+                    const bool crossed = ccLastVal[cc] >= 0.0f
+                        && (ccLastVal[cc] - cur) * (pending[cc] - cur) <= 0.0f;
+                    if (crossed || std::abs (pending[cc] - cur) <= 0.03f)
+                        ccEngaged[cc] = true;
+                }
+                ccLastVal[cc] = pending[cc];
+
+                if (! ccEngaged[cc])
+                    continue;
+
                 // Para gestów jak dotknięcie gałki w GUI.
                 p->beginChangeGesture();
                 p->setValueNotifyingHost (pending[cc]);
@@ -1403,6 +1539,133 @@ void FiSynthAudioProcessor::clearCcMapping (const juce::String& paramID)
     updateCcActive();
 }
 
+// === Mapy MIDI (pliki .fsmap) ===
+
+std::unique_ptr<juce::XmlElement> FiSynthAudioProcessor::midiMapToXml() const
+{
+    auto map = std::make_unique<juce::XmlElement> ("MIDIMAP");
+
+    const juce::SpinLock::ScopedLockType lock (ccMapLock);
+    for (int cc = 0; cc < 128; ++cc)
+        if (ccMap[cc] != nullptr)
+        {
+            auto* m = map->createNewChildElement ("MAP");
+            m->setAttribute ("cc", cc);
+            m->setAttribute ("param", ccMap[cc]->paramID);
+        }
+
+    return map;
+}
+
+void FiSynthAudioProcessor::applyMidiMapXml (const juce::XmlElement& map)
+{
+    const juce::SpinLock::ScopedLockType lock (ccMapLock);
+    std::fill (std::begin (ccMap), std::end (ccMap), nullptr);
+    for (auto* m : map.getChildWithTagNameIterator ("MAP"))
+        if (auto* p = apvts.getParameter (m->getStringAttribute ("param")))
+            ccMap[juce::jlimit (0, 127, m->getIntAttribute ("cc"))] = p;
+    resetCcPickup();
+    updateCcActive();
+}
+
+void FiSynthAudioProcessor::resetCcPickup() noexcept
+{
+    std::fill (std::begin (ccEngaged), std::end (ccEngaged), false);
+}
+
+juce::File FiSynthAudioProcessor::getMidiMapDirectory()
+{
+    auto dir = juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+                   .getChildFile ("FiSynth")
+                   .getChildFile ("MidiMaps");
+    if (! dir.exists())
+        dir.createDirectory();
+    return dir;
+}
+
+bool FiSynthAudioProcessor::saveMidiMap (const juce::String& name)
+{
+    const auto safe = juce::File::createLegalFileName (name.trim());
+    if (safe.isEmpty())
+        return false;
+
+    if (midiMapToXml()->writeTo (getMidiMapDirectory().getChildFile (safe + ".fsmap")))
+    {
+        currentMidiMapName = safe;
+        return true;
+    }
+    return false;
+}
+
+bool FiSynthAudioProcessor::loadMidiMap (const juce::File& file)
+{
+    if (! file.existsAsFile())
+        return false;
+
+    // Tag MIDIMAP wymagany: nie przyjmujemy np. podanego przez pomyłkę presetu
+    // (.fsynth), którego wczytanie tą ścieżką skasowałoby mapę po cichu.
+    if (auto xml = juce::XmlDocument::parse (file); xml != nullptr && xml->hasTagName ("MIDIMAP"))
+    {
+        applyMidiMapXml (*xml);
+        currentMidiMapName = file.getFileNameWithoutExtension();
+        return true;
+    }
+    return false;
+}
+
+juce::StringArray FiSynthAudioProcessor::getMidiMapList() const
+{
+    juce::StringArray names;
+    for (auto& f : getMidiMapDirectory().findChildFiles (juce::File::findFiles, false, "*.fsmap"))
+        names.add (f.getFileNameWithoutExtension());
+
+    names.sortNatural();
+    return names;
+}
+
+void FiSynthAudioProcessor::clearAllCcMappings()
+{
+    {
+        const juce::SpinLock::ScopedLockType lock (ccMapLock);
+        std::fill (std::begin (ccMap), std::end (ccMap), nullptr);
+        resetCcPickup();
+        updateCcActive();
+    }
+    currentMidiMapName.clear();
+}
+
+// Marker mapy domyślnej: zwykły plik tekstowy z nazwą mapy — niewidoczny dla
+// listy map (filtr *.fsmap), łatwy do obejrzenia i skasowania ręcznie.
+static juce::File defaultMapMarker()
+{
+    return FiSynthAudioProcessor::getMidiMapDirectory().getChildFile ("default.txt");
+}
+
+juce::String FiSynthAudioProcessor::getDefaultMidiMapName()
+{
+    return defaultMapMarker().loadFileAsString().trim();
+}
+
+void FiSynthAudioProcessor::setDefaultMidiMapName (const juce::String& name)
+{
+    if (name.isEmpty())
+        defaultMapMarker().deleteFile();
+    else
+        defaultMapMarker().replaceWithText (name);
+}
+
+void FiSynthAudioProcessor::loadDefaultMidiMap()
+{
+    const auto name = getDefaultMidiMapName();
+    if (name.isNotEmpty())
+        loadMidiMap (getMidiMapDirectory().getChildFile (name + ".fsmap"));
+}
+
+bool FiSynthAudioProcessor::exportMidiMap (const juce::File& file)
+{
+    return midiMapToXml()->writeTo (file.withFileExtension ("fsmap"));
+}
+
 juce::AudioProcessorEditor* FiSynthAudioProcessor::createEditor()
 {
     return new FiSynthAudioProcessorEditor (*this);
@@ -1413,11 +1676,16 @@ juce::AudioProcessorEditor* FiSynthAudioProcessor::createEditor()
 std::unique_ptr<juce::XmlElement> FiSynthAudioProcessor::stateToXml()
 {
     // Wpisz aktualne punkty każdej obwiedni jako osobne dziecko drzewa stanu.
-    for (int i = 0; i < kNumEnvelopes; ++i)
+    // Lock: getState nie ma gwarancji wątku komunikatów, a edytor może właśnie
+    // dodawać/kasować punkt (realokacja wektora pod iteratorem).
     {
-        auto envTree = apvts.state.getOrCreateChildWithName (
-            juce::Identifier ("ENVELOPE" + juce::String (i)), nullptr);
-        envModels[i].toValueTree (envTree);
+        const juce::ScopedLock sl (envModelsLock);
+        for (int i = 0; i < kNumEnvelopes; ++i)
+        {
+            auto envTree = apvts.state.getOrCreateChildWithName (
+                juce::Identifier ("ENVELOPE" + juce::String (i)), nullptr);
+            envModels[i].toValueTree (envTree);
+        }
     }
 
     // Flipy patternu gate'a (maska bitowa jako hex — ValueTree nie ma uint64).
@@ -1463,15 +1731,22 @@ void FiSynthAudioProcessor::applyStateXml (const juce::XmlElement& xml)
 
     // Odtwórz punkty każdej obwiedni i wepchnij migawki do audio.
     // Fallback: stary stan z jedną obwiednią ("ENVELOPE") -> obwiednia 0.
-    for (int i = 0; i < kNumEnvelopes; ++i)
+    // Lock jak w stateToXml: fromValueTree robi clear() + push_back, więc bez
+    // niego przywracanie stanu mogłoby realokować wektor pod ręką edytora.
+    // Kolejność envModelsLock -> envLock (w commitEnvelope) jest jedyna w projekcie;
+    // audio bierze envLock wyłącznie przez try-lock, więc zakleszczenia nie ma.
     {
-        auto child = apvts.state.getChildWithName (
-            juce::Identifier ("ENVELOPE" + juce::String (i)));
-        if (i == 0 && ! child.isValid())
-            child = apvts.state.getChildWithName ("ENVELOPE");
+        const juce::ScopedLock sl (envModelsLock);
+        for (int i = 0; i < kNumEnvelopes; ++i)
+        {
+            auto child = apvts.state.getChildWithName (
+                juce::Identifier ("ENVELOPE" + juce::String (i)));
+            if (i == 0 && ! child.isValid())
+                child = apvts.state.getChildWithName ("ENVELOPE");
 
-        envModels[i].fromValueTree (child);
-        commitEnvelope (i);
+            envModels[i].fromValueTree (child);
+            commitEnvelope (i);
+        }
     }
 
     // Flipy gate'a (brak w starym stanie => czysty pattern).
@@ -1479,6 +1754,13 @@ void FiSynthAudioProcessor::applyStateXml (const juce::XmlElement& xml)
     gateFlips.store (gateTree.isValid()
         ? (juce::uint64) gateTree.getProperty ("flips").toString().getHexValue64()
         : 0);
+
+    // Parametry właśnie skoczyły (preset/stan) — pickup od nowa, żeby gałki
+    // kontrolera nie szarpały świeżego patcha starymi pozycjami.
+    {
+        const juce::SpinLock::ScopedLockType lock (ccMapLock);
+        resetCcPickup();
+    }
 }
 
 void FiSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
@@ -1488,17 +1770,7 @@ void FiSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
         // Mapa MIDI CC tylko w stanie DAW/standalone, NIE w presetach (dokłada
         // ją ten szczebel, nie stateToXml): preset to brzmienie, mapa to sprzęt
         // użytkownika — wczytanie presetu nie może kasować mapy kontrolera.
-        auto* map = xml->createNewChildElement ("MIDIMAP");
-        {
-            const juce::SpinLock::ScopedLockType lock (ccMapLock);
-            for (int cc = 0; cc < 128; ++cc)
-                if (ccMap[cc] != nullptr)
-                {
-                    auto* m = map->createNewChildElement ("MAP");
-                    m->setAttribute ("cc", cc);
-                    m->setAttribute ("param", ccMap[cc]->paramID);
-                }
-        }
+        xml->addChildElement (midiMapToXml().release());
 
         copyXmlToBinary (*xml, destData);
     }
@@ -1513,13 +1785,13 @@ void FiSynthAudioProcessor::setStateInformation (const void* data, int sizeInByt
         // MIDI Learn (bez MIDIMAP) zostawia bieżącą mapę w spokoju.
         if (auto* map = xml->getChildByName ("MIDIMAP"))
         {
-            const juce::SpinLock::ScopedLockType lock (ccMapLock);
-            std::fill (std::begin (ccMap), std::end (ccMap), nullptr);
-            for (auto* m : map->getChildWithTagNameIterator ("MAP"))
-                if (auto* p = apvts.getParameter (m->getStringAttribute ("param")))
-                    ccMap[juce::jlimit (0, 127, m->getIntAttribute ("cc"))] = p;
-            updateCcActive();
-
+            // Stan z przypisaniami wygrywa (mapa projektu), ale PUSTY MIDIMAP
+            // nie kasuje mapy: projekt zapisany bez przypisań dostaje mapę
+            // domyślną użytkownika — kontroler ma działać w każdym projekcie.
+            if (map->getChildByName ("MAP") != nullptr)
+                applyMidiMapXml (*map);
+            else
+                loadDefaultMidiMap();
             xml->removeChildElement (map, true);
         }
 
@@ -1665,14 +1937,24 @@ void FiSynthAudioProcessor::resetToInit()
     set ("spread", 0.0f);
     gateFlips.store (0);
 
-    // Obwiednie do domyślnego ADSR.
-    for (int i = 0; i < kNumEnvelopes; ++i)
+    // Obwiednie do domyślnego ADSR. setDefault() przebudowuje wektor punktów,
+    // więc pod tym samym lockiem co reszta zmian strukturalnych.
     {
-        getEnvelopeModel (i).setDefault();
-        commitEnvelope (i);
+        const juce::ScopedLock sl (envModelsLock);
+        for (int i = 0; i < kNumEnvelopes; ++i)
+        {
+            getEnvelopeModel (i).setDefault();
+            commitEnvelope (i);
+        }
     }
 
     currentPresetName.clear();
+
+    // Jak przy wczytaniu presetu: nowe wartości parametrów = pickup od nowa.
+    {
+        const juce::SpinLock::ScopedLockType lock (ccMapLock);
+        resetCcPickup();
+    }
 }
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()

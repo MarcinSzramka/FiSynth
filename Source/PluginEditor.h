@@ -92,6 +92,131 @@ private:
     AboutPanel       aboutPanel;
     juce::TextButton aboutButton { "About" };
 
+#if FISYNTH_DEMO
+    // Plakietka DEMO w górnym pasku: dyskretna ramka, a w czasie przerwy
+    // dźwięku pełne złoto z odliczaniem (odpytuje atomik procesora timerem).
+    struct DemoBadge : juce::Component, juce::Timer
+    {
+        explicit DemoBadge (FiSynthAudioProcessor& p) : proc (p)
+        {
+            setInterceptsMouseClicks (false, false);
+            startTimerHz (10);
+        }
+
+        void timerCallback() override
+        {
+            const float s = proc.demoMuteSecondsLeft.load (std::memory_order_relaxed);
+            if (s != secondsLeft)
+            {
+                secondsLeft = s;
+                repaint();
+            }
+        }
+
+        void paint (juce::Graphics& g) override
+        {
+            const auto r = getLocalBounds().toFloat().reduced (1.0f);
+            if (secondsLeft >= 0.0f)
+            {
+                g.setColour (fiCol::gold);
+                g.fillRoundedRectangle (r, 4.0f);
+                g.setColour (fiCol::bg);
+                g.setFont (juce::Font (juce::FontOptions (14.0f).withStyle ("Bold")));
+                g.drawText (juce::String (juce::CharPointer_UTF8 (
+                                "DEMO \xe2\x80\xa2 d\xc5\xba""wi\xc4\x99k za "))
+                                + juce::String (secondsLeft, 1) + " s",
+                            getLocalBounds(), juce::Justification::centred);
+            }
+            else
+            {
+                g.setColour (fiCol::goldDim);
+                g.drawRoundedRectangle (r, 4.0f, 1.0f);
+                g.setColour (fiCol::textDim);
+                g.setFont (juce::Font (juce::FontOptions (13.0f).withStyle ("Bold")));
+                g.drawText ("DEMO", getLocalBounds(), juce::Justification::centred);
+            }
+        }
+
+        FiSynthAudioProcessor& proc;
+        float secondsLeft { -1.0f };
+    };
+    DemoBadge demoBadge;
+
+    // Nakładka na całe płótno w czasie przerwy: sama plakietka w pasku ginęła
+    // wśród kontrolek i użytkownik brał ciszę za awarię. Przyciemnia całe UI
+    // i wykłada wprost, że to limit wersji demo, z odliczaniem do powrotu.
+    // Nie łapie myszy — pod spodem wszystko dalej działa (można kręcić dalej).
+    struct DemoMuteOverlay : juce::Component, juce::Timer
+    {
+        explicit DemoMuteOverlay (FiSynthAudioProcessor& p) : proc (p)
+        {
+            setInterceptsMouseClicks (false, false);
+            startTimerHz (10);
+        }
+
+        void timerCallback() override
+        {
+            const float s = proc.demoMuteSecondsLeft.load (std::memory_order_relaxed);
+            if (s == secondsLeft)
+                return;
+
+            const bool wasMuted = secondsLeft >= 0.0f;
+            secondsLeft = s;
+            const bool isMuted = secondsLeft >= 0.0f;
+
+            if (isMuted != wasMuted)
+                setVisible (isMuted);
+            if (isMuted)
+                repaint();
+        }
+
+        void paint (juce::Graphics& g) override
+        {
+            if (secondsLeft < 0.0f)
+                return;
+
+            // Przyciemnienie całego UI — czytelny sygnał "teraz nie gra".
+            g.fillAll (fiCol::bg.withAlpha (0.72f));
+
+            auto panel = getLocalBounds().withSizeKeepingCentre (560, 200).toFloat();
+            g.setColour (fiCol::bg);
+            g.fillRoundedRectangle (panel, 10.0f);
+            g.setColour (fiCol::gold);
+            g.drawRoundedRectangle (panel, 10.0f, 2.0f);
+
+            auto r = panel.toNearestInt().reduced (24, 20);
+
+            g.setColour (fiCol::gold);
+            g.setFont (juce::Font (juce::FontOptions (34.0f).withStyle ("Bold")));
+            g.drawText ("WERSJA DEMO", r.removeFromTop (42),
+                        juce::Justification::centred);
+
+            r.removeFromTop (6);
+            g.setColour (fiCol::text);
+            g.setFont (juce::Font (juce::FontOptions (17.0f)));
+            g.drawText (juce::String (juce::CharPointer_UTF8 (
+                            "D\xc5\xba""wi\xc4\x99k jest wyciszony co 20 sekund")),
+                        r.removeFromTop (26), juce::Justification::centred);
+
+            r.removeFromTop (10);
+            g.setColour (fiCol::gold);
+            g.setFont (juce::Font (juce::FontOptions (30.0f).withStyle ("Bold")));
+            g.drawText (juce::String (secondsLeft, 1) + " s",
+                        r.removeFromTop (38), juce::Justification::centred);
+
+            g.setColour (fiCol::textDim);
+            g.setFont (juce::Font (juce::FontOptions (14.0f)));
+            g.drawText (juce::String (juce::CharPointer_UTF8 (
+                            "do powrotu d\xc5\xba""wi\xc4\x99ku \xe2\x80\xa2 pe\xc5\x82na wersja gra bez przerw")),
+                        r.removeFromTop (20), juce::Justification::centred);
+        }
+
+        FiSynthAudioProcessor& proc;
+        float secondsLeft { -1.0f };
+    };
+    DemoMuteOverlay demoMuteOverlay;
+#endif
+
     // === Pasek presetów (zapis/wczytywanie pełnego brzmienia) ===
     juce::ComboBox   presetBox;
     juce::TextButton presetNewButton  { "New" };
@@ -101,6 +226,51 @@ private:
     void stepPreset (int delta);
     void newPreset();
     void showSavePresetDialog();
+
+    // === Mapy MIDI (przycisk MIDI → menu zapisu/wczytywania przypisań CC) ===
+    juce::TextButton midiMapButton { "MIDI" };
+    void showMidiMapMenu();
+    void showSaveMidiMapDialog();
+    void importMidiMapDialog();
+    void exportMidiMapDialog();
+
+    // Dialog importu/eksportu map — członek: musi przeżyć czas async wyboru.
+    std::unique_ptr<juce::FileChooser> fileChooser;
+
+    // Kropka aktywności MIDI: miga, gdy z zewnątrz (sprzęt/DAW) przychodzą
+    // eventy kanałowe — pierwsza diagnoza "czy MIDI w ogóle dochodzi".
+    struct MidiActivityLight : juce::Component, private juce::Timer
+    {
+        explicit MidiActivityLight (FiSynthAudioProcessor& p)
+            : proc (p), lastCount (p.midiEventCount.load (std::memory_order_relaxed))
+        {
+            setInterceptsMouseClicks (false, false);
+            startTimerHz (20);
+        }
+
+        void timerCallback() override
+        {
+            const auto n = proc.midiEventCount.load (std::memory_order_relaxed);
+            if (n != lastCount) { lastCount = n; hold = 3; }   // ~150 ms świecenia
+            const bool on = hold > 0;
+            if (hold > 0) --hold;
+            if (on != lit) { lit = on; repaint(); }
+        }
+
+        void paint (juce::Graphics& g) override
+        {
+            const auto c = getLocalBounds().toFloat().getCentre();
+            const juce::Rectangle<float> dot (c.x - 4.0f, c.y - 4.0f, 8.0f, 8.0f);
+            if (lit) { g.setColour (fiCol::gold);    g.fillEllipse (dot); }
+            else     { g.setColour (fiCol::goldDim); g.drawEllipse (dot.reduced (0.5f), 1.0f); }
+        }
+
+        FiSynthAudioProcessor& proc;
+        juce::uint32 lastCount;
+        int  hold { 0 };
+        bool lit  { false };
+    };
+    MidiActivityLight midiLight { processorRef };
 
     // Synchronizacja obwiedni do tempa: sync, podział siatki, snap, ręczne BPM.
     // tempoSyncButton wybiera źródło tempa: DAW (wł.) vs ręczne BPM (wył.).

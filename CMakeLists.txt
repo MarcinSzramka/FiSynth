@@ -12,6 +12,19 @@ endif()
 
 add_subdirectory(External/JUCE)
 
+# Wersja demo: co 20 s dźwięk płynnie wycisza się na kilka sekund, GUI
+# pokazuje odliczanie. Osobny PLUGIN_CODE i nazwa, żeby demo i pełna wersja
+# mogły być zainstalowane obok siebie (DAW widzi je jako różne pluginy).
+option(FISYNTH_DEMO "Build the demo version (audio mutes periodically)" OFF)
+
+if(FISYNTH_DEMO)
+    set(FISYNTH_PRODUCT_NAME "FiSynth Demo")
+    set(FISYNTH_PLUGIN_CODE  FiSd)
+else()
+    set(FISYNTH_PRODUCT_NAME "FiSynth")
+    set(FISYNTH_PLUGIN_CODE  FiSy)
+endif()
+
 juce_add_plugin(FiSynth
     COMPANY_NAME              "FiAudio"
     BUNDLE_ID                 "com.fiaudio.fisynth"
@@ -22,9 +35,9 @@ juce_add_plugin(FiSynth
     EDITOR_WANTS_KEYBOARD_FOCUS TRUE
     COPY_PLUGIN_AFTER_BUILD   TRUE
     PLUGIN_MANUFACTURER_CODE  FiAu
-    PLUGIN_CODE               FiSy
+    PLUGIN_CODE               ${FISYNTH_PLUGIN_CODE}
     FORMATS                   VST3 Standalone
-    PRODUCT_NAME              "FiSynth")
+    PRODUCT_NAME              "${FISYNTH_PRODUCT_NAME}")
 
 juce_generate_juce_header(FiSynth)
 
@@ -43,6 +56,10 @@ target_compile_definitions(FiSynth PUBLIC
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0)
+
+if(FISYNTH_DEMO)
+    target_compile_definitions(FiSynth PUBLIC FISYNTH_DEMO=1)
+endif()
 
 target_link_libraries(FiSynth PRIVATE
     juce::juce_audio_utils

@@ -89,9 +89,27 @@ public:
     }
     void commitEnvelope (int idx);
 
+    // Chroni STRUKTURĘ wektorów punktów (points), nie same wartości.
+    //
+    // Kontrakt "envModels tylko z wątku komunikatów" trzyma się dla VST3, bo spec
+    // wymaga setState na wątku UI (JUCE ma tam assertHostMessageThread). Ale getState
+    // takiej gwarancji NIE ma, więc zapis projektu potrafi wejść z innego wątku i
+    // iterować points dokładnie wtedy, gdy edytor dodaje albo kasuje punkt —
+    // realokacja pod iteratorem to use-after-free, czyli wywalenie hosta.
+    //
+    // Blokujemy więc tylko miejsca zmieniające ROZMIAR wektora oraz serializację;
+    // przeciąganie punktu (zmiana wartości w miejscu) locka nie potrzebuje —
+    // najgorszy skutek to zapisany punkt sprzed jednej klatki myszy.
+    juce::CriticalSection envModelsLock;
+
     // Rośnie przy każdym commitEnvelope — GUI unieważnia nim cache tła edytora
     // obwiedni. Dotykany tylko z wątku komunikatów; atomik dla porządku.
     std::atomic<int> envEditCount { 0 };
+
+    // Ile razy zadziałał bezpiecznik NaN/Inf (sanitiseOutput). Czysta diagnostyka:
+    // audio pisze relaxed, nikt krytyczny tego nie czyta. Zero przez całą sesję to
+    // stan oczekiwany — trwały wzrost oznacza realny błąd DSP gdzieś w łańcuchu.
+    std::atomic<int> nanResetCount { 0 };
 
     // Przeskalowuje czasy punktów WSZYSTKICH obwiedni przez podany współczynnik
     // (np. przy przełączaniu sync: sekundy<->beaty), zachowując realną długość.
@@ -130,6 +148,13 @@ public:
 
     // Aktualne efektywne BPM (z DAW lub ręczne). Pisane przez audio, czytane GUI.
     std::atomic<float> currentBpm { 120.0f };
+
+#if FISYNTH_DEMO
+    // === Tryb demo (cykliczne wyciszanie) ===
+    // Sekundy do powrotu dźwięku w bieżącej przerwie; ujemne = gra normalnie.
+    // Pisane przez audio, czytane przez plakietkę DEMO w GUI.
+    std::atomic<float> demoMuteSecondsLeft { -1.0f };
+#endif
 
     // === Gate Fibonacciego ===
     // Pattern to słowo Fibonacciego (podstawienia S→SL, L→S); S = krok otwarty.
@@ -186,6 +211,35 @@ public:
     int  ccForParam (const juce::String& paramID) const;   // -1 = brak
     void clearCcMapping (const juce::String& paramID);
 
+    // === Mapy MIDI (przypisania CC w plikach .fsmap, OSOBNO od presetów) ===
+    // Preset to brzmienie, mapa to sprzęt użytkownika — wczytanie mapy nie
+    // dotyka parametrów, a wczytanie presetu nie rusza mapy.
+    static juce::File getMidiMapDirectory();
+    bool saveMidiMap (const juce::String& name);           // nazwa pliku sanityzowana
+    bool loadMidiMap (const juce::File& file);
+    juce::StringArray getMidiMapList() const;
+    void clearAllCcMappings();
+
+    // Nazwa ostatnio zapisanej/wczytanej mapy (ptaszek w menu GUI). Pusta =
+    // brak. Jak currentPresetName: tylko wątek komunikatów, bez atomika.
+    juce::String currentMidiMapName;
+
+    // === Mapa domyślna (marker default.txt w katalogu map) ===
+    // Świeża instancja bez stanu DAW dostaje ją od ręki; stan projektu
+    // z przypisaniami ją nadpisuje, a PUSTY stan jej nie kasuje (mapa to
+    // sprzęt użytkownika, nie część projektu).
+    static juce::String getDefaultMidiMapName();               // pusta = brak
+    static void setDefaultMidiMapName (const juce::String& name); // pusta kasuje
+
+    // Eksport bieżącej mapy do wskazanego pliku (dokleja .fsmap gdy brak).
+    bool exportMidiMap (const juce::File& file);
+
+    // === Wskaźnik aktywności MIDI ===
+    // Rośnie o liczbę zewnętrznych eventów kanałowych (nuty/CC/PB — bez
+    // clocka i active sensing, które sprzęt śle ciągle) w każdym bloku.
+    // GUI odpytuje timerem i miga kropką obok przycisku MIDI.
+    std::atomic<juce::uint32> midiEventCount { 0 };
+
 private:
     // Buduje listę wszystkich parametrów pluginu. static, bo wołane
     // w liście inicjalizacyjnej konstruktora, zanim obiekt w pełni istnieje.
@@ -195,6 +249,24 @@ private:
     // stan DAW (get/setStateInformation) i pliki presetów.
     std::unique_ptr<juce::XmlElement> stateToXml();
     void applyStateXml (const juce::XmlElement& xml);
+
+    // Serializacja mapy CC (<MIDIMAP><MAP cc param/>...</MIDIMAP>) —
+    // współdzielona przez stan DAW i pliki map .fsmap.
+    std::unique_ptr<juce::XmlElement> midiMapToXml() const;
+    void applyMidiMapXml (const juce::XmlElement& map);
+
+    // Wczytuje mapę wskazaną markerem default.txt (brak markera = nic).
+    void loadDefaultMidiMap();
+
+    // === Pickup (soft takeover) ===
+    // Po zmianie mapy/presetu parametr NIE skacze do pozycji gałki: CC zaczyna
+    // sterować dopiero, gdy fizyczna wartość minie bieżącą wartość parametru
+    // (przecięcie między tickami timera) albo zrówna się z nią (epsilon).
+    // ccLastVal przeżywa resety — znana pozycja gałki pozwala wykryć
+    // przecięcie już pierwszym ruchem po zmianie presetu.
+    void resetCcPickup() noexcept;       // wołane pod ccMapLock
+    bool  ccEngaged[128] {};
+    float ccLastVal[128];
 
     juce::Synthesiser synth;
     static constexpr int numVoices = 8;
@@ -285,6 +357,12 @@ private:
     // Pamiętamy poprzednią głośność, żeby robić płynny ramp (bez trzasków).
     float previousGain { 1.0f };
 
+#if FISYNTH_DEMO
+    // Pozycja w cyklu demo (próbki): granie → fade-out → cisza → powrót.
+    juce::int64 demoPhase { 0 };
+    void applyDemoMute (juce::AudioBuffer<float>&);
+#endif
+
     // === Wspólny zegar beatowy (gate + arp) ===
     // JEDNA pozycja w beatach: ppq hosta gdy transport gra, inaczej wolnobieżna
     // — naliczana ZAWSZE (nie tylko gdy dany moduł włączony), więc patterny
@@ -333,6 +411,11 @@ private:
     void applyFxDrive (juce::AudioBuffer<float>&);
     void applyFxReverb (juce::AudioBuffer<float>&);
     juce::Reverb fxReverb;
+
+    // Bezpiecznik NaN/Inf na końcu łańcucha: zeruje wyjście i czyści cały stan
+    // z pamięcią (delay, pogłos, filtry głosów). Bez tego NaN raz wpuszczony
+    // w feedback delaya zostawał w instancji do końca sesji.
+    void sanitiseOutput (juce::AudioBuffer<float>&);
 
     // Amounty drive'u wygładzane one-pole (~5 ms) per próbka — włącz/wyłącz
     // i automacja (też z MIDI Learn) bez skokowej podmiany kształtu fali.

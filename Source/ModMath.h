@@ -19,7 +19,23 @@ namespace fiMod
     inline float cutoffFactor (float a) noexcept { return std::exp2 (a * 4.0f); }         // ±4 oktawy
     inline float gainFactor   (float a) noexcept { return juce::jmax (0.0f, 1.0f + a); }  // mix i rezonans
 
-    inline float clampCutoff    (float f) noexcept { return juce::jlimit (20.0f, 20000.0f, f); }
+    // Górna granica cutoffa MUSI zależeć od sample rate. juce::dsp::StateVariableTPTFilter
+    // liczy g = tan(pi*fc/sr); powyżej Nyquista argument mija pi/2, g robi się UJEMNE
+    // i filtr traci stabilność (przy sr 32 kHz i fc 20 kHz g = -2.41 → stan rośnie
+    // ~2.8%/próbkę, czyli +60 dB w ~6 ms, potem Inf/NaN w całym łańcuchu). JUCE ma na
+    // to jassert, więc build Debug dodatkowo zatrzymywał hosta. Mnożnik 0.49 zostawia
+    // margines przed samą osobliwością tan() w 0.5*sr.
+    // sampleRate <= 0 (nieznany, np. przy rysowaniu ringów przed prepareToPlay)
+    // zachowuje dawne zachowanie ze stałym sufitem 20 kHz.
+    inline float clampCutoff (float f, double sampleRate = 0.0) noexcept
+    {
+        float upper = 20000.0f;
+        if (sampleRate > 0.0)
+            upper = juce::jmin (upper, (float) (sampleRate * 0.49));
+        upper = juce::jmax (upper, 20.0f);          // jlimit wymaga upper >= lower
+        return juce::jlimit (20.0f, upper, f);
+    }
+
     inline float clampResonance (float q) noexcept { return juce::jlimit (0.1f, 10.0f, q); }
     inline float clampTilt      (float t) noexcept { return juce::jlimit (0.25f, 3.0f, t); }
 

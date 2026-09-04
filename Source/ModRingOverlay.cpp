@@ -77,7 +77,8 @@ namespace
 
     // Wzory modulacji per cel — ze wspólnego ModMath.h (te same, którymi
     // renderNextBlock liczy dźwięk; patrz tam uwaga o LFO poza ringiem).
-    float modCutoff    (float base, float a) { return fiMod::clampCutoff    (base * fiMod::cutoffFactor (a)); }
+    // modCutoff potrzebuje sample rate (sufit = Nyquist), więc powstaje jako
+    // lambda w paint() — reszta celów nie zależy od sr i zostaje wolnymi funkcjami.
     float modResonance (float base, float a) { return fiMod::clampResonance (base * fiMod::gainFactor (a)); }
     float modMix       (float base, float a) { return juce::jlimit (0.0f, 1.0f, base * fiMod::gainFactor (a)); }
     float modStretch   (float base, float a) { return fiMod::stretchTarget (base, a); }
@@ -132,6 +133,14 @@ int ModRingOverlay::voiceEnvValues (int envIdx, float* out) const
 
 void ModRingOverlay::paint (juce::Graphics& g)
 {
+    // Ten sam sufit cutoffa co w DSP — inaczej ring kłamałby o zakresie ruchu
+    // przy sample rate poniżej ~40 kHz (patrz fiMod::clampCutoff).
+    const double sr = processor.getSampleRate();
+    const auto modCutoff = [sr] (float base, float a)
+    {
+        return fiMod::clampCutoff (base * fiMod::cutoffFactor (a), sr);
+    };
+
     for (int slot = 0; slot < 3; ++slot)
     {
         const int   dest = (int) destPar[slot]->load();

@@ -5,6 +5,7 @@
 #include "EnvelopeModel.h"
 #include "PartialTables.h"
 #include "ModMath.h"
+#include "SineTable.h"
 
 // === Stanowy odtwarzacz wielopunktowej obwiedni (per-głos) ===
 //
@@ -14,7 +15,15 @@
 // trzasków nawet przy puszczeniu w trakcie attacku).
 struct EnvPlayer
 {
-    enum class Stage { Idle, PreSustain, Sustain, Release };
+    // Stealing: krótki zjazd do zera przy kradzieży głosu i przy allNotesOff bez
+    // tail-offu. Dawniej robił to reset(), czyli skok do zera w JEDNEJ próbce —
+    // słyszalny trzask przy każdej nucie ponad liczbę głosów i przy każdym kroku
+    // arpa z długim release.
+    enum class Stage { Idle, PreSustain, Sustain, Release, Stealing };
+
+    // Długość zjazdu przy kradzieży; głos używa jej też do swojego declick-offsetu,
+    // żeby obie rampy kończyły się w tej samej próbce.
+    static constexpr double stealFadeSeconds = 0.005;   // 5 ms — poniżej progu słyszalności kliku
 
     void setSampleRate (double s) noexcept     { sr = (s > 0.0 ? s : sr); }
     void setSnapshot (const EnvSnapshot* s) noexcept { snap = s; }
@@ -57,6 +66,21 @@ struct EnvPlayer
         releaseClock = 0.0;
     }
 
+    // Kradzież głosu / panic: zjazd do zera w stealFadeSeconds REALNEGO czasu.
+    // Celowo nie skalowany przez timeScale — to declick, nie element muzyczny,
+    // więc nie ma podążać za tempem hosta.
+    void steal() noexcept
+    {
+        if (stage == Stage::Idle)
+            return;
+
+        releaseStartValue = value;
+        releaseClock      = 0.0;      // w tym stanie liczy PRÓBKI, nie jednostki obwiedni
+        stage             = Stage::Stealing;
+    }
+
+    bool isStealing() const noexcept { return stage == Stage::Stealing; }
+
     float nextSample() noexcept
     {
         if (snap == nullptr || snap->numPoints == 0)
@@ -89,6 +113,20 @@ struct EnvPlayer
             case Stage::Sustain:
                 value = s.levels[s.sustainIndex];
                 break;
+
+            case Stage::Stealing:
+            {
+                const double fadeSamples = juce::jmax (1.0, stealFadeSeconds * sr);
+                value = releaseStartValue
+                            * (float) juce::jmax (0.0, 1.0 - releaseClock / fadeSamples);
+                releaseClock += 1.0;
+                if (releaseClock >= fadeSamples)
+                {
+                    stage = Stage::Idle;
+                    value = 0.0f;
+                }
+                break;
+            }
 
             case Stage::Release:
             {
@@ -142,6 +180,9 @@ struct EnvPlayer
             // prędkość, ta sama dla wszystkich głosów). Przy puszczeniu w trakcie
             // ataku przeskakuje na początek fazy release — ale bez przyspieszania.
             case Stage::Release:    return s.times[s.sustainIndex] + (float) releaseClock;
+            // Kradzież to declick, nie faza muzyczna — playhead ma zniknąć od razu,
+            // zamiast jeszcze przez 5 ms wisieć na krzywej.
+            case Stage::Stealing:
             case Stage::Idle:
             default:                return -1.0f;
         }
@@ -244,12 +285,18 @@ public:
         pitchQuant = quant;
 
         // Mnożniki rozstrojenia bliźniaków: frac((n+1)/φ) zmapowane na [-1,1],
-        // maks. ±0.6% (~±10¢). Stałe w bloku — liczone tu, nie w gorącej pętli.
-        for (int n = 0; n < kUniPartials; ++n)
+        // maks. ±0.6% (~±10¢).
+        //
+        // Część zależna od n jest STAŁA — liczona raz w tablicy statycznej,
+        // zamiast 8 dzieleń i 8 std::floor przy każdym wywołaniu. A ponieważ
+        // wynik zależy już tylko od unisonAmt, strażnik pomija nawet te 8 FMA,
+        // gdy gałka nie drgnęła. Wołane raz na blok na KAŻDY głos, więc dawniej
+        // było to 64 dzielenia na blok — tyle, co cały łańcuch efektów razem.
+        if (! juce::exactlyEqual (unisonAmt, appliedUnison))
         {
-            const double g    = (n + 1) / fiPhi;
-            const double frac = g - std::floor (g);
-            uniFactor[n] = 1.0 + (2.0 * frac - 1.0) * 0.006 * (double) unisonAmt;
+            appliedUnison = unisonAmt;
+            for (int n = 0; n < kUniPartials; ++n)
+                uniFactor[n] = 1.0 + uniDetuneShape (n) * 0.006 * (double) unisonAmt;
         }
     }
 
@@ -281,7 +328,7 @@ public:
 
     void setFilterParams (float cutoff, float resonance, int type)
     {
-        filterCutoff = fiMod::clampCutoff (cutoff);
+        filterCutoff = fiMod::clampCutoff (cutoff, getSampleRate());
         filterResonance = fiMod::clampResonance (resonance);
         filterType = juce::jlimit (0, 2, type);
     }
@@ -297,7 +344,7 @@ public:
         lfoDrift = juce::jlimit (0.0f, 1.0f, drift);
 
         // Rate może zmieniać się na żywo (sync do tempa, zmiana BPM), więc
-        // angleDelta przeliczamy tutaj — nie tylko w startNote.
+        // deltaU przeliczamy tutaj — nie tylko w startNote.
         if (getSampleRate() > 0.0)
             lfoAngleDelta = (lfoRate / getSampleRate()) * juce::MathConstants<double>::twoPi;
     }
@@ -313,6 +360,20 @@ public:
     void startNote (int midiNoteNumber, float velocity,
                     juce::SynthesiserSound*, int currentPitchWheelPosition) override
     {
+        // === Declick przy kradzieży głosu ===
+        // Synthesiser::startVoice woła stopNote(false) i NATYCHMIAST startNote na
+        // tym samym głosie, więc sam zjazd obwiedni nic by nie dał — noteOn() poniżej
+        // i tak by go skasował. Zamiast tego przejmujemy ostatnią wypuszczoną próbkę
+        // jako gasnący offset: nowa nuta startuje z obwiedni od zera, więc suma jest
+        // w punkcie sklejenia ciągła (out = 0 + lastOut) i dopiero potem schodzi do zera.
+        if (env[0].isStealing())
+        {
+            declickL    = lastOutL;
+            declickR    = lastOutR;
+            declickGain = 1.0f;
+            declickInc  = (float) (1.0 / juce::jmax (1.0, EnvPlayer::stealFadeSeconds * getSampleRate()));
+        }
+
         level = velocity * 0.15f;
         pitchWheelMoved (currentPitchWheelPosition);
         frequency = juce::MidiMessage::getMidiNoteInHertz (midiNoteNumber);
@@ -333,7 +394,9 @@ public:
                 // Deterministyczne: ta sama nuta = ta sama faza startowa.
                 const double goldenStep = n / fiPhi;
                 const double frac = goldenStep - std::floor (goldenStep);     // część ułamkowa
-                oscs[o].currentPhase[n] = frac * juce::MathConstants<double>::twoPi;
+                // Faza startowa z dokładnością 32 bitów, wstawiona w górne bity
+                // akumulatora (dolne 32 to reszta akumulacji, startowo zerowa).
+                oscs[o].phase64[n] = (juce::uint64) (juce::uint32) (frac * fiPhaseFullTurn) << 32;
             }
 
             // Częstotliwości partialek to baseFreq·ratio ze wspólnej, policzonej
@@ -346,7 +409,8 @@ public:
             for (int n = 0; n < kUniPartials; ++n)
             {
                 const double g = (n + fiPhi) / fiPhi;
-                oscs[o].uniPhase[n] = (g - std::floor (g)) * juce::MathConstants<double>::twoPi;
+                oscs[o].uniPhase64[n] =
+                    (juce::uint64) (juce::uint32) ((g - std::floor (g)) * fiPhaseFullTurn) << 32;
             }
         }
 
@@ -383,9 +447,13 @@ public:
         }
         else
         {
+            // clearCurrentNote() zostaje — Synthesiser::stopVoice tego wymaga
+            // (jassert) i dzięki temu głos od razu wraca do puli. Renderowanie
+            // jest bramkowane obwiednią, nie numerem nuty (patrz renderNextBlock),
+            // więc 5 ms ogona i tak zdąży wybrzmieć.
             clearCurrentNote();
             for (auto& e : env)
-                e.reset();
+                e.steal();
         }
     }
 
@@ -395,12 +463,26 @@ public:
     {
         bendSemis = (float) (newValue - 8192) / 8192.0f * fiMod::bendRangeSemis;
     }
+
+    // Awaryjne czyszczenie stanu z pamięcią po wykryciu NaN/Inf na wyjściu.
+    // Filtr TPT jest rekurencyjny — raz zatruty stan produkowałby NaN bez końca,
+    // więc samo wyzerowanie bufora wyjściowego by nie wystarczyło.
+    void resetDspState() noexcept
+    {
+        filter.reset();
+        lastOutL = lastOutR = 0.0f;
+        declickL = declickR = 0.0f;
+        declickGain = 0.0f;
+    }
     void controllerMoved (int, int) override {}
 
     void renderNextBlock (juce::AudioBuffer<float>& outputBuffer,
                           int startSample, int numSamples) override
     {
-        if (! env[0].isActive())
+        // Declick trzyma głos przy życiu nawet po wygaśnięciu obwiedni — inaczej
+        // ogon po kradzieży zostałby ucięty w pół rampy (czyli tym samym klikiem,
+        // który usuwamy).
+        if (! env[0].isActive() && declickGain <= 0.0f)
             return;
 
         bool hasFmMod = false;
@@ -425,6 +507,11 @@ public:
         // Wskaźniki kanałów raz na blok — addSample robi bounds-check per próbkę.
         auto* const* outChans = outputBuffer.getArrayOfWritePointers();
         const int    numCh    = outputBuffer.getNumChannels();
+
+        // Tablica sinusa raz na blok: fiSineTable() ma statyk, więc każde
+        // wywołanie sprawdza strażnik inicjalizacji — w pętli po partialach
+        // byłoby to dziesiątki milionów zbędnych sprawdzeń na sekundę.
+        const float* const sineTab = fiSineTable();
 
         // Pan phyllotaxis per partial: fundament w centrum, wyżej frac(n/φ)
         // zmapowane na [-1,1] — równomierne pole stereo bez okresowych zbitek.
@@ -522,8 +609,12 @@ public:
                     refreshHarmonicAmps (o, fiMod::tiltTarget (oscs[o].tilt, tiltAdd[o]));
 
                 const float lfoValue = getLFOValue();
+                // Clamp z sample rate: modulacja (LFO + sloty, do ±4 oktaw) potrafi
+                // wywindować cutoff daleko ponad wartość bazową, więc to TU jest
+                // realna granica bezpieczeństwa filtra, nie w setFilterParams.
                 const float cutoffModulated = fiMod::clampCutoff (
-                    filterCutoff * (1.0f + lfoValue * lfoDepth * 0.5f) * cutoffMul);
+                    filterCutoff * (1.0f + lfoValue * lfoDepth * 0.5f) * cutoffMul,
+                    getSampleRate());
 
                 filter.setCutoffFrequency (cutoffModulated);
                 filter.setResonance (fiMod::clampResonance (filterResonance * resMul));
@@ -574,9 +665,10 @@ public:
                     // Granica aliasingu: partial ponad Nyquistem (delta >= π) jest
                     // pomijany — grałby wyłącznie jako alias. Quadratic gra cos(2θ),
                     // czyli oktawę wyżej, więc jego granica to π/2.
+                    // W jednostkach przyrostu 2^64: π = 2^63, π/2 = 2^62.
                     const double maxDelta = (oscs[o].waveform == 4)
-                        ? juce::MathConstants<double>::halfPi
-                        : juce::MathConstants<double>::pi;
+                        ? fiDeltaQuarterTurn
+                        : fiDeltaHalfTurn;
 
                     // Górne 8% pasma wygaszane liniowo — przy audio-rate zmianach
                     // częstotliwości (Golden FM, pitch-mod) partial nie wpada
@@ -584,20 +676,30 @@ public:
                     const double fadeStart = maxDelta * 0.92;
                     const double invFade   = 1.0 / (maxDelta * 0.08);
 
+                    const bool quadratic = (oscs[o].waveform == 4);
+
                     for (int n = 0; n < numPartials; ++n)
                     {
-                        const double delta = oscs[o].angleDelta[n] * freqFactor;
+                        const double delta = oscs[o].deltaU[n] * freqFactor;
+
+                        // break, nie continue: ratio partiali jest niemalejące po n
+                        // dla KAŻDEJ kombinacji trybu i stretcha (sprawdzone
+                        // numerycznie w .claude/tools/ratio_monotonic_test.cpp),
+                        // więc gdy ten partial jest nad Nyquistem, wszystkie wyższe
+                        // też są. Wynik bit w bit ten sam co przy continue, bo
+                        // continue i tak pomijało inkrement fazy.
                         if (delta >= maxDelta)
-                            continue;
+                            break;
 
                         // Partialki z zerową amplitudą (np. parzyste w square) nie
                         // potrzebują sin() — tylko faza musi lecieć dalej.
                         const float amp = oscs[o].harmonicAmp[n];
                         if (amp > 0.0f)
                         {
-                            float s = (oscs[o].waveform == 4)
-                                ? amp * std::cos (2.0f * (float) oscs[o].currentPhase[n])
-                                : amp * std::sin ((float) oscs[o].currentPhase[n]);
+                            const juce::uint32 ph = fiPhaseOf (oscs[o].phase64[n]);
+                            float s = quadratic
+                                ? amp * fiSin (sineTab, 2u * ph + fiPhaseQuarter)  // cos(2θ)
+                                : amp * fiSin (sineTab, ph);
                             if (delta > fadeStart)
                                 s *= (float) ((maxDelta - delta) * invFade);
                             if (stereo)
@@ -609,12 +711,8 @@ public:
                                 outL += s;
                         }
 
-                        // Faza w [0, 2π): bez zawijania rośnie bez ograniczeń i cast
-                        // do float traci precyzję (po ~1 min słychać szum/detune).
-                        double& ph = oscs[o].currentPhase[n];
-                        ph += delta;
-                        if (ph >= juce::MathConstants<double>::twoPi)
-                            ph -= juce::MathConstants<double>::twoPi;
+                        // Zawijanie za darmo: przepełnienie uint64 JEST modulo 2π.
+                        oscs[o].phase64[n] += (juce::uint64) delta;
                     }
 
                     // Golden Unison: dolne partialki dostają bliźniaka rozstrojonego
@@ -625,16 +723,23 @@ public:
                         const float twinGain = 0.7f * unisonAmt;
                         for (int n = 0; n < kUniPartials; ++n)
                         {
-                            const double delta = oscs[o].angleDelta[n] * uniFactor[n] * freqFactor;
+                            const double delta = oscs[o].deltaU[n] * uniFactor[n] * freqFactor;
+
+                            // Tu zostaje continue: uniFactor rozstraja bliźniaki
+                            // o ±0.6%, więc iloczyn deltaU·uniFactor NIE jest
+                            // gwarantowanie monotoniczny po n. Bliźniaki obejmują
+                            // i tak tylko 8 najniższych partiali, więc break nic
+                            // by tu nie oszczędził.
                             if (delta >= maxDelta)
                                 continue;
 
                             const float amp = oscs[o].harmonicAmp[n];
                             if (amp > 0.0f)
                             {
-                                float s = twinGain * ((oscs[o].waveform == 4)
-                                    ? amp * std::cos (2.0f * (float) oscs[o].uniPhase[n])
-                                    : amp * std::sin ((float) oscs[o].uniPhase[n]));
+                                const juce::uint32 ph = fiPhaseOf (oscs[o].uniPhase64[n]);
+                                float s = twinGain * (quadratic
+                                    ? amp * fiSin (sineTab, 2u * ph + fiPhaseQuarter)
+                                    : amp * fiSin (sineTab, ph));
                                 if (delta > fadeStart)
                                     s *= (float) ((maxDelta - delta) * invFade);
                                 if (stereo)
@@ -646,10 +751,7 @@ public:
                                     outL += s;
                             }
 
-                            double& ph = oscs[o].uniPhase[n];
-                            ph += delta;
-                            if (ph >= juce::MathConstants<double>::twoPi)
-                                ph -= juce::MathConstants<double>::twoPi;
+                            oscs[o].uniPhase64[n] += (juce::uint64) delta;
                         }
                     }
                 }
@@ -692,8 +794,22 @@ public:
             const float fR = filter.processSample (1, inR);
 
             const float vca  = level * ampVal * 0.3f;
-            const float resL = fL * vca;
-            const float resR = fR * vca;
+            float resL = fL * vca;
+            float resR = fR * vca;
+
+            // Gasnący ogon po skradzionej nucie (patrz startNote). Gałąź jest
+            // fałszywa przez 99.9% czasu, a przez 5 ms po kradzieży to dwa FMA.
+            if (declickGain > 0.0f)
+            {
+                resL += declickL * declickGain;
+                resR += declickR * declickGain;
+                declickGain = juce::jmax (0.0f, declickGain - declickInc);
+            }
+
+            // Zapamiętane PO declicku, więc kradzież w trakcie kradzieży też się
+            // sklei (arp na krótkich wartościach potrafi kraść co kilka ms).
+            lastOutL = resL;
+            lastOutR = resR;
 
             if (numCh >= 2)
             {
@@ -751,9 +867,13 @@ private:
 
     struct Oscillator
     {
-        double currentPhase[numPartials] { 0.0 };
-        double angleDelta[numPartials]   { 0.0 };
-        double uniPhase[kUniPartials]    { 0.0 };  // fazy bliźniaków Golden Unison
+        // Akumulatory fazy: 64 bity, pełny obrót = 2^64 (patrz SineTable.h).
+        // Zawijanie robi przepełnienie, więc w pętli nie ma gałęzi ani
+        // odejmowania 2π. deltaU zostaje w double, bo mnożymy go per próbka
+        // przez freqFactor (Golden FM + pitch-mod).
+        juce::uint64 phase64[numPartials]     { 0 };
+        double       deltaU[numPartials]      { 0.0 };
+        juce::uint64 uniPhase64[kUniPartials] { 0 };  // fazy bliźniaków Golden Unison
         double baseFreq { 0.0 };                   // fundament po detune + goldint (Hz)
         float  harmonicAmp[numPartials]  { 0.0f }; // amplitudy harmonicznych (cache: waveform+tilt)
         int waveform { 0 };
@@ -765,9 +885,40 @@ private:
         float stretch { 0.0f };
         float stretchMode { 0.0f };                // ciągłe 0..8: 0=Golden 1=Fib 2=GoldOct 3=GoldDet 4=Silver 5=Bronze 6=GoldStiff 7=Lucas 8=GoldShift; ułamek = morph
         float tilt { 1.0f };                       // Golden Tilt: wykładnik opadania amplitud
-        float appliedStretch { -1.0f };            // wartości, dla których policzono angleDelta
+        float appliedStretch { -1.0f };            // wartości, dla których policzono deltaU
         float appliedMode    { -1.0f };            //   (-1 wymusza przeliczenie w 1. bloku)
     } oscs[3];
+
+    // log2(n+1) dla wykładnika Golden Tilt — zależy tylko od n.
+    static float log2Partial (int n) noexcept
+    {
+        static const auto tab = []
+        {
+            std::array<float, (size_t) numPartials> t {};
+            for (size_t i = 0; i < t.size(); ++i)
+                t[i] = std::log2 ((float) (i + 1));
+            return t;
+        }();
+        return tab[(size_t) n];
+    }
+
+    // Kształt rozstrojenia bliźniaków unisono: frac((n+1)/φ) zmapowany na [-1,1].
+    // Zależy wyłącznie od n, więc liczony raz (patrz setGoldenParams).
+    static double uniDetuneShape (int n) noexcept
+    {
+        static const auto shape = []
+        {
+            std::array<double, (size_t) kUniPartials> s {};
+            for (size_t i = 0; i < s.size(); ++i)
+            {
+                const double g    = (double) (i + 1) / fiPhi;
+                const double frac = g - std::floor (g);
+                s[i] = 2.0 * frac - 1.0;
+            }
+            return s;
+        }();
+        return shape[(size_t) n];
+    }
 
     // Golden Tilt: amplitudy = baza waveformu · (n+1)^(1−tilt). tilt=1 to czysty
     // waveform, tilt=φ przyciemnia po złotym wykładniku, <1 rozjaśnia. Cache
@@ -779,29 +930,34 @@ private:
             && std::abs (effTilt - osc.appliedTilt) < 1.0e-3f)
             return;
 
+        // (n+1)^(1−tilt) = exp2(log2(n+1)·(1−tilt)). log2(n+1) zależy tylko od n,
+        // więc idzie do tablicy, a zostaje samo exp2 — ok. 2× tańsze od pow.
+        // Cache wyżej i tak zwykle wychodzi wcześniej; liczy się to dopiero przy
+        // Tilcie podpiętym pod modulację, gdzie przelicza się co blok.
+        const float tiltExp = 1.0f - effTilt;
         for (int n = 0; n < numPartials; ++n)
         {
             const float base = fiHarmonicAmplitude (osc.waveform, n);
             osc.harmonicAmp[n] = (base > 0.0f)
-                ? base * std::pow ((float) (n + 1), 1.0f - effTilt)
+                ? base * std::exp2 (log2Partial (n) * tiltExp)
                 : 0.0f;
         }
         osc.appliedWave = osc.waveform;
         osc.appliedTilt = effTilt;
     }
 
-    // Przelicza angleDelta partialek oscylatora o pod zadany stretch — ratio
+    // Przelicza deltaU partialek oscylatora o pod zadany stretch — ratio
     // liczy wspólny fiStretchedRatios (jedyna definicja blendu morpha,
     // ta sama co na spirali).
     void updateStretchDeltas (int o, float stretch) noexcept
     {
-        const double f0k = oscs[o].baseFreq
-                         * juce::MathConstants<double>::twoPi / getSampleRate();
+        // Przyrost fazy na próbkę w jednostkach 2^64 (pełny obrót), nie w radianach.
+        const double f0k = oscs[o].baseFreq / getSampleRate() * fiDeltaFullTurn;
 
         double ratios[numPartials];
         fiStretchedRatios (oscs[o].stretchMode, stretch, ratios);
         for (int n = 0; n < numPartials; ++n)
-            oscs[o].angleDelta[n] = f0k * ratios[n];
+            oscs[o].deltaU[n] = f0k * ratios[n];
 
         oscs[o].appliedStretch = stretch;
         oscs[o].appliedMode    = juce::jlimit (0.0f, (float) (fiNumStretchModes - 1),
@@ -822,6 +978,15 @@ private:
     double fmPhase { 0.0 }, fmDelta { 0.0 };
     double subPhase { 0.0 }, subDelta { 0.0 };
     double uniFactor[kUniPartials] { 1.0 };  // mnożniki rozstrojenia bliźniaków
+    float  appliedUnison { -1.0f };          // unisonAmt, dla którego policzono uniFactor
+
+    // === Declick po kradzieży głosu ===
+    // lastOut* to ostatnia próbka wypuszczona przez ten głos; przy kradzieży
+    // startNote przepisuje ją do declick* i wygasza liniowo, żeby skok do zera
+    // nie kliknął. declickGain == 0 oznacza "nic w toku".
+    float lastOutL { 0.0f },  lastOutR { 0.0f };
+    float declickL { 0.0f },  declickR { 0.0f };
+    float declickGain { 0.0f }, declickInc { 0.0f };
 
     // Cache wzmocnień pan (constant-power z fiGoldenPan) — przeliczany
     // w renderNextBlock tylko gdy spread się zmienił.

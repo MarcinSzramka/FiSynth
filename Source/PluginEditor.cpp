@@ -4,6 +4,9 @@
 FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p), envEditor (p), keyboard (p),
       spiral (p), spectrum (p), fibGate (p), phyllo (p)
+#if FISYNTH_DEMO
+    , demoBadge (p), demoMuteOverlay (p)
+#endif
 {
     // Całe UI mieszka na 'content' (stała przestrzeń baseWidth×baseHeight);
     // edytor skaluje je transformem, dzięki czemu okno można zmieniać rozmiarem.
@@ -81,6 +84,12 @@ FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor&
     content.addAndMakeVisible (presetSaveButton);
 
     refreshPresetList();
+
+    // Mapy MIDI: menu pod przyciskiem (mapa to sprzęt, nie brzmienie — osobny
+    // zapis od presetów) + kropka aktywności MIDI obok.
+    midiMapButton.onClick = [this] { showMidiMapMenu(); };
+    content.addAndMakeVisible (midiMapButton);
+    content.addAndMakeVisible (midiLight);
 
     // Sync do tempa + siatka. Czasy obwiedni stają się beatami i podążają za BPM.
     envSyncButton.setButtonText ("Sync");
@@ -527,6 +536,10 @@ FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor&
     };
     content.addAndMakeVisible (aboutButton);
 
+#if FISYNTH_DEMO
+    content.addAndMakeVisible (demoBadge);
+#endif
+
     // Nakładka pierścieni modulacji — dodana OSTATNIA, żeby leżała nad
     // kontrolkami (mysz przez nią przechodzi).
     ModRingOverlay::Targets ringTargets;
@@ -544,6 +557,12 @@ FiSynthAudioProcessorEditor::FiSynthAudioProcessorEditor (FiSynthAudioProcessor&
 
     // About NAD wszystkim (także nad nakładką pierścieni); domyślnie schowany.
     content.addChildComponent (aboutPanel);
+
+#if FISYNTH_DEMO
+    // Nakładka przerwy demo jeszcze wyżej niż About — informacja o wyciszeniu
+    // ma być widoczna niezależnie od tego, co użytkownik ma otwarte.
+    content.addChildComponent (demoMuteOverlay);
+#endif
 
     // Prawy klik na gałce = menu MIDI Learn (po utworzeniu wszystkich sliderów).
     initMidiLearn();
@@ -791,6 +810,159 @@ void FiSynthAudioProcessorEditor::showSavePresetDialog()
     }), false);
 }
 
+// === Mapy MIDI ===
+// Menu pod przyciskiem MIDI: lista zapisanych map (ptaszek = ostatnio
+// wczytana/zapisana), zapis bieżącej pod nazwą, usunięcie pliku aktywnej mapy
+// i wyczyszczenie wszystkich przypisań. Akcje na procesorze łapią referencję
+// (procesor przeżywa edytor — jak w MidiLearn.h); akcja otwierająca dialog
+// edytora idzie przez SafePointer, bo host może zniszczyć edytor przy
+// otwartym menu.
+void FiSynthAudioProcessorEditor::showMidiMapMenu()
+{
+    juce::PopupMenu menu;
+    auto& proc = processorRef;
+
+    const auto maps    = proc.getMidiMapList();
+    const auto defName = FiSynthAudioProcessor::getDefaultMidiMapName();
+    if (! maps.isEmpty())
+    {
+        menu.addSectionHeader ("Mapy kontrolera");
+        for (const auto& name : maps)
+        {
+            // Mapa domyślna oznaczona gwiazdką; ptaszek = aktualnie wczytana.
+            const auto label = name == defName
+                ? name + juce::String (juce::CharPointer_UTF8 (" \xe2\x98\x85")) : name;
+            menu.addItem (label, true, name == proc.currentMidiMapName, [&proc, name]
+            {
+                proc.loadMidiMap (
+                    FiSynthAudioProcessor::getMidiMapDirectory().getChildFile (name + ".fsmap"));
+            });
+        }
+        menu.addSeparator();
+    }
+
+    juce::Component::SafePointer<FiSynthAudioProcessorEditor> safeThis (this);
+    menu.addItem (juce::String (juce::CharPointer_UTF8 ("Zapisz map\xc4\x99 jako\xe2\x80\xa6")),
+                  [safeThis]
+                  {
+                      if (safeThis != nullptr)
+                          safeThis->showSaveMidiMapDialog();
+                  });
+
+    if (proc.currentMidiMapName.isNotEmpty())
+    {
+        menu.addItem (juce::String (juce::CharPointer_UTF8 ("Usu\xc5\x84 map\xc4\x99 \""))
+                          + proc.currentMidiMapName + "\"",
+                      [&proc]
+                      {
+                          FiSynthAudioProcessor::getMidiMapDirectory()
+                              .getChildFile (proc.currentMidiMapName + ".fsmap").deleteFile();
+                          if (FiSynthAudioProcessor::getDefaultMidiMapName() == proc.currentMidiMapName)
+                              FiSynthAudioProcessor::setDefaultMidiMapName ({});
+                          proc.currentMidiMapName.clear();
+                      });
+
+        // Toggle: aktywna mapa jako domyślna dla świeżych instancji pluginu.
+        const bool isDefault = proc.currentMidiMapName == defName;
+        menu.addItem (juce::String (juce::CharPointer_UTF8 ("Domy\xc5\x9blna dla nowych instancji")),
+                      true, isDefault,
+                      [&proc, isDefault]
+                      {
+                          FiSynthAudioProcessor::setDefaultMidiMapName (
+                              isDefault ? juce::String() : proc.currentMidiMapName);
+                      });
+    }
+
+    menu.addSeparator();
+    menu.addItem (juce::String (juce::CharPointer_UTF8 ("Importuj map\xc4\x99 z pliku\xe2\x80\xa6")),
+                  [safeThis] { if (safeThis != nullptr) safeThis->importMidiMapDialog(); });
+    menu.addItem (juce::String (juce::CharPointer_UTF8 ("Eksportuj map\xc4\x99 do pliku\xe2\x80\xa6")),
+                  [safeThis] { if (safeThis != nullptr) safeThis->exportMidiMapDialog(); });
+
+    menu.addSeparator();
+    menu.addItem (juce::String (juce::CharPointer_UTF8 ("Wyczy\xc5\x9b\xc4\x87 wszystkie przypisania")),
+                  [&proc] { proc.clearAllCcMappings(); });
+
+    menu.showMenuAsync (juce::PopupMenu::Options().withTargetComponent (&midiMapButton));
+}
+
+void FiSynthAudioProcessorEditor::showSaveMidiMapDialog()
+{
+    auto* dlg = new juce::AlertWindow (juce::String (juce::CharPointer_UTF8 ("Zapisz map\xc4\x99 MIDI")),
+                                       "Nazwa mapy (np. kontroler):",
+                                       juce::MessageBoxIconType::NoIcon);
+    // Paleta przez ColourIds — jak w showSavePresetDialog (osobne okno
+    // desktopowe, nie dziedziczy LnF płótna).
+    dlg->setColour (juce::AlertWindow::backgroundColourId, juce::Colour (0xff17130c));
+    dlg->setColour (juce::AlertWindow::textColourId,       fiCol::text);
+    dlg->setColour (juce::AlertWindow::outlineColourId,    fiCol::goldDim);
+    dlg->addTextEditor ("name", processorRef.currentMidiMapName, "Name:");
+    dlg->addButton ("Save",   1, juce::KeyPress (juce::KeyPress::returnKey));
+    dlg->addButton ("Cancel", 0, juce::KeyPress (juce::KeyPress::escapeKey));
+
+    juce::Component::SafePointer<FiSynthAudioProcessorEditor> safeThis (this);
+    dlg->enterModalState (true, juce::ModalCallbackFunction::create ([safeThis, dlg] (int result)
+    {
+        if (result == 1 && safeThis != nullptr)
+            safeThis->processorRef.saveMidiMap (dlg->getTextEditorContents ("name"));
+        delete dlg;
+    }), false);
+}
+
+void FiSynthAudioProcessorEditor::importMidiMapDialog()
+{
+    fileChooser = std::make_unique<juce::FileChooser> (
+        juce::String (juce::CharPointer_UTF8 ("Importuj map\xc4\x99 MIDI")),
+        juce::File::getSpecialLocation (juce::File::userHomeDirectory), "*.fsmap");
+
+    juce::Component::SafePointer<FiSynthAudioProcessorEditor> safeThis (this);
+    fileChooser->launchAsync (juce::FileBrowserComponent::openMode
+                                  | juce::FileBrowserComponent::canSelectFiles,
+        [safeThis] (const juce::FileChooser& fc)
+        {
+            const auto f = fc.getResult();
+            if (safeThis == nullptr || f == juce::File())
+                return;
+
+            if (safeThis->processorRef.loadMidiMap (f))
+            {
+                // Kopia do katalogu map, żeby import pojawił się na liście
+                // (nadpisuje mapę o tej samej nazwie — to zamierzona podmiana).
+                const auto dir = FiSynthAudioProcessor::getMidiMapDirectory();
+                if (f.getParentDirectory() != dir)
+                    f.copyFileTo (dir.getChildFile (f.getFileName()));
+            }
+            else
+                juce::AlertWindow::showMessageBoxAsync (
+                    juce::MessageBoxIconType::WarningIcon, "Import mapy MIDI",
+                    juce::String (juce::CharPointer_UTF8 ("Nieprawid\xc5\x82owy plik mapy: "))
+                        + f.getFileName());
+        });
+}
+
+void FiSynthAudioProcessorEditor::exportMidiMapDialog()
+{
+    const auto defaultName = processorRef.currentMidiMapName.isNotEmpty()
+                                 ? processorRef.currentMidiMapName
+                                 : juce::String ("mapa");
+    fileChooser = std::make_unique<juce::FileChooser> (
+        juce::String (juce::CharPointer_UTF8 ("Eksportuj map\xc4\x99 MIDI")),
+        juce::File::getSpecialLocation (juce::File::userHomeDirectory)
+            .getChildFile (defaultName + ".fsmap"),
+        "*.fsmap");
+
+    juce::Component::SafePointer<FiSynthAudioProcessorEditor> safeThis (this);
+    fileChooser->launchAsync (juce::FileBrowserComponent::saveMode
+                                  | juce::FileBrowserComponent::canSelectFiles
+                                  | juce::FileBrowserComponent::warnAboutOverwriting,
+        [safeThis] (const juce::FileChooser& fc)
+        {
+            const auto f = fc.getResult();
+            if (safeThis != nullptr && f != juce::File())
+                safeThis->processorRef.exportMidiMap (f);
+        });
+}
+
 void FiSynthAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // Tło poza płótnem (letterbox, gdy host wymusi inny aspekt niż bazowy).
@@ -912,8 +1084,15 @@ void FiSynthAudioProcessorEditor::layoutContent()
         presetNextButton.setBounds (logoStrip.removeFromLeft (26).reduced (1, 0));
         logoStrip.removeFromLeft (14);
         presetSaveButton.setBounds (logoStrip.removeFromLeft (68).reduced (2, 0));
+        logoStrip.removeFromLeft (12);
+        midiLight.setBounds (logoStrip.removeFromLeft (14));
+        midiMapButton.setBounds (logoStrip.removeFromLeft (56).reduced (2, 0));
         logoStrip.removeFromLeft (14);
         aboutButton.setBounds (logoStrip.removeFromLeft (66).reduced (2, 0));
+#if FISYNTH_DEMO
+        logoStrip.removeFromLeft (14);
+        demoBadge.setBounds (logoStrip.removeFromLeft (200).reduced (2, 0));
+#endif
     }
     topBar.removeFromTop (6);
     auto tempoRow = topBar.removeFromTop (26);
@@ -1123,4 +1302,7 @@ void FiSynthAudioProcessorEditor::layoutContent()
     if (modRings != nullptr)
         modRings->setBounds (base);
     aboutPanel.setBounds (base);
+#if FISYNTH_DEMO
+    demoMuteOverlay.setBounds (base);
+#endif
 }

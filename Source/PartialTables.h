@@ -7,7 +7,7 @@
 //
 // fiRatioRow zwraca tablicę ratio częstotliwości partialek: freq = baseFreq ·
 // ratio[wiersz][n]. Wiersz 0 = szereg harmoniczny (n+1), wiersze 1..9 = cele
-// stretchMode 0..8. SynthVoice liczy z niej angleDelta (brzmienie), a
+// stretchMode 0..8. SynthVoice liczy z niej deltaU (brzmienie), a
 // SpiralVisualizer pozycje kropek (obraz) — dzięki temu wizualizacja z definicji
 // pokazuje dokładnie to, co gra silnik.
 

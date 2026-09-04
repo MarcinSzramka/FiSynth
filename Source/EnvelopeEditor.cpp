@@ -503,33 +503,39 @@ void EnvelopeEditor::mouseDoubleClick (const juce::MouseEvent& e)
     const float susTime = pts[(size_t) juce::jlimit (0, (int) pts.size() - 1,
                                                       model.sustainIndex)].time;
 
-    if (idx >= 0)
+    // Jedyne miejsce w GUI, które zmienia ROZMIAR wektora punktów — pod lockiem,
+    // bo zapis stanu przez host (getState) potrafi iterować points z innego wątku.
     {
-        // Nie pozwalamy usunąć skrajnych punktów (kotwice obwiedni).
-        if (idx == 0 || idx == (int) pts.size() - 1)
-            return;
-        pts.erase (pts.begin() + idx);
-    }
-    else
-    {
-        EnvPoint np;
-        np.time  = juce::jlimit (0.0f, maxTime, snapTimeToGrid (xToTime (e.position.x)));
-        np.level = yToLevel (e.position.y);
-        np.curve = 0.0f;
-        pts.push_back (np);
-    }
+        const juce::ScopedLock sl (processor.envModelsLock);
 
-    model.sortAndClamp();
+        if (idx >= 0)
+        {
+            // Nie pozwalamy usunąć skrajnych punktów (kotwice obwiedni).
+            if (idx == 0 || idx == (int) pts.size() - 1)
+                return;
+            pts.erase (pts.begin() + idx);
+        }
+        else
+        {
+            EnvPoint np;
+            np.time  = juce::jlimit (0.0f, maxTime, snapTimeToGrid (xToTime (e.position.x)));
+            np.level = yToLevel (e.position.y);
+            np.curve = 0.0f;
+            pts.push_back (np);
+        }
 
-    // Odtwórz indeks sustain jako najbliższy poprzedniemu czasowi.
-    int   best = 0;
-    float bestD = 1.0e9f;
-    for (int i = 0; i < (int) pts.size(); ++i)
-    {
-        const float d = std::abs (pts[(size_t) i].time - susTime);
-        if (d < bestD) { bestD = d; best = i; }
+        model.sortAndClamp();
+
+        // Odtwórz indeks sustain jako najbliższy poprzedniemu czasowi.
+        int   best = 0;
+        float bestD = 1.0e9f;
+        for (int i = 0; i < (int) pts.size(); ++i)
+        {
+            const float d = std::abs (pts[(size_t) i].time - susTime);
+            if (d < bestD) { bestD = d; best = i; }
+        }
+        model.sustainIndex = best;
     }
-    model.sustainIndex = best;
 
     processor.commitEnvelope (activeEnv);
     updateView();

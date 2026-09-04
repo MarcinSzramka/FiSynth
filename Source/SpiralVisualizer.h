@@ -8,7 +8,7 @@
 // WIZUALIZACJA (jak dotąd): spirala logarytmiczna, pełny obrót = ×φ
 // częstotliwości (kąt = obroty·2π, obroty = log_φ(f/f0)). Partial = kropka:
 // kolor per oscylator, wielkość = amplituda. Pozycje liczone z tej samej
-// tablicy fiRatioRow, z której silnik liczy angleDelta — obraz z definicji
+// tablicy fiRatioRow, z której silnik liczy deltaU — obraz z definicji
 // odpowiada brzmieniu. Partiale ponad Nyquistem znikają, jak w renderze.
 //
 // KONTROLER (wchłonięty morph-pad): przeciąganie po tarczy steruje parametrami
